@@ -9,6 +9,7 @@ import de.touchgrass.plugins.configureSerialization
 import de.touchgrass.plugins.configureStatusPages
 import de.touchgrass.routes.authRoutes
 import de.touchgrass.routes.healthRoutes
+import de.touchgrass.routes.meRoutes
 import de.touchgrass.users.UserRepository
 import de.touchgrass.users.UserService
 import io.ktor.server.application.Application
@@ -39,6 +40,7 @@ fun Application.module(database: Database, jwtService: JwtService) {
         route("/api") {
             healthRoutes(database)
             authRoutes(userService)
+            meRoutes(userService)
         }
     }
 }

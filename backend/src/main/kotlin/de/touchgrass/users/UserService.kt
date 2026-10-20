@@ -3,6 +3,7 @@ package de.touchgrass.users
 import de.touchgrass.auth.JwtService
 import de.touchgrass.auth.PasswordHasher
 import de.touchgrass.plugins.ApiException
+import de.touchgrass.plugins.validationError
 import io.ktor.http.HttpStatusCode
 
 class UserService(private val users: UserRepository, private val jwtService: JwtService) {
@@ -29,6 +30,32 @@ class UserService(private val users: UserRepository, private val jwtService: Jwt
         }
         return AuthResponse(jwtService.createToken(user.id), user.toDto())
     }
+
+    fun me(userId: Long): UserDto = requireUser(userId).toDto()
+
+    fun updateMe(userId: Long, request: UpdateMeRequest): UserDto {
+        request.weightKg?.let(UserValidation::weight)
+        request.goalTarget?.let(UserValidation::goalTarget)
+        requireUser(userId)
+        users.updateProfile(userId, request.weightKg, request.goalType, request.goalTarget)
+        return me(userId)
+    }
+
+    fun changePassword(userId: Long, request: ChangePasswordRequest) {
+        val user = requireUser(userId)
+        if (!PasswordHasher.verify(request.oldPassword, user.passwordHash)) {
+            validationError("oldPassword", "Das bisherige Passwort ist falsch.")
+        }
+        UserValidation.password(request.newPassword, field = "newPassword")
+        users.updatePasswordHash(userId, PasswordHasher.hash(request.newPassword))
+    }
+
+    fun deleteMe(userId: Long) {
+        users.delete(userId)
+    }
+
+    private fun requireUser(userId: Long): UserRecord =
+        users.findById(userId) ?: throw ApiException(HttpStatusCode.Unauthorized, "UNAUTHORIZED", "Bitte melde dich an.")
 
     private fun UserRecord.toDto() = UserDto(id, username, email, weightKg, goalType, goalTarget)
 }

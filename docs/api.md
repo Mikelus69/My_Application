@@ -22,11 +22,13 @@ Alle Fehler haben dieselbe Form. `field` gibt es nur bei Eingabefehlern.
 |---|---|---|
 | 400 | `VALIDATION_ERROR` | Eingabe ungültig |
 | 401 | `UNAUTHORIZED` | Token fehlt, ist ungültig oder abgelaufen |
-| 401 | `INVALID_CREDENTIALS` | Login oder altes Passwort falsch |
+| 401 | `INVALID_CREDENTIALS` | Login falsch (nur `POST /auth/login`) |
 | 403 | `FORBIDDEN` | Fremde Aktivität löschen |
 | 404 | `NOT_FOUND` | Pfad oder Objekt existiert nicht (auch: private Aktivität anderer) |
 | 409 | `USERNAME_TAKEN`, `EMAIL_TAKEN` | Benutzername oder E-Mail schon vergeben |
 | 500 | `INTERNAL_ERROR` | Unerwarteter Serverfehler |
+
+Eine `401` bedeutet außer beim Login immer: Token fehlt oder ist ungültig. Die App meldet sich dann ab. Alle anderen Fehleingaben sind `400`.
 
 ## Objekte
 
@@ -126,7 +128,7 @@ Alle Felder optional, nur mitgeschickte werden geändert.
 ```json
 { "oldPassword": "geheim123", "newPassword": "nochgeheimer456" }
 ```
-`204` ohne Inhalt. Fehler: `401 INVALID_CREDENTIALS` (altes Passwort falsch), `400 VALIDATION_ERROR` (`newPassword` zu kurz).
+`204` ohne Inhalt. Fehler: `400 VALIDATION_ERROR` mit `field` `oldPassword` (bisheriges Passwort falsch) oder `newPassword` (nicht 8–64 Zeichen).
 
 ### DELETE /me
 
