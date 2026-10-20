@@ -1,9 +1,13 @@
 package de.touchgrass
 
 import de.touchgrass.auth.JwtService
+import de.touchgrass.users.AuthResponse
+import de.touchgrass.users.RegisterRequest
 import io.ktor.client.HttpClient
+import io.ktor.client.call.body
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.request.HttpRequestBuilder
+import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
@@ -21,3 +25,9 @@ inline fun <reified T> HttpRequestBuilder.jsonBody(body: T) {
     contentType(ContentType.Application.Json)
     setBody(body)
 }
+
+suspend fun HttpClient.register(
+    username: String,
+    email: String = "$username@example.com",
+    password: String = "geheim123",
+): AuthResponse = post("/api/auth/register") { jsonBody(RegisterRequest(username, email, password)) }.body()

@@ -99,7 +99,7 @@ Prüft Server und Datenbank. Keine Anmeldung nötig.
 ```json
 { "token": "eyJhbGciOi…", "user": { "id": 1, "username": "max_m", "email": "max@example.com", "goalType": "MINUTES", "goalTarget": 150 } }
 ```
-Fehler: `400 VALIDATION_ERROR` (`field`: `username` 3–20 Zeichen aus `a-z A-Z 0-9 _`, `email`, `password` mindestens 8 Zeichen), `409 USERNAME_TAKEN`, `409 EMAIL_TAKEN`.
+Fehler: `400 VALIDATION_ERROR` (`field`: `username` 3–20 Zeichen aus `a-z A-Z 0-9 _`, `email`, `password` 8–64 Zeichen), `409 USERNAME_TAKEN`, `409 EMAIL_TAKEN`. Benutzernamen sind ohne Beachtung von Groß- und Kleinschreibung eindeutig, E-Mails werden kleingeschrieben gespeichert.
 
 ### POST /auth/login
 

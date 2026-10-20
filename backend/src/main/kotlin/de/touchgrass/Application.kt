@@ -7,7 +7,10 @@ import de.touchgrass.config.AppConfig
 import de.touchgrass.db.DatabaseFactory
 import de.touchgrass.plugins.configureSerialization
 import de.touchgrass.plugins.configureStatusPages
+import de.touchgrass.routes.authRoutes
 import de.touchgrass.routes.healthRoutes
+import de.touchgrass.users.UserRepository
+import de.touchgrass.users.UserService
 import io.ktor.server.application.Application
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
@@ -27,12 +30,15 @@ fun main() {
 }
 
 fun Application.module(database: Database, jwtService: JwtService) {
+    val userService = UserService(UserRepository(database), jwtService)
+
     configureSerialization()
     configureStatusPages()
     configureSecurity(jwtService)
     routing {
         route("/api") {
             healthRoutes(database)
+            authRoutes(userService)
         }
     }
 }
