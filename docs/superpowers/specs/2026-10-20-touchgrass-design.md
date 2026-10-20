@@ -46,9 +46,9 @@ Ein Repo mit zwei unabhängigen Gradle-Projekten:
 My_Application/
 ├── app/                 Android-App
 ├── backend/             Ktor-Backend, eigener Gradle-Build
+│   └── data/            lokale Daten (PostgreSQL, Secret, später Fotos), nicht im Git
 ├── docs/api.md          API-Vertrag zwischen App und Backend
-├── docker-compose.yml   PostgreSQL + Backend
-└── .env.example         Vorlage für Secrets (.env selbst ist in .gitignore)
+└── README.md            Starten von Backend und App
 ```
 
 Die JSON-Datenklassen existieren in App und Backend je einmal. Verbindlich ist `docs/api.md`.
@@ -80,6 +80,7 @@ Hinweis: osmdroid ist seit November 2024 archiviert und wird deshalb nicht verwe
 | Passwörter | BCrypt |
 | Fehler | StatusPages, einheitliches Fehlerformat (siehe Abschnitt 5) |
 | Datenbank | PostgreSQL, Zugriff über Exposed (DSL), Connection-Pool HikariCP |
+| PostgreSQL lokal | Eingebettet über zonky embedded-postgres: Das Backend startet beim Hochfahren selbst ein echtes PostgreSQL, keine Installation und kein Docker nötig |
 | Schema | Flyway-Migrationen als SQL-Dateien |
 | Schichten | `routes/` (HTTP) → `services/` (Regeln) → `repositories/` (DB) |
 | Rechenlogik | Reine Funktionen ohne DB-Zugriff (`logic/`), damit sie einfach testbar sind |
@@ -87,9 +88,12 @@ Hinweis: osmdroid ist seit November 2024 archiviert und wird deshalb nicht verwe
 
 ### Betrieb
 
-- `docker compose up` startet PostgreSQL und das Backend auf Port 8080.
-- Emulator: `http://10.0.2.2:8080`. Echtes Handy: LAN-IP des Laptops (beide im selben WLAN).
-- JWT-Secret und DB-Passwort kommen aus `.env`.
+- `backend\gradlew.bat run` startet das Backend auf Port 8080 und dabei ein eingebettetes PostgreSQL auf Port 5433.
+- Die Datenbank liegt in `backend/data/postgres/` und bleibt zwischen Starts erhalten.
+- Wurde das Backend hart beendet (Terminal geschlossen, Stopp in der IDE), läuft PostgreSQL noch weiter. Das Backend beendet diesen Rest beim nächsten Start selbst.
+- Ist `DB_URL` gesetzt (mit `DB_USER`, `DB_PASSWORD`), verbindet sich das Backend stattdessen mit diesem PostgreSQL. Der Code bleibt gleich.
+- Emulator: `http://10.0.2.2:8080/api/`. Echtes Handy: LAN-IP des Laptops in `local.properties` (`api.baseUrl`), beide im selben WLAN.
+- Gradle braucht ein JDK ≥ 17. Genutzt wird das JDK von Android Studio (`C:\Program Files\Android\Android Studio\jbr`) über `JAVA_HOME`.
 - Im echten Betrieb wäre HTTPS Pflicht. Das gehört als Hinweis in die Doku.
 
 ## 3. Datenmodell
@@ -177,7 +181,7 @@ user_achievements
 Jede Erweiterung ist eine neue Flyway-Migration. Bestehende Migrationen werden nie verändert.
 
 - Freunde: Tabelle `friendships` (requester_id, addressee_id, status PENDING/ACCEPTED, created_at), neuer Sichtbarkeitswert `FRIENDS`
-- Fotos: Spalte `activities.image_path`, die Dateien liegen in einem Docker-Volume
+- Fotos: Spalte `activities.image_path`, die Dateien liegen in `backend/data/uploads/`
 - GPS-Tracking: Tabelle `gps_points` (activity_id, seq, latitude, longitude, recorded_at)
 
 ## 4. Geschäftslogik (Backend)
@@ -406,7 +410,7 @@ de.touchgrass
 ## 7. Datenschutz und Sicherheit
 
 - Passwörter nur als BCrypt-Hash, nie im Log.
-- Secrets in `.env`, nicht im Git.
+- Das JWT-Secret kommt aus der Umgebungsvariable `JWT_SECRET`. Ohne Variable erzeugt das Backend beim ersten Start ein zufälliges Secret in `backend/data/`. Kein Secret liegt im Git.
 - Aktivitäten standardmäßig privat. Andere sehen nur öffentliche Aktivitäten auf der Karte und im Leaderboard nur Benutzername und Wert.
 - Standort und Gewicht sind freiwillig.
 - Konto löschen entfernt alle personenbezogenen Daten (Recht auf Löschung).
@@ -425,7 +429,7 @@ de.touchgrass
 ### Backend
 
 - **Unit-Tests der reinen Funktionen:** kcal, Punkte inkl. Wochenziel-Bonus (auch zweimaliges Hochsetzen des Ziels), Achievement-Prüfung, aktuelle und längste Serie, Wochengrenzen inkl. Zeitumstellung.
-- **API-Tests** mit Ktor `testApplication` gegen PostgreSQL per Testcontainers:
+- **API-Tests** mit Ktor `testApplication` gegen ein eingebettetes PostgreSQL (zonky, ein frisches pro Testlauf):
   - Registrieren und Login, doppelte E-Mail ergibt 409
   - Aktivität anlegen, Punkte und neue Achievements in der Antwort
   - Fremde Aktivität löschen ergibt 403
@@ -443,7 +447,7 @@ Jeder Meilenstein endet mit etwas Vorführbarem und bekommt einen eigenen Umsetz
 
 | # | Meilenstein | Ergebnis |
 |---|---|---|
-| M0 | Grundgerüst | `backend/` mit Ktor, Docker Compose, Flyway, `GET /health`; App umbenannt in TouchGrass (`de.touchgrass`), Bottom-Navigation mit leeren Tabs, Retrofit angebunden; `docs/api.md` |
+| M0 | Grundgerüst | `backend/` mit Ktor, eingebettetem PostgreSQL, Flyway (Tabelle `sport_types` mit Startdaten), `GET /api/health`; App umbenannt in TouchGrass (`de.touchgrass`), Bottom-Navigation mit Platzhalter-Tabs, Retrofit angebunden, Server-Status auf dem Karten-Tab; `docs/api.md` und `README.md` |
 | M1 | Konten | Registrieren, Login, Logout, Profil, Passwort ändern, Konto löschen |
 | M2 | Aktivitäten | Sportarten, Formular (manuell), kcal und Punkte, Verlauf mit Filtern, Details, Löschen |
 | M3 | Timer und Karte | Timer-Screen, Ortswahl auf der Karte, Karten-Tab mit Markern |
