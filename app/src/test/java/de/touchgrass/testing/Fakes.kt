@@ -1,6 +1,7 @@
 package de.touchgrass.testing
 
 import de.touchgrass.data.SportApi
+import de.touchgrass.data.TokenStore
 import de.touchgrass.data.dto.AuthResponse
 import de.touchgrass.data.dto.ChangePasswordRequest
 import de.touchgrass.data.dto.GoalType
@@ -11,6 +12,8 @@ import de.touchgrass.data.dto.UpdateMeRequest
 import de.touchgrass.data.dto.UserDto
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.TestDispatcher
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.resetMain
@@ -32,6 +35,13 @@ open class FakeSportApi : SportApi {
     override suspend fun deleteMe(): Unit = notExpected("deleteMe")
 
     private fun notExpected(name: String): Nothing = error("$name() wird in diesem Test nicht erwartet")
+}
+
+class FakeTokenStore(initial: String? = null) : TokenStore {
+    private val current = MutableStateFlow(initial)
+    override val token: Flow<String?> = current
+    override suspend fun save(token: String) { current.value = token }
+    override suspend fun clear() { current.value = null }
 }
 
 @OptIn(ExperimentalCoroutinesApi::class)
