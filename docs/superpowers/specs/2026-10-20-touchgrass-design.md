@@ -26,10 +26,10 @@ Sport-App für ein Berufsschulprojekt (zwei Azubis, 1–3 Monate). Android-App p
 ## 2. Architektur
 
 ```
- Android-App (app/)                     Backend (backend/)                Docker
+ Android-App (app/)                     Backend (backend/)                eingebettet
 ┌──────────────────────┐   HTTP/JSON   ┌───────────────────────────┐    ┌────────────┐
 │ Screen (Compose)     │   + JWT       │ Routes   (nur HTTP)       │    │ PostgreSQL │
-│   ↕                  │ ────────────► │   ↓                       │    │            │
+│   ↕                  │ ────────────► │   ↓                       │    │ (Port 5433)│
 │ ViewModel (StateFlow)│               │ Services (Geschäftslogik) │    │            │
 │   ↕                  │ ◄──────────── │   ↓                       │    │            │
 │ ApiClient (Retrofit) │               │ Repositories (Exposed)  ──┼──► │            │
