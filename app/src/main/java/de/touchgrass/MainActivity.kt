@@ -4,7 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import de.touchgrass.ui.TouchGrassNavigation
+import de.touchgrass.ui.TouchGrassRoot
 import de.touchgrass.ui.theme.TouchGrassTheme
 
 class MainActivity : ComponentActivity() {
@@ -14,7 +14,7 @@ class MainActivity : ComponentActivity() {
         val container = (application as TouchGrassApp).container
         setContent {
             TouchGrassTheme {
-                TouchGrassNavigation(container)
+                TouchGrassRoot(container)
             }
         }
     }
