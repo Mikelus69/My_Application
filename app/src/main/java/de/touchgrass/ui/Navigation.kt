@@ -8,21 +8,29 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
 import de.touchgrass.AppContainer
+import de.touchgrass.ui.profile.ProfileScreen
+import de.touchgrass.ui.profile.ProfileViewModel
+import de.touchgrass.ui.profile.SettingsScreen
+import de.touchgrass.ui.profile.SettingsViewModel
 import de.touchgrass.ui.status.ServerStatusCard
 import kotlinx.serialization.Serializable
 
 @Serializable object MapRoute
 @Serializable object RecordRoute
 @Serializable object AchievementsRoute
+@Serializable object ProfileGraph
 @Serializable object ProfileRoute
+@Serializable object SettingsRoute
 
 private data class Tab<T : Any>(val route: T, val emoji: String, val label: String)
 
@@ -30,7 +38,7 @@ private val tabs = listOf(
     Tab(MapRoute, "🗺️", "Karte"),
     Tab(RecordRoute, "➕", "Aktivität"),
     Tab(AchievementsRoute, "🏆", "Erfolge"),
-    Tab(ProfileRoute, "👤", "Profil"),
+    Tab(ProfileGraph, "👤", "Profil"),
 )
 
 @Composable
@@ -71,7 +79,20 @@ fun TouchGrassNavigation(container: AppContainer) {
             }
             composable<RecordRoute> { PlaceholderScreen("Aktivität", "Formular kommt in M2, Timer in M3.") }
             composable<AchievementsRoute> { PlaceholderScreen("Erfolge", "Achievements, Wochenziel und Leaderboard kommen in M4.") }
-            composable<ProfileRoute> { PlaceholderScreen("Profil", "Profil kommt in M1, Statistik in M5.") }
+            navigation<ProfileGraph>(startDestination = ProfileRoute) {
+                composable<ProfileRoute> {
+                    ProfileScreen(
+                        viewModel = viewModel { ProfileViewModel(container.api) },
+                        onOpenSettings = { navController.navigate(SettingsRoute) },
+                    )
+                }
+                composable<SettingsRoute> {
+                    SettingsScreen(
+                        viewModel = viewModel { SettingsViewModel(container.api, container.session) },
+                        onBack = { navController.popBackStack() },
+                    )
+                }
+            }
         }
     }
 }
