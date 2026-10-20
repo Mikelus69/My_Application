@@ -2,15 +2,15 @@ package de.touchgrass.ui.status
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import de.touchgrass.data.ApiException
 import de.touchgrass.data.SportApi
+import de.touchgrass.data.apiCall
 import de.touchgrass.data.dto.HealthDto
 import de.touchgrass.ui.UiState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import retrofit2.HttpException
-import java.io.IOException
 
 class ServerStatusViewModel(private val api: SportApi) : ViewModel() {
     private val _state = MutableStateFlow<UiState<HealthDto>>(UiState.Loading)
@@ -24,11 +24,9 @@ class ServerStatusViewModel(private val api: SportApi) : ViewModel() {
         _state.value = UiState.Loading
         viewModelScope.launch {
             _state.value = try {
-                UiState.Content(api.health())
-            } catch (e: IOException) {
-                UiState.Error("Server nicht erreichbar")
-            } catch (e: HttpException) {
-                UiState.Error("Serverfehler ${e.code()}")
+                UiState.Content(apiCall { api.health() })
+            } catch (e: ApiException) {
+                UiState.Error(e.message)
             }
         }
     }
