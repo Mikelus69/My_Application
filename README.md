@@ -30,6 +30,7 @@ cd backend
 - Datenbank zurücksetzen: Backend beenden, `Stop-Process -Name postgres`, dann `backend/data/` löschen.
 - Datenbank ansehen (z. B. in IntelliJ oder DBeaver): `localhost:5433`, Datenbank `postgres`, Benutzer `postgres`, kein Passwort.
 - Eigenes PostgreSQL statt des eingebauten: Umgebungsvariablen `DB_URL` (z. B. `jdbc:postgresql://localhost:5432/touchgrass`), `DB_USER`, `DB_PASSWORD` setzen.
+- Login-Tokens werden mit einem geheimen Schlüssel signiert. Ohne Umgebungsvariable `JWT_SECRET` erzeugt das Backend beim ersten Start einen zufälligen Schlüssel in `backend/data/jwt-secret`. Wer diese Datei löscht, meldet alle Nutzer ab.
 - Tests: `.\gradlew.bat test`
 
 ## App starten

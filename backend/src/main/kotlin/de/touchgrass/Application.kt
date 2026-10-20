@@ -1,5 +1,8 @@
 package de.touchgrass
 
+import de.touchgrass.auth.JwtSecret
+import de.touchgrass.auth.JwtService
+import de.touchgrass.auth.configureSecurity
 import de.touchgrass.config.AppConfig
 import de.touchgrass.db.DatabaseFactory
 import de.touchgrass.plugins.configureSerialization
@@ -11,19 +14,22 @@ import io.ktor.server.netty.Netty
 import io.ktor.server.routing.route
 import io.ktor.server.routing.routing
 import org.jetbrains.exposed.v1.jdbc.Database
+import java.nio.file.Path
 
 fun main() {
     val config = AppConfig.fromEnvironment()
     val appDatabase = DatabaseFactory.start(config)
     Runtime.getRuntime().addShutdownHook(Thread { appDatabase.close() })
+    val jwtService = JwtService(JwtSecret.load(config.jwtSecret, Path.of(config.dataDir)))
     embeddedServer(Netty, port = config.port, host = "0.0.0.0") {
-        module(appDatabase.database)
+        module(appDatabase.database, jwtService)
     }.start(wait = true)
 }
 
-fun Application.module(database: Database) {
+fun Application.module(database: Database, jwtService: JwtService) {
     configureSerialization()
     configureStatusPages()
+    configureSecurity(jwtService)
     routing {
         route("/api") {
             healthRoutes(database)

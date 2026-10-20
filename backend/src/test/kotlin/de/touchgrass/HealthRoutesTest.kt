@@ -13,7 +13,7 @@ import kotlin.test.assertEquals
 class HealthRoutesTest {
     @Test
     fun `health meldet ok, wenn die Datenbank erreichbar ist`() = testApplication {
-        application { module(TestDatabase.database) }
+        application { module(TestDatabase.database, testJwtService) }
 
         val response = client.get("/api/health")
 
@@ -23,7 +23,7 @@ class HealthRoutesTest {
 
     @Test
     fun `unbekannter Pfad liefert einheitliches Fehlerformat`() = testApplication {
-        application { module(TestDatabase.database) }
+        application { module(TestDatabase.database, testJwtService) }
 
         val response = client.get("/api/gibt-es-nicht")
 
@@ -34,7 +34,7 @@ class HealthRoutesTest {
     @Test
     fun `unerwarteter Fehler liefert 500 im einheitlichen Fehlerformat`() = testApplication {
         application {
-            module(TestDatabase.database)
+            module(TestDatabase.database, testJwtService)
             routing { get("/api/kaputt") { error("absichtlich kaputt") } }
         }
 

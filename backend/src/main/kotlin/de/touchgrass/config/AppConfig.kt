@@ -7,6 +7,7 @@ data class AppConfig(
     val dbUrl: String?,
     val dbUser: String?,
     val dbPassword: String?,
+    val jwtSecret: String?,
 ) {
     companion object {
         fun fromEnvironment(env: Map<String, String> = System.getenv()) = AppConfig(
@@ -16,6 +17,7 @@ data class AppConfig(
             dbUrl = env["DB_URL"],
             dbUser = env["DB_USER"],
             dbPassword = env["DB_PASSWORD"],
+            jwtSecret = env["JWT_SECRET"],
         )
     }
 }
