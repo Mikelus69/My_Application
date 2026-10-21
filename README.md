@@ -48,3 +48,8 @@ api.baseUrl=http://<IP-des-Laptops>:8080/api/
 Beim ersten Backend-Start fragt Windows eventuell nach der Firewall: Zugriff im privaten Netzwerk erlauben.
 
 Unit-Tests der App: `.\gradlew.bat testDebugUnitTest` (im Wurzelordner).
+
+## Roter Code in Android Studio, obwohl der Build klappt
+
+- Android Studio arbeitet mit einem gespeicherten Abbild der Gradle-Dateien. Nach `git pull` oder neuen Bibliotheken ist das veraltet, und Imports werden rot. Abhilfe: **File → Sync Project with Gradle Files** (Elefanten-Symbol oben rechts).
+- `backend/` ist ein eigenes Gradle-Projekt und gehört nicht zum Android-Projekt. Zum Bearbeiten den Ordner `backend` in einem zweiten Fenster öffnen (**File → Open → `backend`**), sonst ist dort alles rot.
