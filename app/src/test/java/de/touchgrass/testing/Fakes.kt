@@ -45,6 +45,7 @@ open class FakeSportApi : SportApi {
     override suspend fun activities(sport: String?, from: String?, to: String?): List<ActivityDto> = notExpected("activities")
     override suspend fun activity(id: Long): ActivityDto = notExpected("activity")
     override suspend fun deleteActivity(id: Long): Unit = notExpected("deleteActivity")
+    override suspend fun mapActivities(): List<ActivityDto> = notExpected("mapActivities")
 
     private fun notExpected(name: String): Nothing = error("$name() wird in diesem Test nicht erwartet")
 }

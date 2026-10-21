@@ -20,7 +20,12 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import de.touchgrass.ui.UiState
 
 @Composable
-fun ProfileScreen(viewModel: ProfileViewModel, onOpenHistory: () -> Unit, onOpenSettings: () -> Unit) {
+fun ProfileScreen(
+    viewModel: ProfileViewModel,
+    onOpenHistory: () -> Unit,
+    onOpenSettings: () -> Unit,
+    extra: @Composable () -> Unit = {},
+) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     LaunchedEffect(Unit) { viewModel.refresh() }
 
@@ -51,5 +56,6 @@ fun ProfileScreen(viewModel: ProfileViewModel, onOpenHistory: () -> Unit, onOpen
             headlineContent = { Text("⚙️ Einstellungen") },
             modifier = Modifier.clickable(onClick = onOpenSettings),
         )
+        extra()
     }
 }

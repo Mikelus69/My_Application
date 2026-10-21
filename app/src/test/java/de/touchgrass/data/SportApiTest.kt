@@ -122,4 +122,15 @@ class SportApiTest {
         assertEquals("DELETE", request.method)
         assertEquals("/api/activities/42", request.path)
     }
+
+    @Test
+    fun `mapActivities liest Aktivitäten mit Standort`() = runBlocking {
+        enqueueJson(200, """[{"id":7,"username":"lisa","mine":false,"sportCode":"CYCLING","startedAt":"2026-10-05T09:30:00+02:00","durationMin":60,"caloriesKcal":560,"points":90,"latitude":52.52,"longitude":13.405,"visibility":"PUBLIC"}]""")
+
+        val activities = api.mapActivities()
+
+        assertEquals("/api/map/activities", server.takeRequest().path)
+        assertEquals(52.52, activities.single().latitude)
+        assertEquals(13.405, activities.single().longitude)
+    }
 }

@@ -47,6 +47,8 @@ api.baseUrl=http://<IP-des-Laptops>:8080/api/
 
 Beim ersten Backend-Start fragt Windows eventuell nach der Firewall: Zugriff im privaten Netzwerk erlauben.
 
+**Karte und Standort:** Die Kartenbilder kommen von OpenFreeMap aus dem Internet, ohne Netz bleibt die Karte leer. Nach dem Standort fragt die App erst, wenn man „📍 Mein Standort“ oder im Formular „📍 Aktueller Standort“ antippt. Im Emulator stellt man den Standort unter **⋮ (Extended Controls) → Location** ein.
+
 Unit-Tests der App: `.\gradlew.bat testDebugUnitTest` (im Wurzelordner).
 
 ## Roter Code in Android Studio, obwohl der Build klappt

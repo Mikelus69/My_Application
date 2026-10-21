@@ -65,6 +65,9 @@ interface SportApi {
 
     @DELETE("activities/{id}")
     suspend fun deleteActivity(@Path("id") id: Long)
+
+    @GET("map/activities")
+    suspend fun mapActivities(): List<ActivityDto>
 }
 
 val apiJson = Json { ignoreUnknownKeys = true }

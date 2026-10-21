@@ -23,6 +23,8 @@ import de.touchgrass.ui.activities.ActivityDetailScreen
 import de.touchgrass.ui.activities.ActivityDetailViewModel
 import de.touchgrass.ui.activities.HistoryScreen
 import de.touchgrass.ui.activities.HistoryViewModel
+import de.touchgrass.ui.map.MapScreen
+import de.touchgrass.ui.map.MapViewModel
 import de.touchgrass.ui.profile.ProfileScreen
 import de.touchgrass.ui.profile.ProfileViewModel
 import de.touchgrass.ui.profile.SettingsScreen
@@ -82,9 +84,7 @@ fun TouchGrassNavigation(container: AppContainer) {
             modifier = Modifier.padding(innerPadding),
         ) {
             composable<MapRoute> {
-                PlaceholderScreen("Karte", "Die Karte kommt in M3.") {
-                    ServerStatusCard(container.api)
-                }
+                MapScreen(viewModel = viewModel { MapViewModel(container.api) })
             }
             composable<RecordRoute> {
                 RecordScreen(viewModel = viewModel { RecordViewModel(container.api) })
@@ -96,6 +96,7 @@ fun TouchGrassNavigation(container: AppContainer) {
                         viewModel = viewModel { ProfileViewModel(container.api) },
                         onOpenHistory = { navController.navigate(HistoryRoute) },
                         onOpenSettings = { navController.navigate(SettingsRoute) },
+                        extra = { ServerStatusCard(container.api) },
                     )
                 }
                 composable<SettingsRoute> {

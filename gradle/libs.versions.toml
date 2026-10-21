@@ -14,8 +14,10 @@ kotlinxSerializationJson = "1.9.0"
 mockwebserver = "4.12.0"
 kotlinxCoroutinesTest = "1.10.2"
 datastore = "1.2.1"
+maplibreCompose = "0.12.1"
 
 [libraries]
+maplibre-compose = { group = "org.maplibre.compose", name = "maplibre-compose", version.ref = "maplibreCompose" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
