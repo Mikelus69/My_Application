@@ -1,6 +1,8 @@
 package de.touchgrass.testing
 
 import de.touchgrass.data.SportApi
+import de.touchgrass.data.TimerState
+import de.touchgrass.data.TimerStore
 import de.touchgrass.data.TokenStore
 import de.touchgrass.data.dto.ActivityDto
 import de.touchgrass.data.dto.AuthResponse
@@ -51,6 +53,13 @@ class FakeTokenStore(initial: String? = null) : TokenStore {
     private val current = MutableStateFlow(initial)
     override val token: Flow<String?> = current
     override suspend fun save(token: String) { current.value = token }
+    override suspend fun clear() { current.value = null }
+}
+
+class FakeTimerStore(initial: TimerState? = null) : TimerStore {
+    val current = MutableStateFlow(initial)
+    override val state: Flow<TimerState?> = current
+    override suspend fun save(state: TimerState) { current.value = state }
     override suspend fun clear() { current.value = null }
 }
 
