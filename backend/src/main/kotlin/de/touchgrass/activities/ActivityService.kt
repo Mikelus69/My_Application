@@ -58,6 +58,33 @@ class ActivityService(
         return CreateActivityResponse(activities.findById(id)!!.toDto(viewerId = userId), breakdown)
     }
 
+    fun list(userId: Long, sportCode: String?, from: String?, to: String?): List<ActivityDto> {
+        val fromDate = ActivityValidation.dateFilter(from, "from")
+        val toDate = ActivityValidation.dateFilter(to, "to")
+        return activities.list(
+            userId,
+            sportCode,
+            fromDate?.let(BerlinTime::startOfDay),
+            toDate?.let { BerlinTime.startOfDay(it.plusDays(1)) },
+        ).map { it.toDto(viewerId = userId) }
+    }
+
+    fun get(userId: Long, id: Long): ActivityDto {
+        val activity = activities.findById(id)
+        if (activity == null || (activity.userId != userId && activity.visibility == Visibility.PRIVATE)) throw notFound()
+        return activity.toDto(viewerId = userId)
+    }
+
+    fun delete(userId: Long, id: Long) {
+        val activity = activities.findById(id) ?: throw notFound()
+        if (activity.userId != userId) {
+            throw ApiException(HttpStatusCode.Forbidden, "FORBIDDEN", "Das ist nicht deine Aktivität.")
+        }
+        activities.delete(id)
+    }
+
+    private fun notFound() = ApiException(HttpStatusCode.NotFound, "NOT_FOUND", "Aktivität nicht gefunden.")
+
     private fun ActivityRecord.toDto(viewerId: Long) = ActivityDto(
         id = id,
         username = username,
