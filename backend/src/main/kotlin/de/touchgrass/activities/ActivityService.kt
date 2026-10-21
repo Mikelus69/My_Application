@@ -69,6 +69,8 @@ class ActivityService(
         ).map { it.toDto(viewerId = userId) }
     }
 
+    fun map(userId: Long): List<ActivityDto> = activities.forMap(userId).map { it.toDto(viewerId = userId) }
+
     fun get(userId: Long, id: Long): ActivityDto {
         val activity = activities.findById(id)
         if (activity == null || (activity.userId != userId && activity.visibility == Visibility.PRIVATE)) throw notFound()

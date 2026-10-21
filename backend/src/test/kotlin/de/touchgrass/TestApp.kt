@@ -41,7 +41,16 @@ fun activity(
     startedAt: String = "2026-10-05T09:30:00+02:00",
     durationMin: Int = 48,
     visibility: Visibility = Visibility.PRIVATE,
-) = CreateActivityRequest(sportCode = sportCode, startedAt = startedAt, durationMin = durationMin, visibility = visibility)
+    latitude: Double? = null,
+    longitude: Double? = null,
+) = CreateActivityRequest(
+    sportCode = sportCode,
+    startedAt = startedAt,
+    durationMin = durationMin,
+    latitude = latitude,
+    longitude = longitude,
+    visibility = visibility,
+)
 
 suspend fun HttpClient.createActivity(token: String, request: CreateActivityRequest = activity()): CreateActivityResponse =
     post("/api/activities") { bearerAuth(token); jsonBody(request) }.body()

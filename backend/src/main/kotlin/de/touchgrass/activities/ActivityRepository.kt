@@ -10,7 +10,9 @@ import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.dao.id.LongIdTable
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.core.greaterEq
+import org.jetbrains.exposed.v1.core.isNotNull
 import org.jetbrains.exposed.v1.core.less
+import org.jetbrains.exposed.v1.core.or
 import org.jetbrains.exposed.v1.javatime.timestampWithTimeZone
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.deleteWhere
@@ -97,6 +99,16 @@ class ActivityRepository(private val database: Database) {
                 .orderBy(ActivitiesTable.startedAt to SortOrder.DESC, ActivitiesTable.id to SortOrder.DESC)
                 .map { it.toRecord() }
         }
+
+    fun forMap(userId: Long): List<ActivityRecord> = transaction(database) {
+        withUser.selectAll()
+            .where {
+                ActivitiesTable.latitude.isNotNull() and
+                    ((ActivitiesTable.userId eq userId) or (ActivitiesTable.visibility eq Visibility.PUBLIC))
+            }
+            .orderBy(ActivitiesTable.startedAt to SortOrder.DESC, ActivitiesTable.id to SortOrder.DESC)
+            .map { it.toRecord() }
+    }
 
     fun inRange(userId: Long, range: TimeRange): List<ActivityRecord> = list(userId, from = range.from, until = range.until)
 

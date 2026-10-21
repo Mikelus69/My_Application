@@ -194,7 +194,7 @@ Eigener Verlauf, neueste zuerst. Alle Parameter optional:
 
 ### GET /map/activities
 
-Eigene Aktivitäten und öffentliche Aktivitäten anderer, jeweils nur mit Standort.
+Eigene Aktivitäten und öffentliche Aktivitäten anderer, jeweils nur mit Standort, neueste zuerst.
 `200`: Liste von `Activity`.
 
 ### GET /achievements

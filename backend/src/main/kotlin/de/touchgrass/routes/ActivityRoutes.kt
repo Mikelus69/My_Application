@@ -34,6 +34,9 @@ fun Route.activityRoutes(service: ActivityService) {
                 call.respond(HttpStatusCode.NoContent)
             }
         }
+        get("/map/activities") {
+            call.respond(service.map(call.userId()))
+        }
     }
 }
 
