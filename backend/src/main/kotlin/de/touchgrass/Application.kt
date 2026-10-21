@@ -10,6 +10,8 @@ import de.touchgrass.plugins.configureStatusPages
 import de.touchgrass.routes.authRoutes
 import de.touchgrass.routes.healthRoutes
 import de.touchgrass.routes.meRoutes
+import de.touchgrass.routes.sportRoutes
+import de.touchgrass.sports.SportRepository
 import de.touchgrass.users.UserRepository
 import de.touchgrass.users.UserService
 import io.ktor.server.application.Application
@@ -31,7 +33,9 @@ fun main() {
 }
 
 fun Application.module(database: Database, jwtService: JwtService) {
-    val userService = UserService(UserRepository(database), jwtService)
+    val userRepository = UserRepository(database)
+    val sportRepository = SportRepository(database)
+    val userService = UserService(userRepository, jwtService)
 
     configureSerialization()
     configureStatusPages()
@@ -41,6 +45,7 @@ fun Application.module(database: Database, jwtService: JwtService) {
             healthRoutes(database)
             authRoutes(userService)
             meRoutes(userService)
+            sportRoutes(sportRepository)
         }
     }
 }
