@@ -1,10 +1,14 @@
 package de.touchgrass.data
 
+import de.touchgrass.data.dto.ActivityDto
 import de.touchgrass.data.dto.AuthResponse
 import de.touchgrass.data.dto.ChangePasswordRequest
+import de.touchgrass.data.dto.CreateActivityRequest
+import de.touchgrass.data.dto.CreateActivityResponse
 import de.touchgrass.data.dto.HealthDto
 import de.touchgrass.data.dto.LoginRequest
 import de.touchgrass.data.dto.RegisterRequest
+import de.touchgrass.data.dto.SportDto
 import de.touchgrass.data.dto.UpdateMeRequest
 import de.touchgrass.data.dto.UserDto
 import kotlinx.serialization.json.Json
@@ -18,6 +22,8 @@ import retrofit2.http.GET
 import retrofit2.http.PATCH
 import retrofit2.http.POST
 import retrofit2.http.PUT
+import retrofit2.http.Path
+import retrofit2.http.Query
 
 interface SportApi {
     @GET("health")
@@ -40,6 +46,25 @@ interface SportApi {
 
     @DELETE("me")
     suspend fun deleteMe()
+
+    @GET("sports")
+    suspend fun sports(): List<SportDto>
+
+    @POST("activities")
+    suspend fun createActivity(@Body body: CreateActivityRequest): CreateActivityResponse
+
+    @GET("activities")
+    suspend fun activities(
+        @Query("sport") sport: String? = null,
+        @Query("from") from: String? = null,
+        @Query("to") to: String? = null,
+    ): List<ActivityDto>
+
+    @GET("activities/{id}")
+    suspend fun activity(@Path("id") id: Long): ActivityDto
+
+    @DELETE("activities/{id}")
+    suspend fun deleteActivity(@Path("id") id: Long)
 }
 
 val apiJson = Json { ignoreUnknownKeys = true }

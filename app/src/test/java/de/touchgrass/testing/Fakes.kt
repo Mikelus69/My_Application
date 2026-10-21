@@ -2,14 +2,19 @@ package de.touchgrass.testing
 
 import de.touchgrass.data.SportApi
 import de.touchgrass.data.TokenStore
+import de.touchgrass.data.dto.ActivityDto
 import de.touchgrass.data.dto.AuthResponse
 import de.touchgrass.data.dto.ChangePasswordRequest
+import de.touchgrass.data.dto.CreateActivityRequest
+import de.touchgrass.data.dto.CreateActivityResponse
 import de.touchgrass.data.dto.GoalType
 import de.touchgrass.data.dto.HealthDto
 import de.touchgrass.data.dto.LoginRequest
 import de.touchgrass.data.dto.RegisterRequest
+import de.touchgrass.data.dto.SportDto
 import de.touchgrass.data.dto.UpdateMeRequest
 import de.touchgrass.data.dto.UserDto
+import de.touchgrass.data.dto.Visibility
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -33,6 +38,11 @@ open class FakeSportApi : SportApi {
     override suspend fun updateMe(body: UpdateMeRequest): UserDto = notExpected("updateMe")
     override suspend fun changePassword(body: ChangePasswordRequest): Unit = notExpected("changePassword")
     override suspend fun deleteMe(): Unit = notExpected("deleteMe")
+    override suspend fun sports(): List<SportDto> = notExpected("sports")
+    override suspend fun createActivity(body: CreateActivityRequest): CreateActivityResponse = notExpected("createActivity")
+    override suspend fun activities(sport: String?, from: String?, to: String?): List<ActivityDto> = notExpected("activities")
+    override suspend fun activity(id: Long): ActivityDto = notExpected("activity")
+    override suspend fun deleteActivity(id: Long): Unit = notExpected("deleteActivity")
 
     private fun notExpected(name: String): Nothing = error("$name() wird in diesem Test nicht erwartet")
 }
@@ -60,4 +70,21 @@ val testUser = UserDto(
     weightKg = null,
     goalType = GoalType.MINUTES,
     goalTarget = 150,
+)
+
+val testSports = listOf(
+    SportDto("CYCLING", "Radfahren", "🚴", 7.0),
+    SportDto("RUNNING", "Joggen", "🏃", 8.0),
+)
+
+fun testActivity(id: Long = 42, sportCode: String = "RUNNING", startedAt: String = "2026-10-05T09:30:00+02:00") = ActivityDto(
+    id = id,
+    username = "max_m",
+    mine = true,
+    sportCode = sportCode,
+    startedAt = startedAt,
+    durationMin = 45,
+    caloriesKcal = 480,
+    points = 75,
+    visibility = Visibility.PRIVATE,
 )

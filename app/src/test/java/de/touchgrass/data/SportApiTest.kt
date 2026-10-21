@@ -1,6 +1,7 @@
 package de.touchgrass.data
 
 import de.touchgrass.data.dto.ChangePasswordRequest
+import de.touchgrass.data.dto.CreateActivityRequest
 import de.touchgrass.data.dto.HealthDto
 import de.touchgrass.data.dto.RegisterRequest
 import de.touchgrass.data.dto.UpdateMeRequest
@@ -85,5 +86,40 @@ class SportApiTest {
 
         assertEquals("NETWORK", error.code)
         assertEquals("Server nicht erreichbar", error.message)
+    }
+
+    @Test
+    fun `createActivity schickt Pflichtfelder und lässt Standardwerte weg`() = runBlocking {
+        enqueueJson(201, """{"activity":{"id":1,"username":"max_m","mine":true,"sportCode":"RUNNING","startedAt":"2026-10-05T09:30:00+02:00","durationMin":45,"caloriesKcal":480,"points":75,"visibility":"PRIVATE"},"pointsBreakdown":{"minutes":45,"completed":10,"newSport":20,"weeklyGoal":0,"total":75}}""")
+
+        val response = api.createActivity(CreateActivityRequest("RUNNING", "2026-10-05T09:30:00+02:00", 45))
+
+        val request = server.takeRequest()
+        assertEquals("/api/activities", request.path)
+        assertEquals("""{"sportCode":"RUNNING","startedAt":"2026-10-05T09:30:00+02:00","durationMin":45}""", request.body.readUtf8())
+        assertEquals(75, response.pointsBreakdown.total)
+    }
+
+    @Test
+    fun `activities lässt leere Filter weg`() = runBlocking {
+        enqueueJson(200, "[]")
+        enqueueJson(200, "[]")
+
+        api.activities()
+        api.activities(sport = "RUNNING", from = "2026-10-01")
+
+        assertEquals("/api/activities", server.takeRequest().path)
+        assertEquals("/api/activities?sport=RUNNING&from=2026-10-01", server.takeRequest().path)
+    }
+
+    @Test
+    fun `deleteActivity setzt die ID in den Pfad`() = runBlocking {
+        server.enqueue(MockResponse().setResponseCode(204))
+
+        api.deleteActivity(42)
+
+        val request = server.takeRequest()
+        assertEquals("DELETE", request.method)
+        assertEquals("/api/activities/42", request.path)
     }
 }
