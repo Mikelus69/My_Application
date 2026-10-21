@@ -20,7 +20,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import de.touchgrass.ui.UiState
 
 @Composable
-fun ProfileScreen(viewModel: ProfileViewModel, onOpenSettings: () -> Unit) {
+fun ProfileScreen(viewModel: ProfileViewModel, onOpenHistory: () -> Unit, onOpenSettings: () -> Unit) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     LaunchedEffect(Unit) { viewModel.refresh() }
 
@@ -38,11 +38,15 @@ fun ProfileScreen(viewModel: ProfileViewModel, onOpenSettings: () -> Unit) {
                 val user = s.data
                 Text("👤 ${user.username}", style = MaterialTheme.typography.headlineMedium)
                 Text(user.email, style = MaterialTheme.typography.bodyMedium)
-                Text("Gewicht: " + (user.weightKg?.let { "${formatWeight(it)} kg" } ?: "nicht angegeben"))
+                Text("Gewicht: " + (user.weightKg?.let { "${formatWeight(it)} kg" } ?: "nicht angegeben – in den Einstellungen eintragen, dann wird die kcal-Schätzung genauer"))
                 Text("Wochenziel: ${user.goalTarget} ${user.goalType.label()}")
             }
         }
         HorizontalDivider()
+        ListItem(
+            headlineContent = { Text("📜 Verlauf") },
+            modifier = Modifier.clickable(onClick = onOpenHistory),
+        )
         ListItem(
             headlineContent = { Text("⚙️ Einstellungen") },
             modifier = Modifier.clickable(onClick = onOpenSettings),

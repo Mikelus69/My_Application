@@ -17,7 +17,12 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.toRoute
 import de.touchgrass.AppContainer
+import de.touchgrass.ui.activities.ActivityDetailScreen
+import de.touchgrass.ui.activities.ActivityDetailViewModel
+import de.touchgrass.ui.activities.HistoryScreen
+import de.touchgrass.ui.activities.HistoryViewModel
 import de.touchgrass.ui.profile.ProfileScreen
 import de.touchgrass.ui.profile.ProfileViewModel
 import de.touchgrass.ui.profile.SettingsScreen
@@ -33,6 +38,8 @@ import kotlinx.serialization.Serializable
 @Serializable object ProfileGraph
 @Serializable object ProfileRoute
 @Serializable object SettingsRoute
+@Serializable object HistoryRoute
+@Serializable data class ActivityDetailRoute(val id: Long)
 
 private data class Tab<T : Any>(val route: T, val emoji: String, val label: String)
 
@@ -87,12 +94,27 @@ fun TouchGrassNavigation(container: AppContainer) {
                 composable<ProfileRoute> {
                     ProfileScreen(
                         viewModel = viewModel { ProfileViewModel(container.api) },
+                        onOpenHistory = { navController.navigate(HistoryRoute) },
                         onOpenSettings = { navController.navigate(SettingsRoute) },
                     )
                 }
                 composable<SettingsRoute> {
                     SettingsScreen(
                         viewModel = viewModel { SettingsViewModel(container.api, container.session) },
+                        onBack = { navController.popBackStack() },
+                    )
+                }
+                composable<HistoryRoute> {
+                    HistoryScreen(
+                        viewModel = viewModel { HistoryViewModel(container.api) },
+                        onOpen = { id -> navController.navigate(ActivityDetailRoute(id)) },
+                        onBack = { navController.popBackStack() },
+                    )
+                }
+                composable<ActivityDetailRoute> { entry ->
+                    val id = entry.toRoute<ActivityDetailRoute>().id
+                    ActivityDetailScreen(
+                        viewModel = viewModel { ActivityDetailViewModel(container.api, id) },
                         onBack = { navController.popBackStack() },
                     )
                 }
