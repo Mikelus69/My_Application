@@ -11,6 +11,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -24,6 +25,7 @@ import androidx.compose.material3.TimePicker
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -42,15 +44,18 @@ import java.time.LocalTime
 import java.time.ZoneOffset
 
 @Composable
-fun RecordScreen(viewModel: RecordViewModel) {
+fun RecordScreen(viewModel: RecordViewModel, onBack: () -> Unit) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     var pickDate by remember { mutableStateOf(false) }
     var pickTime by remember { mutableStateOf(false) }
+    var confirmDiscard by remember { mutableStateOf(false) }
+    LaunchedEffect(state.discarded) { if (state.discarded) onBack() }
 
     Column(
         modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
+        TextButton(onClick = onBack) { Text("← Zurück") }
         Text("Aktivität eintragen", style = MaterialTheme.typography.headlineMedium)
         state.savedMessage?.let { Text(it, color = MaterialTheme.colorScheme.primary) }
         state.error?.let { Text(it, color = MaterialTheme.colorScheme.error) }
@@ -74,6 +79,11 @@ fun RecordScreen(viewModel: RecordViewModel) {
         state.fieldErrors["startedAt"]?.let { Text(it, color = MaterialTheme.colorScheme.error) }
 
         FormField(state.duration, viewModel::onDurationChange, "Dauer in Minuten", state.fieldErrors["durationMin"], KeyboardType.Number)
+        LocationPicker(
+            location = state.location,
+            error = state.fieldErrors["latitude"] ?: state.fieldErrors["longitude"],
+            onLocationChange = viewModel::onLocationChange,
+        )
         OutlinedTextField(
             value = state.description,
             onValueChange = viewModel::onDescriptionChange,
@@ -100,6 +110,13 @@ fun RecordScreen(viewModel: RecordViewModel) {
         Button(onClick = viewModel::save, enabled = !state.saving, modifier = Modifier.fillMaxWidth()) {
             Text(if (state.saving) "Speichern …" else "Speichern")
         }
+        if (state.fromTimer) {
+            TextButton(
+                onClick = { confirmDiscard = true },
+                colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.error),
+                modifier = Modifier.fillMaxWidth(),
+            ) { Text("Verwerfen") }
+        }
     }
 
     if (pickDate) {
@@ -107,6 +124,15 @@ fun RecordScreen(viewModel: RecordViewModel) {
     }
     if (pickTime) {
         TimeDialog(state.time, onDismiss = { pickTime = false }, onPicked = { pickTime = false; viewModel.onTimeChange(it) })
+    }
+    if (confirmDiscard) {
+        AlertDialog(
+            onDismissRequest = { confirmDiscard = false },
+            title = { Text("Aktivität verwerfen?") },
+            text = { Text("Der Timer wird zurückgesetzt, die gemessene Zeit geht verloren.") },
+            confirmButton = { TextButton(onClick = { confirmDiscard = false; viewModel.discard() }) { Text("Verwerfen") } },
+            dismissButton = { TextButton(onClick = { confirmDiscard = false }) { Text("Abbrechen") } },
+        )
     }
 }
 

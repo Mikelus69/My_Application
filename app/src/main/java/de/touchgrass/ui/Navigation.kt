@@ -101,8 +101,12 @@ fun TouchGrassNavigation(container: AppContainer) {
                         onRecordManually = { navController.navigate(RecordFormRoute(fromTimer = false)) },
                     )
                 }
-                composable<RecordFormRoute> {
-                    RecordScreen(viewModel = viewModel { RecordViewModel(container.api) })
+                composable<RecordFormRoute> { entry ->
+                    val fromTimer = entry.toRoute<RecordFormRoute>().fromTimer
+                    RecordScreen(
+                        viewModel = viewModel { RecordViewModel(container.api, container.timerStore, fromTimer) },
+                        onBack = { navController.popBackStack() },
+                    )
                 }
             }
             composable<AchievementsRoute> { PlaceholderScreen("Erfolge", "Achievements, Wochenziel und Leaderboard kommen in M4.") }
