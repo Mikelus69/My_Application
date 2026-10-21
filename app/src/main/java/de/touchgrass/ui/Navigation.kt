@@ -22,6 +22,8 @@ import de.touchgrass.ui.profile.ProfileScreen
 import de.touchgrass.ui.profile.ProfileViewModel
 import de.touchgrass.ui.profile.SettingsScreen
 import de.touchgrass.ui.profile.SettingsViewModel
+import de.touchgrass.ui.record.RecordScreen
+import de.touchgrass.ui.record.RecordViewModel
 import de.touchgrass.ui.status.ServerStatusCard
 import kotlinx.serialization.Serializable
 
@@ -77,7 +79,9 @@ fun TouchGrassNavigation(container: AppContainer) {
                     ServerStatusCard(container.api)
                 }
             }
-            composable<RecordRoute> { PlaceholderScreen("Aktivität", "Formular kommt in M2, Timer in M3.") }
+            composable<RecordRoute> {
+                RecordScreen(viewModel = viewModel { RecordViewModel(container.api) })
+            }
             composable<AchievementsRoute> { PlaceholderScreen("Erfolge", "Achievements, Wochenziel und Leaderboard kommen in M4.") }
             navigation<ProfileGraph>(startDestination = ProfileRoute) {
                 composable<ProfileRoute> {
