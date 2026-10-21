@@ -163,6 +163,8 @@ Löscht das Konto mit allen Aktivitäten und Achievements. `204` ohne Inhalt.
   ]
 }
 ```
+`newAchievements` kommt mit M4 dazu; bis dahin fehlt das Feld in der Antwort.
+
 Fehler: `400 VALIDATION_ERROR` mit `field`:
 
 | Feld | Regel |

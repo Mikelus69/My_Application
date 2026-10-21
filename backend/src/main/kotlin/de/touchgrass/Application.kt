@@ -1,5 +1,7 @@
 package de.touchgrass
 
+import de.touchgrass.activities.ActivityRepository
+import de.touchgrass.activities.ActivityService
 import de.touchgrass.auth.JwtSecret
 import de.touchgrass.auth.JwtService
 import de.touchgrass.auth.configureSecurity
@@ -7,6 +9,7 @@ import de.touchgrass.config.AppConfig
 import de.touchgrass.db.DatabaseFactory
 import de.touchgrass.plugins.configureSerialization
 import de.touchgrass.plugins.configureStatusPages
+import de.touchgrass.routes.activityRoutes
 import de.touchgrass.routes.authRoutes
 import de.touchgrass.routes.healthRoutes
 import de.touchgrass.routes.meRoutes
@@ -36,6 +39,7 @@ fun Application.module(database: Database, jwtService: JwtService) {
     val userRepository = UserRepository(database)
     val sportRepository = SportRepository(database)
     val userService = UserService(userRepository, jwtService)
+    val activityService = ActivityService(ActivityRepository(database), sportRepository, userRepository)
 
     configureSerialization()
     configureStatusPages()
@@ -46,6 +50,7 @@ fun Application.module(database: Database, jwtService: JwtService) {
             authRoutes(userService)
             meRoutes(userService)
             sportRoutes(sportRepository)
+            activityRoutes(activityService)
         }
     }
 }
