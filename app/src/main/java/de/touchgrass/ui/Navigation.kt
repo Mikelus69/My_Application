@@ -31,11 +31,16 @@ import de.touchgrass.ui.profile.SettingsScreen
 import de.touchgrass.ui.profile.SettingsViewModel
 import de.touchgrass.ui.record.RecordScreen
 import de.touchgrass.ui.record.RecordViewModel
+import de.touchgrass.ui.record.TimerScreen
+import de.touchgrass.ui.record.TimerTabLabel
+import de.touchgrass.ui.record.TimerViewModel
 import de.touchgrass.ui.status.ServerStatusCard
 import kotlinx.serialization.Serializable
 
 @Serializable object MapRoute
-@Serializable object RecordRoute
+@Serializable object RecordGraph
+@Serializable object TimerRoute
+@Serializable data class RecordFormRoute(val fromTimer: Boolean)
 @Serializable object AchievementsRoute
 @Serializable object ProfileGraph
 @Serializable object ProfileRoute
@@ -47,7 +52,7 @@ private data class Tab<T : Any>(val route: T, val emoji: String, val label: Stri
 
 private val tabs = listOf(
     Tab(MapRoute, "🗺️", "Karte"),
-    Tab(RecordRoute, "➕", "Aktivität"),
+    Tab(RecordGraph, "➕", "Aktivität"),
     Tab(AchievementsRoute, "🏆", "Erfolge"),
     Tab(ProfileGraph, "👤", "Profil"),
 )
@@ -72,7 +77,9 @@ fun TouchGrassNavigation(container: AppContainer) {
                             }
                         },
                         icon = { Text(tab.emoji) },
-                        label = { Text(tab.label) },
+                        label = {
+                            if (tab.route == RecordGraph) TimerTabLabel(container.timerStore, tab.label) else Text(tab.label)
+                        },
                     )
                 }
             }
@@ -86,8 +93,17 @@ fun TouchGrassNavigation(container: AppContainer) {
             composable<MapRoute> {
                 MapScreen(viewModel = viewModel { MapViewModel(container.api) })
             }
-            composable<RecordRoute> {
-                RecordScreen(viewModel = viewModel { RecordViewModel(container.api) })
+            navigation<RecordGraph>(startDestination = TimerRoute) {
+                composable<TimerRoute> {
+                    TimerScreen(
+                        viewModel = viewModel { TimerViewModel(container.api, container.timerStore) },
+                        onOpenForm = { navController.navigate(RecordFormRoute(fromTimer = true)) },
+                        onRecordManually = { navController.navigate(RecordFormRoute(fromTimer = false)) },
+                    )
+                }
+                composable<RecordFormRoute> {
+                    RecordScreen(viewModel = viewModel { RecordViewModel(container.api) })
+                }
             }
             composable<AchievementsRoute> { PlaceholderScreen("Erfolge", "Achievements, Wochenziel und Leaderboard kommen in M4.") }
             navigation<ProfileGraph>(startDestination = ProfileRoute) {
