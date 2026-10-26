@@ -19,6 +19,8 @@ import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import de.touchgrass.AppContainer
+import de.touchgrass.ui.achievements.AchievementsScreen
+import de.touchgrass.ui.achievements.AchievementsViewModel
 import de.touchgrass.ui.activities.ActivityDetailScreen
 import de.touchgrass.ui.activities.ActivityDetailViewModel
 import de.touchgrass.ui.activities.HistoryScreen
@@ -109,7 +111,9 @@ fun TouchGrassNavigation(container: AppContainer) {
                     )
                 }
             }
-            composable<AchievementsRoute> { PlaceholderScreen("Erfolge", "Achievements, Wochenziel und Leaderboard kommen in M4.") }
+            composable<AchievementsRoute> {
+                AchievementsScreen(viewModel = viewModel { AchievementsViewModel(container.api) })
+            }
             navigation<ProfileGraph>(startDestination = ProfileRoute) {
                 composable<ProfileRoute> {
                     ProfileScreen(
