@@ -39,4 +39,8 @@ data class ActivityDto(
 data class PointsBreakdownDto(val minutes: Int, val completed: Int, val newSport: Int, val weeklyGoal: Int, val total: Int)
 
 @Serializable
-data class CreateActivityResponse(val activity: ActivityDto, val pointsBreakdown: PointsBreakdownDto)
+data class CreateActivityResponse(
+    val activity: ActivityDto,
+    val pointsBreakdown: PointsBreakdownDto,
+    val newAchievements: List<AchievementDto> = emptyList(),
+)

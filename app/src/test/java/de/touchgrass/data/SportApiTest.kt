@@ -3,6 +3,8 @@ package de.touchgrass.data
 import de.touchgrass.data.dto.ChangePasswordRequest
 import de.touchgrass.data.dto.CreateActivityRequest
 import de.touchgrass.data.dto.HealthDto
+import de.touchgrass.data.dto.LeaderboardMetric
+import de.touchgrass.data.dto.LeaderboardPeriod
 import de.touchgrass.data.dto.RegisterRequest
 import de.touchgrass.data.dto.UpdateMeRequest
 import kotlinx.coroutines.runBlocking
@@ -132,5 +134,28 @@ class SportApiTest {
         assertEquals("/api/map/activities", server.takeRequest().path)
         assertEquals(52.52, activities.single().latitude)
         assertEquals(13.405, activities.single().longitude)
+    }
+
+    @Test
+    fun `achievements liest freigeschaltete und gesperrte`() = runBlocking {
+        enqueueJson(200, """[{"code":"FIRST_ACTIVITY","name":"Erste Schritte","description":"Erste Aktivität eingetragen","emoji":"🥉","threshold":1,"progress":1,"unlockedAt":"2026-10-05T10:18:00+02:00"},{"code":"RUNNER_10","name":"Läufer","description":"10 Laufaktivitäten","emoji":"🏃","threshold":10,"progress":7}]""")
+
+        val achievements = api.achievements()
+
+        assertEquals("/api/achievements", server.takeRequest().path)
+        assertEquals("2026-10-05T10:18:00+02:00", achievements[0].unlockedAt)
+        assertEquals(null, achievements[1].unlockedAt)
+        assertEquals(7, achievements[1].progress)
+    }
+
+    @Test
+    fun `leaderboard schickt Zeitraum und Wertung als Parameter`() = runBlocking {
+        enqueueJson(200, """{"period":"MONTH","metric":"MINUTES","entries":[{"rank":1,"username":"lisa","value":96}]}""")
+
+        val board = api.leaderboard(LeaderboardPeriod.MONTH, LeaderboardMetric.MINUTES)
+
+        assertEquals("/api/leaderboard?period=MONTH&metric=MINUTES", server.takeRequest().path)
+        assertEquals(96, board.entries.single().value)
+        assertEquals(null, board.me)
     }
 }

@@ -4,6 +4,7 @@ import de.touchgrass.data.SportApi
 import de.touchgrass.data.TimerState
 import de.touchgrass.data.TimerStore
 import de.touchgrass.data.TokenStore
+import de.touchgrass.data.dto.AchievementDto
 import de.touchgrass.data.dto.ActivityDto
 import de.touchgrass.data.dto.AuthResponse
 import de.touchgrass.data.dto.ChangePasswordRequest
@@ -11,7 +12,11 @@ import de.touchgrass.data.dto.CreateActivityRequest
 import de.touchgrass.data.dto.CreateActivityResponse
 import de.touchgrass.data.dto.GoalType
 import de.touchgrass.data.dto.HealthDto
+import de.touchgrass.data.dto.LeaderboardDto
+import de.touchgrass.data.dto.LeaderboardMetric
+import de.touchgrass.data.dto.LeaderboardPeriod
 import de.touchgrass.data.dto.LoginRequest
+import de.touchgrass.data.dto.ProgressDto
 import de.touchgrass.data.dto.RegisterRequest
 import de.touchgrass.data.dto.SportDto
 import de.touchgrass.data.dto.UpdateMeRequest
@@ -46,6 +51,9 @@ open class FakeSportApi : SportApi {
     override suspend fun activity(id: Long): ActivityDto = notExpected("activity")
     override suspend fun deleteActivity(id: Long): Unit = notExpected("deleteActivity")
     override suspend fun mapActivities(): List<ActivityDto> = notExpected("mapActivities")
+    override suspend fun achievements(): List<AchievementDto> = notExpected("achievements")
+    override suspend fun progress(): ProgressDto = notExpected("progress")
+    override suspend fun leaderboard(period: LeaderboardPeriod, metric: LeaderboardMetric): LeaderboardDto = notExpected("leaderboard")
 
     private fun notExpected(name: String): Nothing = error("$name() wird in diesem Test nicht erwartet")
 }
@@ -98,3 +106,14 @@ fun testActivity(id: Long = 42, sportCode: String = "RUNNING", startedAt: String
     points = 75,
     visibility = Visibility.PRIVATE,
 )
+
+fun testAchievement(code: String = "FIRST_ACTIVITY", progress: Int = 1, threshold: Int = 1, unlockedAt: String? = "2026-10-05T10:18:00+02:00") =
+    AchievementDto(
+        code = code,
+        name = "Erste Schritte",
+        description = "Erste Aktivität eingetragen",
+        emoji = "🥉",
+        threshold = threshold,
+        progress = progress,
+        unlockedAt = unlockedAt,
+    )

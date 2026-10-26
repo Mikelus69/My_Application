@@ -1,12 +1,17 @@
 package de.touchgrass.data
 
+import de.touchgrass.data.dto.AchievementDto
 import de.touchgrass.data.dto.ActivityDto
 import de.touchgrass.data.dto.AuthResponse
 import de.touchgrass.data.dto.ChangePasswordRequest
 import de.touchgrass.data.dto.CreateActivityRequest
 import de.touchgrass.data.dto.CreateActivityResponse
 import de.touchgrass.data.dto.HealthDto
+import de.touchgrass.data.dto.LeaderboardDto
+import de.touchgrass.data.dto.LeaderboardMetric
+import de.touchgrass.data.dto.LeaderboardPeriod
 import de.touchgrass.data.dto.LoginRequest
+import de.touchgrass.data.dto.ProgressDto
 import de.touchgrass.data.dto.RegisterRequest
 import de.touchgrass.data.dto.SportDto
 import de.touchgrass.data.dto.UpdateMeRequest
@@ -68,6 +73,18 @@ interface SportApi {
 
     @GET("map/activities")
     suspend fun mapActivities(): List<ActivityDto>
+
+    @GET("achievements")
+    suspend fun achievements(): List<AchievementDto>
+
+    @GET("progress")
+    suspend fun progress(): ProgressDto
+
+    @GET("leaderboard")
+    suspend fun leaderboard(
+        @Query("period") period: LeaderboardPeriod,
+        @Query("metric") metric: LeaderboardMetric,
+    ): LeaderboardDto
 }
 
 val apiJson = Json { ignoreUnknownKeys = true }
