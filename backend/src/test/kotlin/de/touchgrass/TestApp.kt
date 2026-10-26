@@ -17,11 +17,12 @@ import io.ktor.http.ContentType
 import io.ktor.http.contentType
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.testing.ApplicationTestBuilder
+import java.time.Clock
 
 val testJwtService = JwtService("test-secret")
 
-fun ApplicationTestBuilder.startApp(): HttpClient {
-    application { module(TestDatabase.database, testJwtService) }
+fun ApplicationTestBuilder.startApp(clock: Clock = Clock.systemUTC()): HttpClient {
+    application { module(TestDatabase.database, testJwtService, clock) }
     return createClient { install(ContentNegotiation) { json() } }
 }
 
