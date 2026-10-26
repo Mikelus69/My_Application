@@ -134,6 +134,18 @@ fun RecordScreen(viewModel: RecordViewModel, onBack: () -> Unit) {
             dismissButton = { TextButton(onClick = { confirmDiscard = false }) { Text("Abbrechen") } },
         )
     }
+    if (state.newAchievements.isNotEmpty()) {
+        AlertDialog(
+            onDismissRequest = viewModel::onAchievementsSeen,
+            title = { Text(if (state.newAchievements.size == 1) "Neues Achievement!" else "Neue Achievements!") },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    state.newAchievements.forEach { Text("${it.emoji} ${it.name} – ${it.description}") }
+                }
+            },
+            confirmButton = { TextButton(onClick = viewModel::onAchievementsSeen) { Text("Super!") } },
+        )
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)

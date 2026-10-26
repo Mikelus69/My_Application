@@ -7,6 +7,7 @@ import de.touchgrass.data.SportApi
 import de.touchgrass.data.TimerState
 import de.touchgrass.data.TimerStore
 import de.touchgrass.data.apiCall
+import de.touchgrass.data.dto.AchievementDto
 import de.touchgrass.data.dto.CreateActivityRequest
 import de.touchgrass.data.dto.SportDto
 import de.touchgrass.data.dto.Visibility
@@ -40,6 +41,7 @@ data class RecordUiState(
     val fieldErrors: Map<String, String> = emptyMap(),
     val error: String? = null,
     val savedMessage: String? = null,
+    val newAchievements: List<AchievementDto> = emptyList(),
     val discarded: Boolean = false,
 )
 
@@ -110,6 +112,7 @@ class RecordViewModel(
                 _state.value = emptyForm().copy(
                     sports = current.sports,
                     savedMessage = "Gespeichert! ~${response.activity.caloriesKcal} kcal · +${points.total} Punkte (${points.describe()})",
+                    newAchievements = response.newAchievements,
                 )
             } catch (e: ApiException) {
                 _state.update { it.copy(saving = false) }
@@ -117,6 +120,8 @@ class RecordViewModel(
             }
         }
     }
+
+    fun onAchievementsSeen() = _state.update { it.copy(newAchievements = emptyList()) }
 
     fun discard() {
         viewModelScope.launch {

@@ -10,6 +10,7 @@ import de.touchgrass.testing.FakeSportApi
 import de.touchgrass.testing.FakeTimerStore
 import de.touchgrass.testing.MainDispatcherRule
 import de.touchgrass.testing.httpError
+import de.touchgrass.testing.testAchievement
 import de.touchgrass.testing.testActivity
 import de.touchgrass.testing.testSports
 import de.touchgrass.ui.map.GeoPoint
@@ -198,5 +199,22 @@ class RecordViewModelTest {
 
         assertNull(store.current.value)
         assertTrue(viewModel.state.value.discarded)
+    }
+
+    @Test
+    fun `neue Achievements erscheinen nach dem Speichern, bis sie gesehen wurden`() {
+        val api = object : Api() {
+            override suspend fun createActivity(body: CreateActivityRequest): CreateActivityResponse =
+                CreateActivityResponse(testActivity(), PointsBreakdownDto(45, 10, 20, 0, 75), listOf(testAchievement()))
+        }
+        val viewModel = RecordViewModel(api, FakeTimerStore(), fromTimer = false, clock)
+
+        viewModel.onSportChange("RUNNING")
+        viewModel.onDurationChange("45")
+        viewModel.save()
+        assertEquals(listOf("FIRST_ACTIVITY"), viewModel.state.value.newAchievements.map { it.code })
+
+        viewModel.onAchievementsSeen()
+        assertEquals(emptyList<String>(), viewModel.state.value.newAchievements.map { it.code })
     }
 }
