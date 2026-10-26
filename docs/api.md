@@ -66,7 +66,7 @@ Eine `401` bedeutet außer beim Login immer: Token fehlt oder ist ungültig. Die
 ```json
 { "code": "RUNNER_10", "name": "Läufer", "description": "10 Laufaktivitäten", "emoji": "🏃", "threshold": 10, "progress": 7 }
 ```
-Freigeschaltete haben zusätzlich `"unlockedAt": "2026-10-04T10:18:00+02:00"`.
+Freigeschaltete haben zusätzlich `"unlockedAt": "2026-10-04T10:18:00+02:00"`. `progress` geht höchstens bis `threshold`, freigeschaltete haben immer `progress = threshold` (auch wenn Aktivitäten später gelöscht wurden).
 
 ## Endpunkte
 
@@ -163,7 +163,7 @@ Löscht das Konto mit allen Aktivitäten und Achievements. `204` ohne Inhalt.
   ]
 }
 ```
-`newAchievements` kommt mit M4 dazu; bis dahin fehlt das Feld in der Antwort.
+`newAchievements` enthält die Achievements, die diese Aktivität freigeschaltet hat, sonst `[]`.
 
 Fehler: `400 VALIDATION_ERROR` mit `field`:
 
@@ -199,7 +199,7 @@ Eigene Aktivitäten und öffentliche Aktivitäten anderer, jeweils nur mit Stand
 
 ### GET /achievements
 
-`200`: Liste aller `Achievement`, freigeschaltete mit `unlockedAt`.
+`200`: Liste aller `Achievement`, freigeschaltete mit `unlockedAt`, sortiert nach `threshold`. Der Aufruf schaltet auch Achievements frei, die schon erfüllt, aber noch nicht eingetragen sind (z. B. durch Aktivitäten aus der Zeit vor den Achievements).
 
 ### GET /progress
 

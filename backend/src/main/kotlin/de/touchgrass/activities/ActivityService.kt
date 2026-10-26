@@ -1,5 +1,6 @@
 package de.touchgrass.activities
 
+import de.touchgrass.achievements.AchievementService
 import de.touchgrass.logic.BerlinTime
 import de.touchgrass.logic.Calories
 import de.touchgrass.logic.Points
@@ -17,6 +18,7 @@ class ActivityService(
     private val activities: ActivityRepository,
     private val sports: SportRepository,
     private val users: UserRepository,
+    private val achievements: AchievementService,
     private val clock: Clock = Clock.systemUTC(),
 ) {
     fun create(userId: Long, request: CreateActivityRequest): CreateActivityResponse {
@@ -55,7 +57,7 @@ class ActivityService(
                 visibility = request.visibility,
             )
         )
-        return CreateActivityResponse(activities.findById(id)!!.toDto(viewerId = userId), breakdown)
+        return CreateActivityResponse(activities.findById(id)!!.toDto(viewerId = userId), breakdown, achievements.unlockNew(userId))
     }
 
     fun list(userId: Long, sportCode: String?, from: String?, to: String?): List<ActivityDto> {

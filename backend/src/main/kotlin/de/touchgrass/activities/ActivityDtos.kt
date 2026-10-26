@@ -1,5 +1,6 @@
 package de.touchgrass.activities
 
+import de.touchgrass.achievements.AchievementDto
 import de.touchgrass.logic.PointsBreakdown
 import kotlinx.serialization.Serializable
 
@@ -34,4 +35,8 @@ data class ActivityDto(
 )
 
 @Serializable
-data class CreateActivityResponse(val activity: ActivityDto, val pointsBreakdown: PointsBreakdown)
+data class CreateActivityResponse(
+    val activity: ActivityDto,
+    val pointsBreakdown: PointsBreakdown,
+    val newAchievements: List<AchievementDto>,
+)

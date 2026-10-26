@@ -1,5 +1,7 @@
 package de.touchgrass
 
+import de.touchgrass.achievements.AchievementRepository
+import de.touchgrass.achievements.AchievementService
 import de.touchgrass.activities.ActivityRepository
 import de.touchgrass.activities.ActivityService
 import de.touchgrass.auth.JwtSecret
@@ -9,6 +11,7 @@ import de.touchgrass.config.AppConfig
 import de.touchgrass.db.DatabaseFactory
 import de.touchgrass.plugins.configureSerialization
 import de.touchgrass.plugins.configureStatusPages
+import de.touchgrass.routes.achievementRoutes
 import de.touchgrass.routes.activityRoutes
 import de.touchgrass.routes.authRoutes
 import de.touchgrass.routes.healthRoutes
@@ -24,6 +27,7 @@ import io.ktor.server.routing.route
 import io.ktor.server.routing.routing
 import org.jetbrains.exposed.v1.jdbc.Database
 import java.nio.file.Path
+import java.time.Clock
 
 fun main() {
     val config = AppConfig.fromEnvironment()
@@ -35,11 +39,13 @@ fun main() {
     }.start(wait = true)
 }
 
-fun Application.module(database: Database, jwtService: JwtService) {
+fun Application.module(database: Database, jwtService: JwtService, clock: Clock = Clock.systemUTC()) {
     val userRepository = UserRepository(database)
     val sportRepository = SportRepository(database)
+    val activityRepository = ActivityRepository(database)
     val userService = UserService(userRepository, jwtService)
-    val activityService = ActivityService(ActivityRepository(database), sportRepository, userRepository)
+    val achievementService = AchievementService(AchievementRepository(database), activityRepository, clock)
+    val activityService = ActivityService(activityRepository, sportRepository, userRepository, achievementService, clock)
 
     configureSerialization()
     configureStatusPages()
@@ -51,6 +57,7 @@ fun Application.module(database: Database, jwtService: JwtService) {
             meRoutes(userService)
             sportRoutes(sportRepository)
             activityRoutes(activityService)
+            achievementRoutes(achievementService)
         }
     }
 }
