@@ -88,7 +88,7 @@ Hinweis: osmdroid ist seit November 2024 archiviert und wird deshalb nicht verwe
 
 ### Betrieb
 
-- `backend\gradlew.bat run` startet das Backend auf Port 8080 und dabei ein eingebettetes PostgreSQL auf Port 5433.
+- `.\gradlew.bat run` im Ordner `backend` startet das Backend auf Port 8080 und dabei ein eingebettetes PostgreSQL auf Port 5433. Aus dem Hauptordner gestartet findet Gradle den Task `run` nicht, weil dort das Android-Projekt liegt.
 - Die Datenbank liegt in `backend/data/postgres/` und bleibt zwischen Starts erhalten.
 - Wurde das Backend hart beendet (Terminal geschlossen, Stopp in der IDE), läuft PostgreSQL noch weiter. Das Backend beendet diesen Rest beim nächsten Start selbst.
 - Ist `DB_URL` gesetzt (mit `DB_USER`, `DB_PASSWORD`), verbindet sich das Backend stattdessen mit diesem PostgreSQL. Der Code bleibt gleich.
