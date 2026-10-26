@@ -14,9 +14,16 @@ object BerlinTime {
 
     fun startOfDay(date: LocalDate): OffsetDateTime = date.atStartOfDay(ZONE).toOffsetDateTime()
 
+    fun date(moment: OffsetDateTime): LocalDate = moment.atZoneSameInstant(ZONE).toLocalDate()
+
     fun weekOf(moment: OffsetDateTime): TimeRange {
-        val monday = moment.atZoneSameInstant(ZONE).toLocalDate().with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
+        val monday = date(moment).with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
         return TimeRange(startOfDay(monday), startOfDay(monday.plusWeeks(1)))
+    }
+
+    fun monthOf(moment: OffsetDateTime): TimeRange {
+        val first = date(moment).withDayOfMonth(1)
+        return TimeRange(startOfDay(first), startOfDay(first.plusMonths(1)))
     }
 
     fun format(moment: OffsetDateTime): String =
