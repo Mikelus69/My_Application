@@ -4,7 +4,7 @@ Von oben nach unten durchgehen, vor jeder Abgabe und vor der Präsentation. Die 
 
 ## Vorbereitung
 
-- [ ] Backend läuft (`.\gradlew.bat run` im Ordner `backend`), die App ist mit ▶ Run installiert.
+- [ ] Die App ist installiert (▶ Run oder APK, siehe README). Etwa eine Minute vor der Vorführung die App einmal öffnen, damit der Server bei Render wach ist.
 - [ ] Ein zweites Konto `lisa_k` hat zwei, drei öffentliche Aktivitäten an verschiedenen Orten, damit Karte und Leaderboard nicht leer sind. Danach abmelden.
 - [ ] Im Emulator ist ein Standort gesetzt: **⋮ (Extended Controls) → Location**.
 
@@ -59,6 +59,7 @@ Von oben nach unten durchgehen, vor jeder Abgabe und vor der Präsentation. Die 
 ## 8. Leere Zustände und Fehler (nicht vorführen)
 
 - [ ] Frisch registriertes Konto: Die Statistik zeigt dreimal „Noch keine Daten. Trag eine Aktivität ein, dann erscheint hier ein Diagramm.“, der Verlauf „Noch keine Aktivitäten in diesem Zeitraum.“
-- [ ] Nach dem Zurücksetzen der Datenbank (siehe README) mit einem neuen Konto ohne Aktivitäten: Die Karte zeigt „Noch keine Aktivitäten mit Ort. Wähl beim Speichern einen Ort, dann erscheint hier ein Marker.“, das Leaderboard „In diesem Zeitraum hat noch niemand Sport eingetragen.“
-- [ ] Backend beenden, App ganz schließen und neu öffnen: Karte, Timer, „Ohne Timer nachtragen“, alle drei Erfolge-Reiter, Profil, Statistik, Verlauf und Einstellungen zeigen „Server nicht erreichbar“ mit „Erneut versuchen“.
-- [ ] Backend wieder starten und überall „Erneut versuchen“ antippen → die Inhalte erscheinen.
+- [ ] Mit dem lokalen Backend, nach dem Zurücksetzen der Datenbank (siehe README) und mit einem neuen Konto ohne Aktivitäten: Die Karte zeigt „Noch keine Aktivitäten mit Ort. Wähl beim Speichern einen Ort, dann erscheint hier ein Marker.“, das Leaderboard „In diesem Zeitraum hat noch niemand Sport eingetragen.“
+- [ ] Flugmodus einschalten, App ganz schließen und neu öffnen: Karte, Timer, „Ohne Timer nachtragen“, alle drei Erfolge-Reiter, Profil, Statistik, Verlauf und Einstellungen zeigen „Server nicht erreichbar“ mit „Erneut versuchen“.
+- [ ] Flugmodus aus und überall „Erneut versuchen“ antippen → die Inhalte erscheinen.
+- [ ] Mindestens 15 Minuten nichts tun, dann die App öffnen: Nach 5 Sekunden steht unter dem Ladekreis „Der Server wacht gerade auf, das kann bis zu einer Minute dauern.“, danach erscheint die Karte.
