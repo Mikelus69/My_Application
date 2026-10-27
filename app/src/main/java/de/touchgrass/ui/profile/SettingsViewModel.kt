@@ -18,6 +18,7 @@ import kotlinx.coroutines.launch
 
 data class SettingsUiState(
     val loading: Boolean = true,
+    val loadError: String? = null,
     val weight: String = "",
     val goalType: GoalType = GoalType.MINUTES,
     val goalTarget: String = "",
@@ -33,11 +34,16 @@ class SettingsViewModel(private val api: SportApi, private val session: AuthSess
     val state: StateFlow<SettingsUiState> = _state.asStateFlow()
 
     init {
+        load()
+    }
+
+    fun load() {
+        _state.update { it.copy(loading = true, loadError = null) }
         viewModelScope.launch {
             try {
                 showProfile(apiCall { api.me() })
             } catch (e: ApiException) {
-                _state.update { it.copy(loading = false, error = e.message) }
+                _state.update { it.copy(loading = false, loadError = e.message) }
             }
         }
     }

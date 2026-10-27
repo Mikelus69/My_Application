@@ -45,6 +45,11 @@ fun SettingsScreen(viewModel: SettingsViewModel, onBack: () -> Unit) {
             CircularProgressIndicator()
             return@Column
         }
+        state.loadError?.let {
+            Text(it, color = MaterialTheme.colorScheme.error)
+            TextButton(onClick = viewModel::load) { Text("Erneut versuchen") }
+            return@Column
+        }
         state.message?.let { Text(it, color = MaterialTheme.colorScheme.primary) }
         state.error?.let { Text(it, color = MaterialTheme.colorScheme.error) }
 

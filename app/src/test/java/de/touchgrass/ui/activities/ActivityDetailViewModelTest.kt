@@ -13,6 +13,7 @@ import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
+import java.io.IOException
 
 class ActivityDetailViewModelTest {
     @get:Rule
@@ -57,5 +58,19 @@ class ActivityDetailViewModelTest {
 
         assertFalse(viewModel.state.value.deleted)
         assertEquals("Das ist nicht deine Aktivität.", viewModel.state.value.error)
+    }
+
+    @Test
+    fun `nach einem Ladefehler lädt Erneut versuchen die Aktivität`() {
+        var calls = 0
+        val failingOnce = object : Api() {
+            override suspend fun activity(id: Long): ActivityDto = if (calls++ == 0) throw IOException("offline") else testActivity(id = id)
+        }
+        val viewModel = ActivityDetailViewModel(failingOnce, id = 7)
+        assertEquals(UiState.Error("Server nicht erreichbar"), viewModel.state.value.activity)
+
+        viewModel.load()
+
+        assertEquals(UiState.Content(testActivity(id = 7)), viewModel.state.value.activity)
     }
 }

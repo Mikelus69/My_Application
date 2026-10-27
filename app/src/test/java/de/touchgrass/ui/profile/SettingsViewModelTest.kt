@@ -17,6 +17,7 @@ import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
 import org.junit.Rule
 import org.junit.Test
+import java.io.IOException
 
 class SettingsViewModelTest {
     @get:Rule
@@ -105,5 +106,20 @@ class SettingsViewModelTest {
         viewModel.deleteAccount()
 
         assertEquals(AuthState.LoggedOut, session.state.value)
+    }
+
+    @Test
+    fun `nach einem Ladefehler zeigt Erneut versuchen das Profil`() {
+        var calls = 0
+        val failingOnce = object : Api() {
+            override suspend fun me(): UserDto = if (calls++ == 0) throw IOException("offline") else testUser.copy(goalTarget = 200)
+        }
+        val viewModel = SettingsViewModel(failingOnce, session)
+        assertEquals("Server nicht erreichbar", viewModel.state.value.loadError)
+
+        viewModel.load()
+
+        assertNull(viewModel.state.value.loadError)
+        assertEquals("200", viewModel.state.value.goalTarget)
     }
 }

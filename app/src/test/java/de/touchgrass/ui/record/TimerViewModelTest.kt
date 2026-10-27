@@ -12,6 +12,7 @@ import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
+import java.io.IOException
 import java.time.Clock
 import java.time.Duration
 import java.time.Instant
@@ -78,5 +79,20 @@ class TimerViewModelTest {
         assertTrue(viewModel.state.value.openForm)
         viewModel.onFormOpened()
         assertFalse(viewModel.state.value.openForm)
+    }
+
+    @Test
+    fun `Sportarten lassen sich nach einem Fehler erneut laden`() {
+        var calls = 0
+        val failingOnce = object : FakeSportApi() {
+            override suspend fun sports(): List<SportDto> = if (calls++ == 0) throw IOException("offline") else testSports
+        }
+        val viewModel = TimerViewModel(failingOnce, FakeTimerStore(), clock)
+        assertEquals("Server nicht erreichbar", viewModel.state.value.sportsError)
+
+        viewModel.loadSports()
+
+        assertEquals(testSports, viewModel.state.value.sports)
+        assertNull(viewModel.state.value.sportsError)
     }
 }

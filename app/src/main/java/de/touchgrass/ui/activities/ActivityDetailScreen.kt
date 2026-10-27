@@ -33,7 +33,10 @@ fun ActivityDetailScreen(viewModel: ActivityDetailViewModel, onBack: () -> Unit)
         TextButton(onClick = onBack) { Text("← Zurück") }
         when (val s = state.activity) {
             UiState.Loading -> CircularProgressIndicator()
-            is UiState.Error -> Text(s.message, color = MaterialTheme.colorScheme.error)
+            is UiState.Error -> {
+                Text(s.message, color = MaterialTheme.colorScheme.error)
+                TextButton(onClick = viewModel::load) { Text("Erneut versuchen") }
+            }
             is UiState.Content -> {
                 val activity = s.data
                 Text(state.sports.labelFor(activity.sportCode), style = MaterialTheme.typography.headlineMedium)

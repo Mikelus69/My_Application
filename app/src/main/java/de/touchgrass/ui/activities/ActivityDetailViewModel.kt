@@ -26,6 +26,11 @@ class ActivityDetailViewModel(private val api: SportApi, private val id: Long) :
     val state: StateFlow<ActivityDetailUiState> = _state.asStateFlow()
 
     init {
+        load()
+    }
+
+    fun load() {
+        _state.update { it.copy(activity = UiState.Loading) }
         viewModelScope.launch {
             try {
                 val sports = apiCall { api.sports() }

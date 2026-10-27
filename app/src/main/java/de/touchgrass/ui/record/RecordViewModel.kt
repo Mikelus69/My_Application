@@ -29,6 +29,7 @@ import java.time.temporal.ChronoUnit
 
 data class RecordUiState(
     val sports: List<SportDto> = emptyList(),
+    val sportsError: String? = null,
     val sportCode: String? = null,
     val date: LocalDate,
     val time: LocalTime,
@@ -65,9 +66,9 @@ class RecordViewModel(
         viewModelScope.launch {
             try {
                 val sports = apiCall { api.sports() }
-                _state.update { it.copy(sports = sports, error = null) }
+                _state.update { it.copy(sports = sports, sportsError = null) }
             } catch (e: ApiException) {
-                _state.update { it.copy(error = e.message) }
+                _state.update { it.copy(sportsError = e.message) }
             }
         }
     }

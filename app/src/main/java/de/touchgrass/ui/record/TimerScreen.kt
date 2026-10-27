@@ -40,6 +40,10 @@ fun TimerScreen(viewModel: TimerViewModel, onOpenForm: () -> Unit, onRecordManua
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Text("Aktivität", style = MaterialTheme.typography.headlineMedium)
+        state.sportsError?.let {
+            Text(it, color = MaterialTheme.colorScheme.error)
+            TextButton(onClick = viewModel::loadSports) { Text("Erneut versuchen") }
+        }
         state.error?.let { Text(it, color = MaterialTheme.colorScheme.error) }
 
         Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {

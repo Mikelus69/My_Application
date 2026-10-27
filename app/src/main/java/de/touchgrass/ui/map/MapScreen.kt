@@ -51,6 +51,8 @@ fun MapScreen(viewModel: MapViewModel) {
     }
 }
 
+private const val NO_MARKERS_HINT = "Noch keine Aktivitäten mit Ort. Wähl beim Speichern einen Ort, dann erscheint hier ein Marker."
+
 @Composable
 private fun ActivityMap(content: MapContent) {
     val cameraState = rememberCameraState(firstPosition = startPosition(content.activities))
@@ -82,7 +84,7 @@ private fun ActivityMap(content: MapContent) {
             LaunchedEffect(centerRequests) { cameraState.animateTo(CameraPosition(target = myPosition, zoom = 14.0)) }
         }
 
-        hint?.let {
+        (hint ?: NO_MARKERS_HINT.takeIf { content.activities.isEmpty() })?.let {
             Card(Modifier.align(Alignment.TopCenter).padding(16.dp)) { Text(it, Modifier.padding(16.dp)) }
         }
         ExtendedFloatingActionButton(
