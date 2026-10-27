@@ -158,6 +158,9 @@ user_achievements
 | BASKETBALL | Basketball | 🏀 | 6,5 |
 | HIKING | Wandern | 🥾 | 5,0 |
 | STRENGTH | Krafttraining | 🏋️ | 5,0 |
+| BADMINTON | Badminton | 🏸 | 5,5 |
+| GOLFING | Golf | ⛳ | 4,5 |
+| HOCKEY | Hockey | 🏑 | 8,0 |
 
 | code | Name | Regel |
 |---|---|---|
@@ -170,7 +173,7 @@ user_achievements
 
 ### Entscheidungen
 
-- Sportarten und Achievements liegen in der Datenbank. Eine neue Sportart oder ein neues Achievement mit einem der fünf Regeltypen ist eine SQL-Zeile und braucht weder Code-Änderung noch App-Update.
+- Sportarten und Achievements liegen in der Datenbank. Eine neue Sportart oder ein neues Achievement mit einem der fünf Regeltypen ist eine SQL-Zeile in einer neuen Flyway-Migration und braucht weder Code-Änderung noch App-Update. Eine schon eingespielte Migration wird nie geändert: Flyway bemerkt die Änderung und das Backend startet nicht mehr.
 - kcal und Punkte werden beim Anlegen gespeichert. Ändert jemand später sein Gewicht, bleiben alte Aktivitäten unverändert.
 - Der Standort ist optional (Datensparsamkeit). Aktivitäten ohne Standort erscheinen nicht auf der Karte.
 - Ein freigeschaltetes Achievement bleibt, auch wenn die auslösende Aktivität gelöscht wird.

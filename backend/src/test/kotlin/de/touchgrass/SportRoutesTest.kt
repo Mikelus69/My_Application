@@ -15,7 +15,7 @@ class SportRoutesTest {
     fun setUp() = TestDatabase.reset()
 
     @Test
-    fun `sports liefert die acht Sportarten alphabetisch`() = testApplication {
+    fun `sports liefert die elf Sportarten alphabetisch`() = testApplication {
         val client = startApp()
         val token = client.register("max_m").token
 
@@ -23,8 +23,8 @@ class SportRoutesTest {
 
         assertEquals(HttpStatusCode.OK, response.status)
         val sports = response.body<List<SportDto>>()
-        assertEquals(8, sports.size)
-        assertEquals("Basketball", sports.first().name)
+        assertEquals(11, sports.size)
+        assertEquals(SportDto("BADMINTON", "Badminton", "🏸", 5.5), sports.first())
         assertEquals(SportDto("RUNNING", "Joggen", "🏃", 8.0), sports.single { it.code == "RUNNING" })
     }
 

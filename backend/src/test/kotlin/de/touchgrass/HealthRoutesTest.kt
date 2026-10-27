@@ -45,10 +45,10 @@ class HealthRoutesTest {
     }
 
     @Test
-    fun `Flyway legt die acht Sportarten an`() {
+    fun `Flyway legt die elf Sportarten an`() {
         val count = transaction(TestDatabase.database) {
             exec("SELECT COUNT(*) FROM sport_types") { rs -> rs.next(); rs.getInt(1) }
         }
-        assertEquals(8, count)
+        assertEquals(11, count)
     }
 }
