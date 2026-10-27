@@ -9,11 +9,11 @@ import de.touchgrass.data.SportApi
 import de.touchgrass.data.TimerStore
 import de.touchgrass.data.authDataStore
 import de.touchgrass.data.createSportApi
+import de.touchgrass.data.httpClient
 import de.touchgrass.data.timerDataStore
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
-import okhttp3.OkHttpClient
 
 class AppContainer(context: Context, baseUrl: String) {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
@@ -22,8 +22,5 @@ class AppContainer(context: Context, baseUrl: String) {
 
     val timerStore: TimerStore = DataStoreTimerStore(context.timerDataStore)
 
-    val api: SportApi = createSportApi(
-        baseUrl,
-        OkHttpClient.Builder().addInterceptor(AuthInterceptor(session)).build(),
-    )
+    val api: SportApi = createSportApi(baseUrl, httpClient(AuthInterceptor(session)))
 }

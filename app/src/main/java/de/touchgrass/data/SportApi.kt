@@ -18,6 +18,7 @@ import de.touchgrass.data.dto.StatsDto
 import de.touchgrass.data.dto.UpdateMeRequest
 import de.touchgrass.data.dto.UserDto
 import kotlinx.serialization.json.Json
+import okhttp3.Interceptor
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
@@ -30,6 +31,7 @@ import retrofit2.http.POST
 import retrofit2.http.PUT
 import retrofit2.http.Path
 import retrofit2.http.Query
+import java.util.concurrent.TimeUnit
 
 interface SportApi {
     @GET("health")
@@ -99,3 +101,9 @@ fun createSportApi(baseUrl: String, client: OkHttpClient = OkHttpClient()): Spor
     .addConverterFactory(apiJson.asConverterFactory("application/json".toMediaType()))
     .build()
     .create(SportApi::class.java)
+
+// Ein schlafender Server bei Render braucht etwa eine Minute bis zur ersten Antwort.
+fun httpClient(vararg interceptors: Interceptor): OkHttpClient = OkHttpClient.Builder()
+    .readTimeout(2, TimeUnit.MINUTES)
+    .apply { interceptors.forEach { addInterceptor(it) } }
+    .build()

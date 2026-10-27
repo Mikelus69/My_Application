@@ -8,6 +8,7 @@ import de.touchgrass.data.dto.LeaderboardPeriod
 import de.touchgrass.data.dto.RegisterRequest
 import de.touchgrass.data.dto.UpdateMeRequest
 import kotlinx.coroutines.runBlocking
+import okhttp3.Interceptor
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import org.junit.After
@@ -170,5 +171,15 @@ class SportApiTest {
         assertEquals("2026-10-05", stats.minutesPerWeek.single().weekStart)
         assertEquals(12, stats.activitiesPerSport.single().count)
         assertEquals("2026-10", stats.kcalPerMonth.single().month)
+    }
+
+    @Test
+    fun `httpClient übernimmt die Interceptoren und wartet bis zu zwei Minuten auf den Server`() {
+        val interceptor = Interceptor { chain -> chain.proceed(chain.request()) }
+
+        val client = httpClient(interceptor)
+
+        assertEquals(listOf(interceptor), client.interceptors)
+        assertEquals(120_000, client.readTimeoutMillis)
     }
 }
