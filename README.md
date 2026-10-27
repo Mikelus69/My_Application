@@ -27,6 +27,7 @@ cd backend
 - Läuft, sobald `Responding at http://127.0.0.1:8080` erscheint. Test im Browser: <http://localhost:8080/api/health>
 - Beim ersten Start entpackt das Backend ein eingebautes PostgreSQL (ca. 30 s). Die Daten liegen in `backend/data/` und bleiben erhalten.
 - Beenden mit Ctrl+C und `J`. Das eingebaute PostgreSQL läuft danach im Hintergrund weiter, weil Gradle den Server hart beendet. Der nächste Start räumt es automatisch weg. Ganz beenden: `Stop-Process -Name postgres`.
+- Das Backend läuft nur einmal. Ist es schon gestartet (anderes Fenster oder Terminal-Tab), bricht ein zweiter Start mit „Das Backend ist schon gestartet …“ ab und lässt das laufende in Ruhe.
 - Datenbank zurücksetzen: Backend beenden, `Stop-Process -Name postgres`, dann `backend/data/` löschen.
 - Datenbank ansehen (z. B. in IntelliJ oder DBeaver): `localhost:5433`, Datenbank `postgres`, Benutzer `postgres`, kein Passwort.
 - Eigenes PostgreSQL statt des eingebauten: Umgebungsvariablen `DB_URL` (z. B. `jdbc:postgresql://localhost:5432/touchgrass`), `DB_USER`, `DB_PASSWORD` setzen.

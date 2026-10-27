@@ -8,6 +8,7 @@ import de.touchgrass.auth.JwtSecret
 import de.touchgrass.auth.JwtService
 import de.touchgrass.auth.configureSecurity
 import de.touchgrass.config.AppConfig
+import de.touchgrass.db.BackendAlreadyRunning
 import de.touchgrass.db.DatabaseFactory
 import de.touchgrass.plugins.configureSerialization
 import de.touchgrass.plugins.configureStatusPages
@@ -32,10 +33,16 @@ import io.ktor.server.routing.routing
 import org.jetbrains.exposed.v1.jdbc.Database
 import java.nio.file.Path
 import java.time.Clock
+import kotlin.system.exitProcess
 
 fun main() {
     val config = AppConfig.fromEnvironment()
-    val appDatabase = DatabaseFactory.start(config)
+    val appDatabase = try {
+        DatabaseFactory.start(config)
+    } catch (e: BackendAlreadyRunning) {
+        System.err.println(e.message)
+        exitProcess(1)
+    }
     Runtime.getRuntime().addShutdownHook(Thread { appDatabase.close() })
     val jwtService = JwtService(JwtSecret.load(config.jwtSecret, Path.of(config.dataDir)))
     embeddedServer(Netty, port = config.port, host = "0.0.0.0") {

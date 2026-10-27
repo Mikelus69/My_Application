@@ -8,13 +8,22 @@ import org.flywaydb.core.Flyway
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.slf4j.LoggerFactory
 import java.io.Closeable
+import java.nio.channels.FileChannel
+import java.nio.channels.OverlappingFileLockException
 import java.nio.file.Files
 import java.nio.file.Path
+import java.nio.file.StandardOpenOption
 import java.util.concurrent.TimeUnit
 
 class AppDatabase(val database: Database, private val resources: List<Closeable>) : Closeable {
     override fun close() = resources.reversed().forEach { it.close() }
 }
+
+// Ohne Umlaute: Bei `gradlew run` zeigt die Windows-Konsole sie falsch an.
+class BackendAlreadyRunning(dataDir: Path) : IllegalStateException(
+    "Das Backend ist schon gestartet (anderes Fenster oder Terminal-Tab) und benutzt $dataDir. " +
+        "Das laufende weiterbenutzen oder dort mit Ctrl+C beenden.",
+)
 
 object DatabaseFactory {
     private val log = LoggerFactory.getLogger(DatabaseFactory::class.java)
@@ -25,6 +34,7 @@ object DatabaseFactory {
             return connect(dataSource, listOf(dataSource))
         }
         val dataDir = Path.of(config.dataDir, "postgres")
+        ensureNotRunning(dataDir)
         stopLeftoverPostgres(dataDir)
         val embedded = EmbeddedPostgres.builder()
             .setDataDirectory(dataDir)
@@ -39,6 +49,20 @@ object DatabaseFactory {
         val embedded = EmbeddedPostgres.start()
         val dataSource = pooled(embedded.getJdbcUrl("postgres", "postgres"), "postgres", "postgres")
         return connect(dataSource, listOf(embedded, dataSource))
+    }
+
+    // Das eingebettete PostgreSQL sperrt epg-lock, solange sein Backend läuft. Dessen Datenbank ist kein Rest zum Aufräumen.
+    internal fun ensureNotRunning(dataDir: Path) {
+        val lockFile = dataDir.resolve("epg-lock")
+        if (!Files.exists(lockFile)) return
+        FileChannel.open(lockFile, StandardOpenOption.WRITE).use { channel ->
+            val lock = try {
+                channel.tryLock()
+            } catch (e: OverlappingFileLockException) {
+                null
+            } ?: throw BackendAlreadyRunning(dataDir)
+            lock.release()
+        }
     }
 
     // `gradlew run` beendet den Server hart, PostgreSQL läuft dann weiter. Jeder Start räumt so einen Rest weg.
