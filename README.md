@@ -5,6 +5,7 @@ Sport-App für ein Berufsschulprojekt: Aktivitäten erfassen, auf der Karte sehe
 - `app/` – Android-App (Kotlin, Jetpack Compose)
 - `backend/` – REST-API (Kotlin, Ktor, PostgreSQL)
 - `docs/api.md` – API-Vertrag zwischen App und Backend
+- `docs/testcheckliste.md` – Test von Hand für alle Screens, zugleich Ablauf der Präsentation
 - `docs/superpowers/specs/` – Entwurf, `docs/superpowers/plans/` – Umsetzungspläne
 
 ## Voraussetzungen
@@ -56,3 +57,38 @@ Unit-Tests der App: `.\gradlew.bat testDebugUnitTest` (im Wurzelordner).
 
 - Android Studio arbeitet mit einem gespeicherten Abbild der Gradle-Dateien. Nach `git pull` oder neuen Bibliotheken ist das veraltet, und Imports werden rot. Abhilfe: **File → Sync Project with Gradle Files** (Elefanten-Symbol oben rechts).
 - `backend/` ist ein eigenes Gradle-Projekt und gehört nicht zum Android-Projekt. Zum Bearbeiten den Ordner `backend` in einem zweiten Fenster öffnen (**File → Open → `backend`**), sonst ist dort alles rot.
+
+## Warum PostgreSQL
+
+Die Daten hängen eng zusammen: Aktivitäten gehören zu einer Person und einer Sportart, freigeschaltete Achievements zu einer Person. Wochenziel, Leaderboard und Statistik sind Summen über Wochen und Monate. Dafür ist eine relationale Datenbank mit SQL gemacht. PostgreSQL ist kostenlos und weit verbreitet. Lokal braucht es keine Installation, weil das Backend es mitbringt, und die Tests laufen gegen dasselbe echte PostgreSQL. Für ein PostgreSQL auf einem Server reicht `DB_URL`, der Code bleibt gleich.
+
+| Alternative | Warum nicht |
+|---|---|
+| Datenbank in der App (SQLite/Room) | Jedes Handy hätte nur seine eigenen Daten. Karte, Leaderboard und Anmeldung brauchen eine gemeinsame Datenbank. Spräche die App eine Datenbank im Internet direkt an, stünde deren Passwort in der APK. |
+| Firebase (Firestore) | Dokumentdatenbank ohne SQL und ohne Joins. Punkte, Wochenziel-Bonus und Leaderboard müssten in der App oder in Cloud Functions laufen, unser Backend fiele weg. Genau das wollen wir selbst bauen und testen. |
+| Supabase | Ist selbst PostgreSQL, bringt aber eine fertige API und Anmeldung mit. Auch das ersetzt den Teil, den wir selbst programmieren. |
+| TiDB | Spricht MySQL, nicht PostgreSQL. Die Migrationen (`BIGSERIAL`, `TIMESTAMPTZ`) müssten umgeschrieben werden, und die Tests mit dem eingebauten PostgreSQL passten nicht mehr dazu. Die 5 GiB Gratisspeicher brauchen wir nicht: Tausend Aktivitäten belegen weniger als 1 MB. |
+
+## Datenschutz
+
+| Daten | Wozu | Wer sieht sie |
+|---|---|---|
+| Benutzername | Anmeldung, Leaderboard, öffentliche Marker | alle Nutzer |
+| E-Mail | Anmeldung | nur das Backend |
+| Passwort | Anmeldung, gespeichert nur als BCrypt-Hash | nur das Backend |
+| Gewicht | kcal-Schätzung | nur die Person selbst |
+| Aktivitäten mit Ort | Kernfunktion | die Person selbst, bei „🌎 Öffentlich“ alle |
+
+- Neue Aktivitäten sind privat. Auf der Karte sehen andere nur öffentliche Aktivitäten.
+- Im Leaderboard zählen alle Aktivitäten mit, auch private. Andere sehen dort nur Benutzername und Summe.
+- Ort und Gewicht sind freiwillig.
+- „Konto löschen“ entfernt das Konto mit allen Aktivitäten und Achievements (Recht auf Löschung). Die Datenbank löscht sie über `ON DELETE CASCADE` mit.
+- Das Backend schreibt keine Anfragen ins Log, Passwörter tauchen dort also nicht auf. Der Schlüssel für die Login-Tokens liegt nicht im Git (siehe „Backend starten“).
+
+## Bewusste Grenzen
+
+- **kcal sind geschätzt:** MET-Wert der Sportart × Gewicht in kg × Dauer in Stunden. Ohne Gewicht rechnet das Backend mit 70 kg. Die App zeigt deshalb immer „~“ vor den kcal.
+- **Keine Plausibilitätsprüfung:** Wer unrealistische Zeiten einträgt, steigt im Leaderboard.
+- **Logout gilt nur für dieses Handy:** Die App löscht ihren Login-Token. Der Token selbst bleibt bis zu 30 Tage gültig und lässt sich nicht vorzeitig sperren.
+- **HTTP statt HTTPS:** Lokal läuft alles über HTTP, das erlaubt nur der Debug-Build. Im echten Betrieb wäre HTTPS Pflicht, sonst gehen Passwort und Token lesbar durchs Netz.
+- **Ohne Server geht fast nichts:** Auf dem Handy liegen nur Login-Token und Timer. Der Timer läuft auch ohne Netz, alles andere braucht das Backend.
