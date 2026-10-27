@@ -91,10 +91,10 @@ Hinweis: osmdroid ist seit November 2024 archiviert und wird deshalb nicht verwe
 **In der Cloud**
 
 - Das Backend läuft als Docker-Dienst bei Render, die Datenbank bei Neon. Beide stehen in Frankfurt und nutzen die kostenlose Stufe.
-- Die Einstellungen für Render stehen in `render.yaml` im Repo (Blueprint): Dienst `touchgrass-sport-api`, Ordner `backend`, Dockerfile, Region Frankfurt, Health-Check `/api/health`. Render baut nach jedem Push auf `master` neu, aber nur, wenn sich in `backend/` etwas geändert hat.
+- Die Einstellungen für Render stehen in `render.yaml` im Repo (Blueprint): Dienst `touchgrass-backend`, Ordner `backend`, Dockerfile, Region Frankfurt, Health-Check `/api/health`. Render baut nach jedem Push auf `master` neu, aber nur, wenn sich in `backend/` etwas geändert hat.
 - `DB_URL`, `DB_USER` und `DB_PASSWORD` für Neon trägt man einmal bei Render ein. `JWT_SECRET` erzeugt Render selbst. Nichts davon liegt im Git.
 - Flyway legt beim ersten Start das Schema samt Startdaten an. Lokale Konten und Aktivitäten ziehen nicht mit um.
-- Die App spricht in allen Builds `https://touchgrass-sport-api.onrender.com/api/` an. HTTPS stellt Render bereit.
+- Die App spricht in allen Builds `https://touchgrass-backend.onrender.com/api/` an. HTTPS stellt Render bereit.
 - Grenzen der kostenlosen Stufe:
   - Render: 512 MB RAM, 0,1 CPU. Nach 15 Minuten ohne Anfrage schläft der Dienst ein, das Aufwachen dauert etwa eine Minute. Dateien im Container gehen bei jedem Neustart verloren, deshalb kommen Schlüssel und Daten nur aus Umgebungsvariablen und Datenbank.
   - Neon: 1 GB Speicher und 100 Rechenstunden (CU-Stunden) im Monat. Nach 5 Minuten ohne Abfrage schläft die Datenbank ein und wacht in unter einer Sekunde wieder auf.
