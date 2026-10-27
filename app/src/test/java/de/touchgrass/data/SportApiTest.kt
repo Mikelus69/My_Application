@@ -158,4 +158,17 @@ class SportApiTest {
         assertEquals(96, board.entries.single().value)
         assertEquals(null, board.me)
     }
+
+    @Test
+    fun `stats liest Woche, Wochenminuten, Sportarten und Monats-kcal`() = runBlocking {
+        enqueueJson(200, """{"thisWeek":{"activities":3,"minutes":156,"kcal":1420},"minutesPerWeek":[{"weekStart":"2026-10-05","minutes":156}],"activitiesPerSport":[{"sportCode":"RUNNING","count":12}],"kcalPerMonth":[{"month":"2026-10","kcal":1420}]}""")
+
+        val stats = api.stats()
+
+        assertEquals("/api/stats", server.takeRequest().path)
+        assertEquals(156, stats.thisWeek.minutes)
+        assertEquals("2026-10-05", stats.minutesPerWeek.single().weekStart)
+        assertEquals(12, stats.activitiesPerSport.single().count)
+        assertEquals("2026-10", stats.kcalPerMonth.single().month)
+    }
 }

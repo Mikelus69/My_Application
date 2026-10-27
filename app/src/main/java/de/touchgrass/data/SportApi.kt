@@ -14,6 +14,7 @@ import de.touchgrass.data.dto.LoginRequest
 import de.touchgrass.data.dto.ProgressDto
 import de.touchgrass.data.dto.RegisterRequest
 import de.touchgrass.data.dto.SportDto
+import de.touchgrass.data.dto.StatsDto
 import de.touchgrass.data.dto.UpdateMeRequest
 import de.touchgrass.data.dto.UserDto
 import kotlinx.serialization.json.Json
@@ -85,6 +86,9 @@ interface SportApi {
         @Query("period") period: LeaderboardPeriod,
         @Query("metric") metric: LeaderboardMetric,
     ): LeaderboardDto
+
+    @GET("stats")
+    suspend fun stats(): StatsDto
 }
 
 val apiJson = Json { ignoreUnknownKeys = true }

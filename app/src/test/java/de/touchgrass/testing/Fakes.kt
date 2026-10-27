@@ -19,6 +19,7 @@ import de.touchgrass.data.dto.LoginRequest
 import de.touchgrass.data.dto.ProgressDto
 import de.touchgrass.data.dto.RegisterRequest
 import de.touchgrass.data.dto.SportDto
+import de.touchgrass.data.dto.StatsDto
 import de.touchgrass.data.dto.UpdateMeRequest
 import de.touchgrass.data.dto.UserDto
 import de.touchgrass.data.dto.Visibility
@@ -54,6 +55,7 @@ open class FakeSportApi : SportApi {
     override suspend fun achievements(): List<AchievementDto> = notExpected("achievements")
     override suspend fun progress(): ProgressDto = notExpected("progress")
     override suspend fun leaderboard(period: LeaderboardPeriod, metric: LeaderboardMetric): LeaderboardDto = notExpected("leaderboard")
+    override suspend fun stats(): StatsDto = notExpected("stats")
 
     private fun notExpected(name: String): Nothing = error("$name() wird in diesem Test nicht erwartet")
 }
