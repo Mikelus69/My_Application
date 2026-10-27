@@ -18,6 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import de.touchgrass.ui.UiState
+import de.touchgrass.ui.stats.label
 
 @Composable
 fun ProfileScreen(
@@ -41,9 +42,10 @@ fun ProfileScreen(
                 TextButton(onClick = viewModel::refresh) { Text("Erneut versuchen") }
             }
             is UiState.Content -> {
-                val user = s.data
+                val user = s.data.user
                 Text("👤 ${user.username}", style = MaterialTheme.typography.headlineMedium)
                 Text(user.email, style = MaterialTheme.typography.bodyMedium)
+                Text("Diese Woche: ${s.data.thisWeek.label()}", style = MaterialTheme.typography.titleMedium)
                 Text("Gewicht: " + (user.weightKg?.let { "${formatWeight(it)} kg" } ?: "nicht angegeben – in den Einstellungen eintragen, dann wird die kcal-Schätzung genauer"))
                 Text("Wochenziel: ${user.goalTarget} ${user.goalType.label()}")
             }

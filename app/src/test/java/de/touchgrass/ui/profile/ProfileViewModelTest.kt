@@ -3,6 +3,7 @@ package de.touchgrass.ui.profile
 import de.touchgrass.data.dto.UserDto
 import de.touchgrass.testing.FakeSportApi
 import de.touchgrass.testing.MainDispatcherRule
+import de.touchgrass.testing.testStats
 import de.touchgrass.testing.testUser
 import de.touchgrass.ui.UiState
 import org.junit.Assert.assertEquals
@@ -15,14 +16,15 @@ class ProfileViewModelTest {
     val mainRule = MainDispatcherRule()
 
     @Test
-    fun `refresh lädt das Profil`() {
+    fun `refresh lädt das Profil und die Zahlen dieser Woche`() {
         val viewModel = ProfileViewModel(object : FakeSportApi() {
             override suspend fun me() = testUser
+            override suspend fun stats() = testStats
         })
 
         viewModel.refresh()
 
-        assertEquals(UiState.Content(testUser), viewModel.state.value)
+        assertEquals(UiState.Content(ProfileData(testUser, testStats.thisWeek)), viewModel.state.value)
     }
 
     @Test
