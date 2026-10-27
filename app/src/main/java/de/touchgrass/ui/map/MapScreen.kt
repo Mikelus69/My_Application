@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Card
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.MaterialTheme
@@ -30,6 +29,7 @@ import de.touchgrass.data.dto.SportDto
 import de.touchgrass.ui.UiState
 import de.touchgrass.ui.activities.labelFor
 import de.touchgrass.ui.activities.startedAtLabel
+import de.touchgrass.ui.components.LoadingIndicator
 import org.maplibre.compose.camera.CameraPosition
 import org.maplibre.compose.camera.rememberCameraState
 import org.maplibre.compose.location.LocationPuck
@@ -42,7 +42,7 @@ fun MapScreen(viewModel: MapViewModel) {
     LaunchedEffect(Unit) { viewModel.refresh() }
 
     when (val s = state) {
-        UiState.Loading -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { CircularProgressIndicator() }
+        UiState.Loading -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { LoadingIndicator() }
         is UiState.Error -> Column(Modifier.fillMaxSize().padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             Text(s.message, color = MaterialTheme.colorScheme.error)
             TextButton(onClick = viewModel::refresh) { Text("Erneut versuchen") }

@@ -11,7 +11,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
@@ -29,6 +28,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import de.touchgrass.data.dto.GoalType
 import de.touchgrass.ui.components.FormField
+import de.touchgrass.ui.components.LoadingIndicator
 
 @Composable
 fun SettingsScreen(viewModel: SettingsViewModel, onBack: () -> Unit) {
@@ -42,7 +42,7 @@ fun SettingsScreen(viewModel: SettingsViewModel, onBack: () -> Unit) {
         TextButton(onClick = onBack) { Text("← Zurück") }
         Text("Einstellungen", style = MaterialTheme.typography.headlineMedium)
         if (state.loading) {
-            CircularProgressIndicator()
+            LoadingIndicator()
             return@Column
         }
         state.loadError?.let {

@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.ListItem
@@ -24,6 +23,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import de.touchgrass.ui.UiState
+import de.touchgrass.ui.components.LoadingIndicator
 
 @Composable
 fun HistoryScreen(viewModel: HistoryViewModel, onOpen: (Long) -> Unit, onBack: () -> Unit) {
@@ -50,7 +50,7 @@ fun HistoryScreen(viewModel: HistoryViewModel, onOpen: (Long) -> Unit, onBack: (
         }
         HorizontalDivider()
         when (val activities = state.activities) {
-            UiState.Loading -> CircularProgressIndicator()
+            UiState.Loading -> LoadingIndicator()
             is UiState.Error -> {
                 Text(activities.message, color = MaterialTheme.colorScheme.error)
                 TextButton(onClick = viewModel::refresh) { Text("Erneut versuchen") }

@@ -20,6 +20,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import de.touchgrass.ui.components.FormField
+import de.touchgrass.ui.components.WakeUpHint
 
 @Composable
 fun LoginScreen(viewModel: LoginViewModel, onRegisterClick: () -> Unit) {
@@ -32,6 +33,7 @@ fun LoginScreen(viewModel: LoginViewModel, onRegisterClick: () -> Unit) {
         Button(onClick = viewModel::submit, enabled = !state.loading, modifier = Modifier.fillMaxWidth()) {
             Text(if (state.loading) "Anmelden …" else "Anmelden")
         }
+        if (state.loading) WakeUpHint()
         TextButton(onClick = onRegisterClick) { Text("Noch kein Konto? Registrieren") }
     }
 }
@@ -48,6 +50,7 @@ fun RegisterScreen(viewModel: RegisterViewModel, onLoginClick: () -> Unit) {
         Button(onClick = viewModel::submit, enabled = !state.loading, modifier = Modifier.fillMaxWidth()) {
             Text(if (state.loading) "Konto wird angelegt …" else "Konto anlegen")
         }
+        if (state.loading) WakeUpHint()
         TextButton(onClick = onLoginClick) { Text("Schon ein Konto? Anmelden") }
     }
 }

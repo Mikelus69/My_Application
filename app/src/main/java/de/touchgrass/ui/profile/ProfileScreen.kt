@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
@@ -18,6 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import de.touchgrass.ui.UiState
+import de.touchgrass.ui.components.LoadingIndicator
 import de.touchgrass.ui.stats.label
 
 @Composable
@@ -36,7 +36,7 @@ fun ProfileScreen(
         verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         when (val s = state) {
-            UiState.Loading -> CircularProgressIndicator()
+            UiState.Loading -> LoadingIndicator()
             is UiState.Error -> {
                 Text(s.message, color = MaterialTheme.colorScheme.error)
                 TextButton(onClick = viewModel::refresh) { Text("Erneut versuchen") }

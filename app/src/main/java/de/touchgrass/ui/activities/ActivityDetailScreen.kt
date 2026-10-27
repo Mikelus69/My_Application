@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -22,6 +21,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import de.touchgrass.data.dto.Visibility
 import de.touchgrass.ui.UiState
+import de.touchgrass.ui.components.LoadingIndicator
 
 @Composable
 fun ActivityDetailScreen(viewModel: ActivityDetailViewModel, onBack: () -> Unit) {
@@ -32,7 +32,7 @@ fun ActivityDetailScreen(viewModel: ActivityDetailViewModel, onBack: () -> Unit)
     Column(Modifier.fillMaxSize().padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
         TextButton(onClick = onBack) { Text("← Zurück") }
         when (val s = state.activity) {
-            UiState.Loading -> CircularProgressIndicator()
+            UiState.Loading -> LoadingIndicator()
             is UiState.Error -> {
                 Text(s.message, color = MaterialTheme.colorScheme.error)
                 TextButton(onClick = viewModel::load) { Text("Erneut versuchen") }

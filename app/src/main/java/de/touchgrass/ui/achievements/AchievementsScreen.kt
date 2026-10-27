@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.PrimaryTabRow
 import androidx.compose.material3.Tab
@@ -23,6 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import de.touchgrass.ui.UiState
+import de.touchgrass.ui.components.LoadingIndicator
 
 private enum class AchievementsTab(val label: String) {
     OVERVIEW("Übersicht"),
@@ -54,7 +54,7 @@ fun AchievementsScreen(viewModel: AchievementsViewModel) {
 fun <T> Section(state: UiState<T>, onRetry: () -> Unit, content: @Composable (T) -> Unit) {
     when (state) {
         UiState.Loading -> Box(Modifier.fillMaxWidth().padding(32.dp), contentAlignment = Alignment.Center) {
-            CircularProgressIndicator()
+            LoadingIndicator()
         }
         is UiState.Error -> Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             Text(state.message, color = MaterialTheme.colorScheme.error)
