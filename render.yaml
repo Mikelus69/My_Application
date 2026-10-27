@@ -1,1 +1,17 @@
-
+services:
+  - type: web                  # ein Webdienst, also unser Backend
+    name: touchgrass-backend
+    runtime: docker            # gebaut aus dem Dockerfile
+    rootDir: backend
+    region: frankfurt
+    plan: free
+    healthCheckPath: /api/health
+    envVars:
+      - key: DB_URL
+        sync: false            # nicht im Git: Render fragt beim Anlegen danach
+      - key: DB_USER
+        sync: false
+      - key: DB_PASSWORD
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true    # Render erzeugt einen Zufallsschlüssel
