@@ -22,6 +22,7 @@ import de.touchgrass.ui.UiState
 @Composable
 fun ProfileScreen(
     viewModel: ProfileViewModel,
+    onOpenStats: () -> Unit,
     onOpenHistory: () -> Unit,
     onOpenSettings: () -> Unit,
     extra: @Composable () -> Unit = {},
@@ -48,6 +49,10 @@ fun ProfileScreen(
             }
         }
         HorizontalDivider()
+        ListItem(
+            headlineContent = { Text("📊 Statistik") },
+            modifier = Modifier.clickable(onClick = onOpenStats),
+        )
         ListItem(
             headlineContent = { Text("📜 Verlauf") },
             modifier = Modifier.clickable(onClick = onOpenHistory),

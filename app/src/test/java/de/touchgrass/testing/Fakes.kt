@@ -16,13 +16,17 @@ import de.touchgrass.data.dto.LeaderboardDto
 import de.touchgrass.data.dto.LeaderboardMetric
 import de.touchgrass.data.dto.LeaderboardPeriod
 import de.touchgrass.data.dto.LoginRequest
+import de.touchgrass.data.dto.MonthKcalDto
 import de.touchgrass.data.dto.ProgressDto
 import de.touchgrass.data.dto.RegisterRequest
+import de.touchgrass.data.dto.SportCountDto
 import de.touchgrass.data.dto.SportDto
 import de.touchgrass.data.dto.StatsDto
 import de.touchgrass.data.dto.UpdateMeRequest
 import de.touchgrass.data.dto.UserDto
 import de.touchgrass.data.dto.Visibility
+import de.touchgrass.data.dto.WeekMinutesDto
+import de.touchgrass.data.dto.WeekSummaryDto
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -37,6 +41,8 @@ import org.junit.rules.TestWatcher
 import org.junit.runner.Description
 import retrofit2.HttpException
 import retrofit2.Response
+import java.time.LocalDate
+import java.time.YearMonth
 
 open class FakeSportApi : SportApi {
     override suspend fun health(): HealthDto = notExpected("health")
@@ -119,3 +125,14 @@ fun testAchievement(code: String = "FIRST_ACTIVITY", progress: Int = 1, threshol
         progress = progress,
         unlockedAt = unlockedAt,
     )
+
+val testStats = StatsDto(
+    thisWeek = WeekSummaryDto(activities = 3, minutes = 156, kcal = 1420),
+    minutesPerWeek = listOf(0, 30, 60, 0, 45, 90, 120, 156).mapIndexed { week, minutes ->
+        WeekMinutesDto(LocalDate.parse("2026-08-17").plusWeeks(week.toLong()).toString(), minutes)
+    },
+    activitiesPerSport = listOf(SportCountDto("RUNNING", 5), SportCountDto("CYCLING", 2)),
+    kcalPerMonth = listOf(0, 0, 400, 900, 1300, 1420).mapIndexed { month, kcal ->
+        MonthKcalDto(YearMonth.of(2026, 5).plusMonths(month.toLong()).toString(), kcal)
+    },
+)

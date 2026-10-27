@@ -17,10 +17,13 @@ datastore = "1.2.1"
 maplibreCompose = "0.12.1"
 # MapLibre Compose 0.12.1 bringt 0.6.0 mit, das bei einer leeren Markerliste abstürzt.
 spatialk = "0.6.1"
+# Vico 2.4 und neuer brauchen Kotlin 2.3, die App hat 2.2.10.
+vico = "2.3.6"
 
 [libraries]
 maplibre-compose = { group = "org.maplibre.compose", name = "maplibre-compose", version.ref = "maplibreCompose" }
 spatialk-geojson = { group = "org.maplibre.spatialk", name = "geojson", version.ref = "spatialk" }
+vico-compose-m3 = { group = "com.patrykandpatrick.vico", name = "compose-m3", version.ref = "vico" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }

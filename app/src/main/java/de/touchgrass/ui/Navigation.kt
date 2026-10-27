@@ -36,6 +36,8 @@ import de.touchgrass.ui.record.RecordViewModel
 import de.touchgrass.ui.record.TimerScreen
 import de.touchgrass.ui.record.TimerTabLabel
 import de.touchgrass.ui.record.TimerViewModel
+import de.touchgrass.ui.stats.StatsScreen
+import de.touchgrass.ui.stats.StatsViewModel
 import de.touchgrass.ui.status.ServerStatusCard
 import kotlinx.serialization.Serializable
 
@@ -47,6 +49,7 @@ import kotlinx.serialization.Serializable
 @Serializable object ProfileGraph
 @Serializable object ProfileRoute
 @Serializable object SettingsRoute
+@Serializable object StatsRoute
 @Serializable object HistoryRoute
 @Serializable data class ActivityDetailRoute(val id: Long)
 
@@ -118,9 +121,16 @@ fun TouchGrassNavigation(container: AppContainer) {
                 composable<ProfileRoute> {
                     ProfileScreen(
                         viewModel = viewModel { ProfileViewModel(container.api) },
+                        onOpenStats = { navController.navigate(StatsRoute) },
                         onOpenHistory = { navController.navigate(HistoryRoute) },
                         onOpenSettings = { navController.navigate(SettingsRoute) },
                         extra = { ServerStatusCard(container.api) },
+                    )
+                }
+                composable<StatsRoute> {
+                    StatsScreen(
+                        viewModel = viewModel { StatsViewModel(container.api) },
+                        onBack = { navController.popBackStack() },
                     )
                 }
                 composable<SettingsRoute> {
