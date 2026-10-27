@@ -22,7 +22,9 @@ import de.touchgrass.routes.healthRoutes
 import de.touchgrass.routes.meRoutes
 import de.touchgrass.routes.progressRoutes
 import de.touchgrass.routes.sportRoutes
+import de.touchgrass.routes.statsRoutes
 import de.touchgrass.sports.SportRepository
+import de.touchgrass.stats.StatsService
 import de.touchgrass.users.UserRepository
 import de.touchgrass.users.UserService
 import io.ktor.server.application.Application
@@ -59,6 +61,7 @@ fun Application.module(database: Database, jwtService: JwtService, clock: Clock 
     val activityService = ActivityService(activityRepository, sportRepository, userRepository, achievementService, clock)
     val progressService = ProgressService(userRepository, activityRepository, clock)
     val leaderboardService = LeaderboardService(LeaderboardRepository(database), clock)
+    val statsService = StatsService(activityRepository, clock)
 
     configureSerialization()
     configureStatusPages()
@@ -72,6 +75,7 @@ fun Application.module(database: Database, jwtService: JwtService, clock: Clock 
             activityRoutes(activityService)
             achievementRoutes(achievementService)
             progressRoutes(progressService, leaderboardService)
+            statsRoutes(statsService)
         }
     }
 }

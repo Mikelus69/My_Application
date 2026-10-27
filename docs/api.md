@@ -245,4 +245,4 @@ Höchstens 50 Einträge, bei gleichem Wert alphabetisch. `me` fehlt, wenn man im
   "kcalPerMonth": [ { "month": "2026-05", "kcal": 3400 } ]
 }
 ```
-`minutesPerWeek` hat immer 8 Einträge (älteste zuerst, auch mit 0), `kcalPerMonth` immer 6.
+`minutesPerWeek` hat immer 8 Einträge (älteste zuerst, auch mit 0, der letzte ist die laufende Woche), `kcalPerMonth` immer 6 (der letzte ist der laufende Monat). `activitiesPerSport` enthält nur Sportarten mit Aktivitäten, die häufigste zuerst, bei Gleichstand nach `sportCode`.
