@@ -26,11 +26,10 @@ Die App spricht das Backend unter `https://touchgrass-backend.onrender.com/api/`
 - **Render** baut das Backend aus `backend/` mit `backend/Dockerfile` und startet es. Die Einstellungen stehen in `render.yaml`. Nach jedem Push auf `master`, der etwas in `backend/` ändert, baut Render neu, das dauert einige Minuten. Den Stand zeigt das Render-Dashboard beim Dienst `touchgrass-backend` unter **Events**, Fehlermeldungen unter **Logs**.
 - **Neon** stellt die Datenbank, ein PostgreSQL in Frankfurt. Flyway legt beim ersten Start alle Tabellen an. Konten in der Cloud sind unabhängig von denen im lokalen Backend.
 - **Zugangsdaten** stehen nur bei Render, beim Dienst unter **Environment**:
-  - `DB_URL`: `jdbc:postgresql://<Host>/<Datenbank>?sslmode=require&channelBinding=require`
-  - `DB_USER` und `DB_PASSWORD`: Benutzer und Passwort der Datenbank, nicht die Anmeldung bei Neon. Der Benutzer heißt meist `neondb_owner`, das Passwort beginnt mit `npg_`.
+  - `DB_URL`: die Zeile, die Neon im Projekt unter **Connect** zeigt, mit eingeblendetem Passwort und unverändert: `postgresql://<Benutzer>:<Passwort>@<Host>/<Datenbank>?…`. Das Backend liest Benutzer und Passwort daraus und verbindet sich direkt, auch wenn bei Neon „Connection pooling“ eingeschaltet ist.
   - `JWT_SECRET`: hat Render selbst erzeugt. Wer ihn ändert, meldet alle Nutzer ab.
 
-  Die Werte für die Datenbank stehen in der Zeile, die Neon unter **Connect** zeigt, mit ausgeschaltetem „Connection pooling“ und eingeblendetem Passwort: `postgresql://<Benutzer>:<Passwort>@<Host>/<Datenbank>?…`. Nach einer Änderung bei Render speichern und neu deployen lassen. Steht in den Logs `password authentication failed`, stimmen `DB_USER` oder `DB_PASSWORD` nicht.
+  Nach einer Änderung bei Render speichern und neu deployen lassen. Steht in den Logs `password authentication failed`, die Zeile bei Neon neu kopieren und in `DB_URL` ersetzen.
 - **Kaltstart:** Nach 15 Minuten ohne Anfrage schläft der Server ein. Die erste Anfrage danach dauert etwa eine Minute, die App zeigt so lange „Der Server wacht gerade auf, das kann bis zu einer Minute dauern.“ Vor einer Vorführung die App deshalb einmal öffnen.
 - **Kostenlos mit Grenzen:** Render gibt 750 Stunden im Monat, das reicht für einen Dienst rund um die Uhr. Neon gibt 1 GB und 100 Rechenstunden im Monat. Den Server nicht mit regelmäßigen Anfragen wachhalten, sonst bleibt auch die Datenbank wach, und die Rechenstunden sind nach gut zwei Wochen verbraucht.
 

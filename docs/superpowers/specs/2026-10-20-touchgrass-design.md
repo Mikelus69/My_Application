@@ -92,7 +92,7 @@ Hinweis: osmdroid ist seit November 2024 archiviert und wird deshalb nicht verwe
 
 - Das Backend läuft als Docker-Dienst bei Render, die Datenbank bei Neon. Beide stehen in Frankfurt und nutzen die kostenlose Stufe.
 - Die Einstellungen für Render stehen in `render.yaml` im Repo (Blueprint): Dienst `touchgrass-backend`, Ordner `backend`, Dockerfile, Region Frankfurt, Health-Check `/api/health`. Render baut nach jedem Push auf `master` neu, aber nur, wenn sich in `backend/` etwas geändert hat.
-- `DB_URL`, `DB_USER` und `DB_PASSWORD` für Neon trägt man einmal bei Render ein. `JWT_SECRET` erzeugt Render selbst. Nichts davon liegt im Git.
+- Für Neon trägt man bei Render einmal `DB_URL` ein: die Zeile, die Neon unter **Connect** zeigt, samt Benutzer und Passwort. `JWT_SECRET` erzeugt Render selbst. Nichts davon liegt im Git.
 - Flyway legt beim ersten Start das Schema samt Startdaten an. Lokale Konten und Aktivitäten ziehen nicht mit um.
 - Die App spricht in allen Builds `https://touchgrass-backend.onrender.com/api/` an. HTTPS stellt Render bereit.
 - Grenzen der kostenlosen Stufe:
@@ -106,7 +106,7 @@ Hinweis: osmdroid ist seit November 2024 archiviert und wird deshalb nicht verwe
 - `.\gradlew.bat run` im Ordner `backend` startet das Backend auf Port 8080 und dabei ein eingebettetes PostgreSQL auf Port 5433. Aus dem Hauptordner gestartet findet Gradle den Task `run` nicht, weil dort das Android-Projekt liegt.
 - Die Datenbank liegt in `backend/data/postgres/` und bleibt zwischen Starts erhalten.
 - Wurde das Backend hart beendet (Terminal geschlossen, Stopp in der IDE), läuft PostgreSQL noch weiter. Das Backend beendet diesen Rest beim nächsten Start selbst.
-- Ist `DB_URL` gesetzt (mit `DB_USER`, `DB_PASSWORD`), verbindet sich das Backend stattdessen mit diesem PostgreSQL. Der Code bleibt gleich.
+- Ist `DB_URL` gesetzt, verbindet sich das Backend stattdessen mit diesem PostgreSQL. `DB_URL` ist entweder eine Zeile wie bei Neon (`postgresql://Benutzer:Passwort@Host/Datenbank`) oder eine JDBC-Adresse mit `DB_USER` und `DB_PASSWORD`. Der Code bleibt gleich.
 - Soll die App das lokale Backend nutzen, steht in `local.properties` `api.baseUrl=http://127.0.0.1:8080/api/`, und nach dem Anstecken des Handys oder dem Start des Emulators leitet `adb reverse tcp:8080 tcp:8080` den Port weiter. Klartext-HTTP erlaubt nur der Debug-Build.
 - Gradle braucht ein JDK ≥ 17. Genutzt wird das JDK von Android Studio (`C:\Program Files\Android\Android Studio\jbr`) über `JAVA_HOME`.
 
