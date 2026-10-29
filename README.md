@@ -27,10 +27,10 @@ Die App spricht das Backend unter `https://touchgrass-backend.onrender.com/api/`
 - **Neon** stellt die Datenbank, ein PostgreSQL in Frankfurt. Flyway legt beim ersten Start alle Tabellen an. Konten in der Cloud sind unabhängig von denen im lokalen Backend.
 - **Zugangsdaten** stehen nur bei Render, beim Dienst unter **Environment**:
   - `DB_URL`: `jdbc:postgresql://<Host>/<Datenbank>?sslmode=require&channelBinding=require`
-  - `DB_USER` und `DB_PASSWORD`: Benutzer und Passwort aus Neon
+  - `DB_USER` und `DB_PASSWORD`: Benutzer und Passwort der Datenbank, nicht die Anmeldung bei Neon. Der Benutzer heißt meist `neondb_owner`, das Passwort beginnt mit `npg_`.
   - `JWT_SECRET`: hat Render selbst erzeugt. Wer ihn ändert, meldet alle Nutzer ab.
 
-  Die Werte für Neon zeigt Neon unter **Connect**, mit ausgeschaltetem „Connection pooling“. Nach einer Änderung bei Render speichern und neu deployen lassen.
+  Die Werte für die Datenbank stehen in der Zeile, die Neon unter **Connect** zeigt, mit ausgeschaltetem „Connection pooling“ und eingeblendetem Passwort: `postgresql://<Benutzer>:<Passwort>@<Host>/<Datenbank>?…`. Nach einer Änderung bei Render speichern und neu deployen lassen. Steht in den Logs `password authentication failed`, stimmen `DB_USER` oder `DB_PASSWORD` nicht.
 - **Kaltstart:** Nach 15 Minuten ohne Anfrage schläft der Server ein. Die erste Anfrage danach dauert etwa eine Minute, die App zeigt so lange „Der Server wacht gerade auf, das kann bis zu einer Minute dauern.“ Vor einer Vorführung die App deshalb einmal öffnen.
 - **Kostenlos mit Grenzen:** Render gibt 750 Stunden im Monat, das reicht für einen Dienst rund um die Uhr. Neon gibt 1 GB und 100 Rechenstunden im Monat. Den Server nicht mit regelmäßigen Anfragen wachhalten, sonst bleibt auch die Datenbank wach, und die Rechenstunden sind nach gut zwei Wochen verbraucht.
 
