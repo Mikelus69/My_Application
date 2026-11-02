@@ -28,7 +28,7 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
-        val apiBaseUrl = localProperties.getProperty("api.baseUrl") ?: "https://touchgrass-backend.onrender.com/api/"
+        val apiBaseUrl = localProperties.getProperty("api.baseUrl") ?: "https://touchgrass-backend-pfz7.onrender.com/api/"
         buildConfigField("String", "API_BASE_URL", "\"$apiBaseUrl\"")
     }
 

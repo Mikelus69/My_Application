@@ -21,7 +21,7 @@ Danach ein neues Terminal öffnen.
 
 ## Backend in der Cloud
 
-Die App spricht das Backend unter `https://touchgrass-backend.onrender.com/api/` an. Ob es läuft, zeigt <https://touchgrass-backend.onrender.com/api/health> mit `{"status":"ok","database":"ok"}`.
+Die App spricht das Backend unter `https://touchgrass-backend-pfz7.onrender.com/api/` an. Den Anhang `-pfz7` hat Render vergeben, weil die Adresse ohne Anhang schon belegt war. Ob es läuft, zeigt <https://touchgrass-backend-pfz7.onrender.com/api/health> mit `{"status":"ok","database":"ok"}`.
 
 - **Render** baut das Backend aus `backend/` mit `backend/Dockerfile` und startet es. Die Einstellungen stehen in `render.yaml`. Nach jedem Push auf `master`, der etwas in `backend/` ändert, baut Render neu, das dauert einige Minuten. Den Stand zeigt das Render-Dashboard beim Dienst `touchgrass-backend` unter **Events**, Fehlermeldungen unter **Logs**.
 - **Neon** stellt die Datenbank, ein PostgreSQL in Frankfurt. Flyway legt beim ersten Start alle Tabellen an. Konten in der Cloud sind unabhängig von denen im lokalen Backend.
