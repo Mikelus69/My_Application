@@ -1,11 +1,14 @@
 # TouchGrass
 
+<img src="docs/logo.webp" alt="Logo von TouchGrass" width="240">
+
 Sport-App für ein Berufsschulprojekt: Aktivitäten erfassen, auf der Karte sehen, Achievements sammeln.
 
 - `app/` – Android-App (Kotlin, Jetpack Compose)
 - `backend/` – REST-API (Kotlin, Ktor, PostgreSQL)
 - `docs/api.md` – API-Vertrag zwischen App und Backend
 - `docs/testcheckliste.md` – Test von Hand für alle Screens, zugleich Ablauf der Präsentation
+- `docs/logo.webp` – Logo, Vorlage für das App-Icon
 - `render.yaml`, `backend/Dockerfile` – Betrieb des Backends in der Cloud bei Render
 - `docs/superpowers/specs/` – Entwurf, `docs/superpowers/plans/` – Umsetzungspläne
 
