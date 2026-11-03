@@ -49,7 +49,7 @@ class DatabaseFactoryTest {
                 val sports = transaction(appDatabase.database) {
                     exec("SELECT COUNT(*) FROM sport_types") { rs -> rs.next(); rs.getInt(1) }
                 }
-                assertEquals(11, sports)
+                assertEquals(25, sports)
             }
             assertFalse(Files.exists(dataDir.resolve("postgres")))
         }

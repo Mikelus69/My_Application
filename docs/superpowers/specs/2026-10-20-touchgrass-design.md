@@ -175,6 +175,20 @@ user_achievements
 | BADMINTON | Badminton | 🏸 | 5,5 |
 | GOLFING | Golf | ⛳ | 4,5 |
 | HOCKEY | Hockey | 🏑 | 8,0 |
+| BASEBALL | Baseball | ⚾ | 5,0 |
+| BOXING | Boxen | 🥊 | 6,6 |
+| CLIMBING | Klettern | 🧗 | 7,3 |
+| DIVING | Tauchen | 🤿 | 5,0 |
+| FISHING | Angeln | 🎣 | 3,7 |
+| HORSE_RIDING | Reiten | 🏇 | 5,5 |
+| MARTIAL_ARTS | Kampfsport | 🥋 | 10,0 |
+| ROWING | Rudern | 🚣 | 5,9 |
+| SKIING | Skifahren | ⛷️ | 7,8 |
+| SURFING | Surfen | 🏄 | 5,0 |
+| TABLE_TENNIS | Tischtennis | 🏓 | 4,0 |
+| TENNIS | Tennis | 🎾 | 5,0 |
+| VOLLEYBALL | Volleyball | 🏐 | 6,5 |
+| YOGA | Yoga | 🧘 | 2,5 |
 
 | code | Name | Regel |
 |---|---|---|
