@@ -10,15 +10,18 @@ import de.touchgrass.data.dto.AuthResponse
 import de.touchgrass.data.dto.ChangePasswordRequest
 import de.touchgrass.data.dto.CreateActivityRequest
 import de.touchgrass.data.dto.CreateActivityResponse
+import de.touchgrass.data.dto.FriendsDto
 import de.touchgrass.data.dto.GoalType
 import de.touchgrass.data.dto.HealthDto
 import de.touchgrass.data.dto.LeaderboardDto
 import de.touchgrass.data.dto.LeaderboardMetric
 import de.touchgrass.data.dto.LeaderboardPeriod
+import de.touchgrass.data.dto.LeaderboardScope
 import de.touchgrass.data.dto.LoginRequest
 import de.touchgrass.data.dto.MonthKcalDto
 import de.touchgrass.data.dto.ProgressDto
 import de.touchgrass.data.dto.RegisterRequest
+import de.touchgrass.data.dto.SendFriendRequest
 import de.touchgrass.data.dto.SportCountDto
 import de.touchgrass.data.dto.SportDto
 import de.touchgrass.data.dto.StatsDto
@@ -60,8 +63,14 @@ open class FakeSportApi : SportApi {
     override suspend fun mapActivities(): List<ActivityDto> = notExpected("mapActivities")
     override suspend fun achievements(): List<AchievementDto> = notExpected("achievements")
     override suspend fun progress(): ProgressDto = notExpected("progress")
-    override suspend fun leaderboard(period: LeaderboardPeriod, metric: LeaderboardMetric): LeaderboardDto = notExpected("leaderboard")
+    override suspend fun leaderboard(period: LeaderboardPeriod, metric: LeaderboardMetric, scope: LeaderboardScope): LeaderboardDto =
+        notExpected("leaderboard")
     override suspend fun stats(): StatsDto = notExpected("stats")
+    override suspend fun friends(): FriendsDto = notExpected("friends")
+    override suspend fun sendFriendRequest(body: SendFriendRequest): FriendsDto = notExpected("sendFriendRequest")
+    override suspend fun acceptFriendRequest(username: String): FriendsDto = notExpected("acceptFriendRequest")
+    override suspend fun deleteFriendRequest(username: String): FriendsDto = notExpected("deleteFriendRequest")
+    override suspend fun removeFriend(username: String): FriendsDto = notExpected("removeFriend")
 
     private fun notExpected(name: String): Nothing = error("$name() wird in diesem Test nicht erwartet")
 }

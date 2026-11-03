@@ -6,13 +6,16 @@ import de.touchgrass.data.dto.AuthResponse
 import de.touchgrass.data.dto.ChangePasswordRequest
 import de.touchgrass.data.dto.CreateActivityRequest
 import de.touchgrass.data.dto.CreateActivityResponse
+import de.touchgrass.data.dto.FriendsDto
 import de.touchgrass.data.dto.HealthDto
 import de.touchgrass.data.dto.LeaderboardDto
 import de.touchgrass.data.dto.LeaderboardMetric
 import de.touchgrass.data.dto.LeaderboardPeriod
+import de.touchgrass.data.dto.LeaderboardScope
 import de.touchgrass.data.dto.LoginRequest
 import de.touchgrass.data.dto.ProgressDto
 import de.touchgrass.data.dto.RegisterRequest
+import de.touchgrass.data.dto.SendFriendRequest
 import de.touchgrass.data.dto.SportDto
 import de.touchgrass.data.dto.StatsDto
 import de.touchgrass.data.dto.UpdateMeRequest
@@ -87,10 +90,26 @@ interface SportApi {
     suspend fun leaderboard(
         @Query("period") period: LeaderboardPeriod,
         @Query("metric") metric: LeaderboardMetric,
+        @Query("scope") scope: LeaderboardScope = LeaderboardScope.ALL,
     ): LeaderboardDto
 
     @GET("stats")
     suspend fun stats(): StatsDto
+
+    @GET("friends")
+    suspend fun friends(): FriendsDto
+
+    @POST("friends/requests")
+    suspend fun sendFriendRequest(@Body body: SendFriendRequest): FriendsDto
+
+    @POST("friends/requests/{username}/accept")
+    suspend fun acceptFriendRequest(@Path("username") username: String): FriendsDto
+
+    @DELETE("friends/requests/{username}")
+    suspend fun deleteFriendRequest(@Path("username") username: String): FriendsDto
+
+    @DELETE("friends/{username}")
+    suspend fun removeFriend(@Path("username") username: String): FriendsDto
 }
 
 val apiJson = Json { ignoreUnknownKeys = true }

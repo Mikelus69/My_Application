@@ -6,7 +6,7 @@ import kotlinx.serialization.Serializable
 data class SportDto(val code: String, val name: String, val emoji: String, val met: Double)
 
 @Serializable
-enum class Visibility { PRIVATE, PUBLIC }
+enum class Visibility { PRIVATE, FRIENDS, PUBLIC }
 
 @Serializable
 data class CreateActivityRequest(
@@ -24,6 +24,7 @@ data class ActivityDto(
     val id: Long,
     val username: String,
     val mine: Boolean,
+    val friend: Boolean = false,
     val sportCode: String,
     val startedAt: String,
     val durationMin: Int,

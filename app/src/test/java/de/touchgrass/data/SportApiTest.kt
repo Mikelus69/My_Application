@@ -2,11 +2,15 @@ package de.touchgrass.data
 
 import de.touchgrass.data.dto.ChangePasswordRequest
 import de.touchgrass.data.dto.CreateActivityRequest
+import de.touchgrass.data.dto.FriendsDto
 import de.touchgrass.data.dto.HealthDto
 import de.touchgrass.data.dto.LeaderboardMetric
 import de.touchgrass.data.dto.LeaderboardPeriod
+import de.touchgrass.data.dto.LeaderboardScope
 import de.touchgrass.data.dto.RegisterRequest
+import de.touchgrass.data.dto.SendFriendRequest
 import de.touchgrass.data.dto.UpdateMeRequest
+import de.touchgrass.data.dto.Visibility
 import kotlinx.coroutines.runBlocking
 import okhttp3.Interceptor
 import okhttp3.mockwebserver.MockResponse
@@ -155,7 +159,7 @@ class SportApiTest {
 
         val board = api.leaderboard(LeaderboardPeriod.MONTH, LeaderboardMetric.MINUTES)
 
-        assertEquals("/api/leaderboard?period=MONTH&metric=MINUTES", server.takeRequest().path)
+        assertEquals("/api/leaderboard?period=MONTH&metric=MINUTES&scope=ALL", server.takeRequest().path)
         assertEquals(96, board.entries.single().value)
         assertEquals(null, board.me)
     }
@@ -181,5 +185,52 @@ class SportApiTest {
 
         assertEquals(listOf(interceptor), client.interceptors)
         assertEquals(120_000, client.readTimeoutMillis)
+    }
+
+    @Test
+    fun `Freunde-Aufrufe nutzen die Pfade aus der API-Doku`() = runBlocking {
+        repeat(5) { enqueueJson(200, """{"friends":["lisa_k"],"incoming":["tom_b"],"outgoing":[]}""") }
+
+        val friends = api.friends()
+        api.sendFriendRequest(SendFriendRequest("lisa_k"))
+        api.acceptFriendRequest("tom_b")
+        api.deleteFriendRequest("tom_b")
+        api.removeFriend("lisa_k")
+
+        val requests = List(5) { server.takeRequest() }
+        assertEquals(FriendsDto(listOf("lisa_k"), listOf("tom_b"), emptyList()), friends)
+        assertEquals(
+            listOf(
+                "GET /api/friends",
+                "POST /api/friends/requests",
+                "POST /api/friends/requests/tom_b/accept",
+                "DELETE /api/friends/requests/tom_b",
+                "DELETE /api/friends/lisa_k",
+            ),
+            requests.map { "${it.method} ${it.path}" },
+        )
+        assertEquals("""{"username":"lisa_k"}""", requests[1].body.readUtf8())
+    }
+
+    @Test
+    fun `leaderboard schickt die Auswahl mit`() = runBlocking {
+        enqueueJson(200, """{"period":"WEEK","metric":"POINTS","entries":[]}""")
+
+        api.leaderboard(LeaderboardPeriod.WEEK, LeaderboardMetric.POINTS, LeaderboardScope.FRIENDS)
+
+        assertEquals("/api/leaderboard?period=WEEK&metric=POINTS&scope=FRIENDS", server.takeRequest().path)
+    }
+
+    @Test
+    fun `Aktivitäten von Freunden kommen mit friend und FRIENDS an`() = runBlocking {
+        enqueueJson(
+            200,
+            """[{"id":7,"username":"lisa_k","mine":false,"friend":true,"sportCode":"RUNNING","startedAt":"2026-11-02T09:00:00+01:00","durationMin":30,"caloriesKcal":300,"points":60,"visibility":"FRIENDS"}]""",
+        )
+
+        val activity = api.mapActivities().single()
+
+        assertEquals(true, activity.friend)
+        assertEquals(Visibility.FRIENDS, activity.visibility)
     }
 }

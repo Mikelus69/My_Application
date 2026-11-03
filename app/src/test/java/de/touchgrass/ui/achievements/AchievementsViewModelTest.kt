@@ -6,6 +6,7 @@ import de.touchgrass.data.dto.LeaderboardDto
 import de.touchgrass.data.dto.LeaderboardEntryDto
 import de.touchgrass.data.dto.LeaderboardMetric
 import de.touchgrass.data.dto.LeaderboardPeriod
+import de.touchgrass.data.dto.LeaderboardScope
 import de.touchgrass.data.dto.ProgressDto
 import de.touchgrass.data.dto.StreakDto
 import de.touchgrass.data.dto.WeeklyGoalDto
@@ -28,7 +29,7 @@ class AchievementsViewModelTest {
         val leaderboardCalls = mutableListOf<Pair<LeaderboardPeriod, LeaderboardMetric>>()
         override suspend fun progress(): ProgressDto = progress
         override suspend fun achievements(): List<AchievementDto> = listOf(testAchievement())
-        override suspend fun leaderboard(period: LeaderboardPeriod, metric: LeaderboardMetric): LeaderboardDto {
+        override suspend fun leaderboard(period: LeaderboardPeriod, metric: LeaderboardMetric, scope: LeaderboardScope): LeaderboardDto {
             leaderboardCalls += period to metric
             return LeaderboardDto(period, metric, listOf(LeaderboardEntryDto(1, "max_m", 184)))
         }
