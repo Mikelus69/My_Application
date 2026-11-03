@@ -65,7 +65,7 @@ fun Application.module(database: Database, jwtService: JwtService, clock: Clock 
     val achievementService = AchievementService(AchievementRepository(database), activityRepository, clock)
     val activityService = ActivityService(activityRepository, sportRepository, userRepository, achievementService, friendshipRepository, clock)
     val progressService = ProgressService(userRepository, activityRepository, clock)
-    val leaderboardService = LeaderboardService(LeaderboardRepository(database), clock)
+    val leaderboardService = LeaderboardService(LeaderboardRepository(database), friendshipRepository, clock)
     val statsService = StatsService(activityRepository, clock)
 
     configureSerialization()

@@ -91,6 +91,39 @@ class LeaderboardRoutesTest {
     }
 
     @Test
+    fun `bei Freunde zählen nur die eigene Person und ihre Freunde`() = testApplication {
+        val client = startApp(thursday)
+        val tokens = client.seed()
+        client.befriend(tokens.getValue("lisa"), "lisa", tokens.getValue("tom"), "tom")
+
+        val board = client.get("/api/leaderboard?scope=FRIENDS") { bearerAuth(tokens.getValue("lisa")) }.body<LeaderboardDto>()
+
+        assertEquals(listOf(LeaderboardEntryDto(1, "lisa", 70), LeaderboardEntryDto(1, "tom", 70)), board.entries)
+        assertEquals(LeaderboardEntryDto(1, "lisa", 70), board.me)
+    }
+
+    @Test
+    fun `ohne Freunde steht man in der Freunde-Rangliste allein`() = testApplication {
+        val client = startApp(thursday)
+        val tokens = client.seed()
+
+        val board = client.get("/api/leaderboard?scope=FRIENDS") { bearerAuth(tokens.getValue("max_m")) }.body<LeaderboardDto>()
+
+        assertEquals(listOf(LeaderboardEntryDto(1, "max_m", 90)), board.entries)
+    }
+
+    @Test
+    fun `unbekannte Auswahl liefert 400`() = testApplication {
+        val client = startApp(thursday)
+        val token = client.register("max_m").token
+
+        val response = client.get("/api/leaderboard?scope=CLUB") { bearerAuth(token) }
+
+        assertEquals(HttpStatusCode.BadRequest, response.status)
+        assertEquals("scope", response.body<ErrorResponse>().field)
+    }
+
+    @Test
     fun `Leaderboard braucht eine Anmeldung`() = testApplication {
         val client = startApp(thursday)
 

@@ -19,6 +19,9 @@ enum class LeaderboardPeriod { WEEK, MONTH }
 enum class LeaderboardMetric { POINTS, MINUTES }
 
 @Serializable
+enum class LeaderboardScope { ALL, FRIENDS }
+
+@Serializable
 data class LeaderboardEntryDto(val rank: Int, val username: String, val value: Int)
 
 @Serializable

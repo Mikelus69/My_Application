@@ -228,7 +228,7 @@ Eigene Aktivitäten, öffentliche Aktivitäten anderer und „Freunde“-Aktivit
 
 ### GET /leaderboard
 
-Parameter: `period=WEEK|MONTH`, `metric=POINTS|MINUTES` (Standard: `WEEK`, `POINTS`).
+Parameter: `period=WEEK|MONTH`, `metric=POINTS|MINUTES`, `scope=ALL|FRIENDS` (Standard: `WEEK`, `POINTS`, `ALL`). Bei `FRIENDS` zählen nur man selbst und die Freunde.
 
 `200`
 ```json
@@ -244,7 +244,7 @@ Parameter: `period=WEEK|MONTH`, `metric=POINTS|MINUTES` (Standard: `WEEK`, `POIN
   "me": { "rank": 2, "username": "lisa", "value": 162 }
 }
 ```
-Höchstens 50 Einträge, bei gleichem Wert alphabetisch. `me` fehlt, wenn man im Zeitraum keine Aktivität hat. Private Aktivitäten zählen mit, zu sehen sind nur Benutzername und Wert. Fehler: `400 VALIDATION_ERROR` mit `field` `period` oder `metric` bei unbekanntem Wert.
+Höchstens 50 Einträge, bei gleichem Wert alphabetisch. `me` fehlt, wenn man im Zeitraum keine Aktivität hat. Private Aktivitäten zählen mit, zu sehen sind nur Benutzername und Wert. Fehler: `400 VALIDATION_ERROR` mit `field` `period`, `metric` oder `scope` bei unbekanntem Wert.
 
 ### GET /stats
 

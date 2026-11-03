@@ -16,7 +16,7 @@ fun Route.progressRoutes(progress: ProgressService, leaderboard: LeaderboardServ
         }
         get("/leaderboard") {
             val query = call.request.queryParameters
-            call.respond(leaderboard.leaderboard(call.userId(), query["period"], query["metric"]))
+            call.respond(leaderboard.leaderboard(call.userId(), query["period"], query["metric"], query["scope"]))
         }
     }
 }

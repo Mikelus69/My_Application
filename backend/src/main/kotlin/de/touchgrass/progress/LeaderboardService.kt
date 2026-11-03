@@ -1,5 +1,6 @@
 package de.touchgrass.progress
 
+import de.touchgrass.friends.FriendshipRepository
 import de.touchgrass.logic.BerlinTime
 import de.touchgrass.logic.Leaderboard
 import de.touchgrass.logic.RankedScore
@@ -9,17 +10,20 @@ import java.time.OffsetDateTime
 
 class LeaderboardService(
     private val leaderboard: LeaderboardRepository,
+    private val friendships: FriendshipRepository,
     private val clock: Clock = Clock.systemUTC(),
 ) {
-    fun leaderboard(userId: Long, period: String?, metric: String?): LeaderboardDto {
+    fun leaderboard(userId: Long, period: String?, metric: String?, scope: String?): LeaderboardDto {
         val chosenPeriod = choice(period, LeaderboardPeriod.WEEK, "period", "Zeitraum bitte als WEEK oder MONTH angeben.")
         val chosenMetric = choice(metric, LeaderboardMetric.POINTS, "metric", "Wertung bitte als POINTS oder MINUTES angeben.")
+        val chosenScope = choice(scope, LeaderboardScope.ALL, "scope", "Auswahl bitte als ALL oder FRIENDS angeben.")
         val now = OffsetDateTime.now(clock)
         val range = when (chosenPeriod) {
             LeaderboardPeriod.WEEK -> BerlinTime.weekOf(now)
             LeaderboardPeriod.MONTH -> BerlinTime.monthOf(now)
         }
-        val ranked = Leaderboard.rank(leaderboard.scores(range, chosenMetric))
+        val onlyUsers = if (chosenScope == LeaderboardScope.FRIENDS) friendships.friendIds(userId) + userId else null
+        val ranked = Leaderboard.rank(leaderboard.scores(range, chosenMetric, onlyUsers))
         return LeaderboardDto(
             period = chosenPeriod,
             metric = chosenMetric,
