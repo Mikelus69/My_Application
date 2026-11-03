@@ -29,5 +29,6 @@ fun PointsBreakdownDto.describe(): String = buildList {
     if (weeklyGoal > 0) add("+$weeklyGoal Wochenziel")
 }.joinToString(" · ")
 
-fun List<SportDto>.labelFor(code: String): String =
-    firstOrNull { it.code == code }?.let { "${it.emoji} ${it.name}" } ?: code
+fun SportDto.label(): String = "$emoji $name"
+
+fun List<SportDto>.labelFor(code: String): String = firstOrNull { it.code == code }?.label() ?: code

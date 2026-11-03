@@ -1,6 +1,5 @@
 package de.touchgrass.ui.record
 
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -38,6 +37,7 @@ import de.touchgrass.data.dto.Visibility
 import de.touchgrass.ui.activities.formatDate
 import de.touchgrass.ui.activities.formatTime
 import de.touchgrass.ui.components.FormField
+import de.touchgrass.ui.components.SportPicker
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalTime
@@ -60,21 +60,16 @@ fun RecordScreen(viewModel: RecordViewModel, onBack: () -> Unit) {
         state.savedMessage?.let { Text(it, color = MaterialTheme.colorScheme.primary) }
         state.error?.let { Text(it, color = MaterialTheme.colorScheme.error) }
 
-        Text("Sportart")
         state.sportsError?.let {
             Text(it, color = MaterialTheme.colorScheme.error)
             TextButton(onClick = viewModel::loadSports) { Text("Erneut versuchen") }
         }
-        Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            state.sports.forEach { sport ->
-                FilterChip(
-                    selected = state.sportCode == sport.code,
-                    onClick = { viewModel.onSportChange(sport.code) },
-                    label = { Text("${sport.emoji} ${sport.name}") },
-                )
-            }
-        }
-        state.fieldErrors["sportCode"]?.let { Text(it, color = MaterialTheme.colorScheme.error) }
+        SportPicker(
+            sports = state.sports,
+            selectedCode = state.sportCode,
+            onSelect = { code -> if (code != null) viewModel.onSportChange(code) },
+            error = state.fieldErrors["sportCode"],
+        )
 
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             OutlinedButton(onClick = { pickDate = true }) { Text("📅 ${formatDate(state.date)}") }

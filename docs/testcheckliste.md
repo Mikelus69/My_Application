@@ -19,7 +19,8 @@ Von oben nach unten durchgehen, vor jeder Abgabe und vor der Präsentation. Die 
 ## 2. Aktivität mit Timer
 
 - [ ] ➕ Aktivität: „▶ Start“ ohne Sportart → „Bitte eine Sportart wählen.“
-- [ ] 🏃 Joggen wählen, „▶ Start“ → die Zeit läuft, und der ➕-Tab zeigt sie statt „Aktivität“. Mindestens eine Minute laufen lassen.
+- [ ] „Sportart“ antippen → alle Sportarten von A bis Z. `ball` tippen → nur noch die mit „ball“ im Namen, etwa „🏀 Basketball“ und „⚽ Fußball“. `xyz` → „Keine Sportart gefunden“.
+- [ ] Suchtext löschen, `jog` tippen, „🏃 Joggen“ antippen → das Feld zeigt „🏃 Joggen“, Liste und Tastatur gehen zu. „▶ Start“ → die Zeit läuft, und der ➕-Tab zeigt sie statt „Aktivität“. Mindestens eine Minute laufen lassen.
 - [ ] „⏸ Pause“ → die Zeit steht. „▶ Weiter“ → sie läuft weiter.
 - [ ] App ganz schließen (aus den letzten Apps wischen) und neu öffnen → der Timer läuft mit der richtigen Zeit weiter.
 - [ ] „⏹ Stopp“ → Formular mit Sportart, Datum, Uhrzeit und Dauer vom Timer.
@@ -47,7 +48,7 @@ Von oben nach unten durchgehen, vor jeder Abgabe und vor der Präsentation. Die 
 
 - [ ] 👤 Profil: „Diese Woche: 2 Aktivitäten · … min · ~… kcal“.
 - [ ] 📊 Statistik: „Minuten pro Woche“ mit KW-Nummern, „Aktivitäten je Sportart“ mit 🏃 und 🚴, „kcal pro Monat (geschätzt)“ mit Monatskürzeln. „← Zurück“ führt ins Profil.
-- [ ] 📜 Verlauf: beide Aktivitäten. Filter „🚴 Radfahren“ → nur noch eine. „7 Tage“, „30 Tage“ und „Alle“ lassen sich umschalten.
+- [ ] 📜 Verlauf: beide Aktivitäten. Im Feld „Sportart“ „🚴 Radfahren“ wählen → nur noch eine, „Alle Sportarten“ → wieder beide. „7 Tage“, „30 Tage“ und „Alle“ lassen sich umschalten.
 - [ ] Eine Aktivität antippen → Details mit Dauer, kcal und Punkten. „Aktivität löschen“ → Rückfrage „Aktivität löschen?“ → „Löschen“ → sie fehlt im Verlauf, und die Statistik zählt sie nicht mehr.
 
 ## 7. Passwort, Abmelden, Konto löschen

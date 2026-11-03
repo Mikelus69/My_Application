@@ -360,7 +360,7 @@ Bottom-Bar: 🗺️ Karte · ➕ Aktivität · 🏆 Erfolge · 👤 Profil
 
 **Timer-Screen**
 
-- Sportart als Chips, große Zeitanzeige, ▶ Start / ⏸ Pause / ▶ Weiter / ⏹ Stopp.
+- Sportart-Auswahl, große Zeitanzeige, ▶ Start / ⏸ Pause / ▶ Weiter / ⏹ Stopp.
 - Link „Ohne Timer nachtragen“ öffnet das Formular leer.
 - Läuft der Timer, zeigt der ➕-Tab die laufende Zeit an.
 
@@ -374,7 +374,7 @@ Bottom-Bar: 🗺️ Karte · ➕ Aktivität · 🏆 Erfolge · 👤 Profil
 
 | Feld | Inhalt |
 |---|---|
-| Sportart | Auswahl |
+| Sportart | Sportart-Auswahl |
 | Datum/Uhrzeit | vom Timer vorausgefüllt |
 | Dauer | vom Timer vorausgefüllt, änderbar |
 | Ort | auf kleiner Karte tippen, „📍 Aktueller Standort“ oder „Ohne Standort“ |
@@ -396,13 +396,14 @@ Drei Tabs:
 Kopf mit Benutzername und den Zahlen dieser Woche, darunter drei Einträge:
 
 - **Statistik:** vier Vico-Diagramme
-- **Verlauf:** Liste mit Filtern (Sportart, Zeitraum). Tippen öffnet die Details, dort ist Löschen mit Rückfrage möglich.
+- **Verlauf:** Liste mit Filtern (Sportart-Auswahl mit „Alle Sportarten“, Zeitraum). Tippen öffnet die Details, dort ist Löschen mit Rückfrage möglich.
 - **Einstellungen:** Gewicht, Wochenziel, Passwort ändern, Logout, Konto löschen (mit Rückfrage)
 
 ### Gemeinsame Muster
 
 - Jeder Screen-Zustand ist `Loading`, `Content` oder `Error` (Meldung + „Erneut versuchen“).
 - Fehlertexte kommen aus dem `message` der API, Netzwerkfehler bekommen einen eigenen Text („Server nicht erreichbar“).
+- **Sportart-Auswahl:** ein Feld mit Dropdown, die Sportarten von A bis Z nach deutschem Alphabet. Jeder getippte Buchstabe filtert die Liste sofort. Treffer zählen überall im Namen, Groß- und Kleinschreibung, Umlaute und ß zählen nicht: „fuss“ findet „Fußball“. Ohne Treffer steht dort „Keine Sportart gefunden“.
 
 ### Paket-Struktur
 
@@ -457,6 +458,7 @@ de.touchgrass
 ### App
 
 - Unit-Tests der Timer-Rechnung (Start, Pausen, Fortsetzen nach Neustart).
+- Unit-Tests der Sportsuche (Reihenfolge, Treffer im Namen, Umlaute und ß).
 - Manuelle Test-Checkliste für alle Screens, gleichzeitig Demo-Ablauf für die Präsentation.
 
 ## 9. Meilensteine
