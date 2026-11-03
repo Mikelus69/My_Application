@@ -3,6 +3,7 @@ package de.touchgrass.ui.activities
 import de.touchgrass.data.dto.ActivityDto
 import de.touchgrass.data.dto.PointsBreakdownDto
 import de.touchgrass.data.dto.SportDto
+import de.touchgrass.data.dto.Visibility
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.OffsetDateTime
@@ -32,3 +33,9 @@ fun PointsBreakdownDto.describe(): String = buildList {
 fun SportDto.label(): String = "$emoji $name"
 
 fun List<SportDto>.labelFor(code: String): String = firstOrNull { it.code == code }?.label() ?: code
+
+fun Visibility.label(): String = when (this) {
+    Visibility.PRIVATE -> "🔒 Privat"
+    Visibility.FRIENDS -> "👥 Freunde"
+    Visibility.PUBLIC -> "🌎 Öffentlich"
+}

@@ -233,4 +233,17 @@ class RecordViewModelTest {
         assertEquals(testSports, viewModel.state.value.sports)
         assertNull(viewModel.state.value.sportsError)
     }
+
+    @Test
+    fun `Sichtbarkeit Freunde wird mitgeschickt`() {
+        val api = Api()
+        val viewModel = RecordViewModel(api, FakeTimerStore(), fromTimer = false, clock)
+
+        viewModel.onSportChange("RUNNING")
+        viewModel.onDurationChange("45")
+        viewModel.onVisibilityChange(Visibility.FRIENDS)
+        viewModel.save()
+
+        assertEquals(Visibility.FRIENDS, api.sent?.visibility)
+    }
 }

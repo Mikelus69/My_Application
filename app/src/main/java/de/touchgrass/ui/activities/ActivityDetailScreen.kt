@@ -19,7 +19,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import de.touchgrass.data.dto.Visibility
 import de.touchgrass.ui.UiState
 import de.touchgrass.ui.components.LoadingIndicator
 
@@ -44,7 +43,7 @@ fun ActivityDetailScreen(viewModel: ActivityDetailViewModel, onBack: () -> Unit)
                 Text("${activity.durationMin} Minuten")
                 Text("~${activity.caloriesKcal} kcal (geschätzt)")
                 Text("${activity.points} Punkte")
-                Text(if (activity.visibility == Visibility.PUBLIC) "🌎 Öffentlich" else "🔒 Privat")
+                Text(activity.visibility.label())
                 activity.description?.let { Text("„$it“") }
                 state.error?.let { Text(it, color = MaterialTheme.colorScheme.error) }
                 if (activity.mine) {

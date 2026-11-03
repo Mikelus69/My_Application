@@ -1,6 +1,7 @@
 package de.touchgrass.ui.activities
 
 import de.touchgrass.data.dto.PointsBreakdownDto
+import de.touchgrass.data.dto.Visibility
 import de.touchgrass.testing.testActivity
 import de.touchgrass.testing.testSports
 import org.junit.Assert.assertEquals
@@ -25,5 +26,10 @@ class ActivityFormatTest {
     fun `Sportart wird mit Emoji angezeigt, unbekannte mit Code`() {
         assertEquals("🏃 Joggen", testSports.labelFor("RUNNING"))
         assertEquals("CURLING", testSports.labelFor("CURLING"))
+    }
+
+    @Test
+    fun `Sichtbarkeit wird mit Emoji angezeigt`() {
+        assertEquals(listOf("🔒 Privat", "👥 Freunde", "🌎 Öffentlich"), Visibility.entries.map { it.label() })
     }
 }

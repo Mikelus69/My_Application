@@ -65,7 +65,8 @@ private fun ActivityMap(content: MapContent) {
         onDenied = { hint = LOCATION_DENIED },
     )
     val ownColor = MaterialTheme.colorScheme.primary
-    val (own, others) = content.activities.partition { it.mine }
+    val friendColor = MaterialTheme.colorScheme.tertiary
+    val groups = content.activities.groupByOwner()
 
     Box(Modifier.fillMaxSize()) {
         val userLocation = if (showMyLocation) rememberUserLocation() else null
@@ -74,8 +75,9 @@ private fun ActivityMap(content: MapContent) {
             baseStyle = BaseStyle.Uri(MAP_STYLE_URL),
             cameraState = cameraState,
         ) {
-            ActivityMarkers("others", others, Color.Gray) { selected = it }
-            ActivityMarkers("own", own, ownColor) { selected = it }
+            ActivityMarkers("others", groups.others, Color.Gray) { selected = it }
+            ActivityMarkers("friends", groups.friends, friendColor) { selected = it }
+            ActivityMarkers("own", groups.own, ownColor) { selected = it }
             userLocation?.let { LocationPuck("me", it, cameraState) }
         }
 
@@ -105,7 +107,7 @@ private fun ActivitySheet(activity: ActivityDto, sports: List<SportDto>, onDismi
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             Text(sports.labelFor(activity.sportCode), style = MaterialTheme.typography.headlineSmall)
-            Text(if (activity.mine) "von dir" else "von ${activity.username}")
+            Text(activity.ownerLabel())
             Text(activity.startedAtLabel())
             Text("${activity.durationMin} Minuten · ~${activity.caloriesKcal} kcal")
             activity.description?.let { Text("„$it“") }

@@ -43,4 +43,16 @@ class MapDataTest {
         assertEquals(GERMANY, startPosition(listOf(other)))
         assertEquals(GERMANY, startPosition(emptyList()))
     }
+
+    @Test
+    fun `Marker teilen sich in eigene, von Freunden und andere`() {
+        val friend = other.copy(id = 4, username = "tom_b", friend = true)
+
+        val groups = listOf(own, friend, other).groupByOwner()
+
+        assertEquals(listOf(own), groups.own)
+        assertEquals(listOf(friend), groups.friends)
+        assertEquals(listOf(other), groups.others)
+        assertEquals(listOf("von dir", "von tom_b · 👥 Freund", "von lisa"), listOf(own, friend, other).map { it.ownerLabel() })
+    }
 }

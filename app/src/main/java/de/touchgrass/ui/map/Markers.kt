@@ -32,6 +32,20 @@ fun List<ActivityDto>.toFeatureCollection(): FeatureCollection<Point, JsonObject
         }
     )
 
+data class MarkerGroups(val own: List<ActivityDto>, val friends: List<ActivityDto>, val others: List<ActivityDto>)
+
+fun List<ActivityDto>.groupByOwner(): MarkerGroups = MarkerGroups(
+    own = filter { it.mine },
+    friends = filter { !it.mine && it.friend },
+    others = filter { !it.mine && !it.friend },
+)
+
+fun ActivityDto.ownerLabel(): String = when {
+    mine -> "von dir"
+    friend -> "von $username · 👥 Freund"
+    else -> "von $username"
+}
+
 @Composable
 @MaplibreComposable
 fun ActivityMarkers(id: String, activities: List<ActivityDto>, color: Color, onClick: (ActivityDto) -> Unit) {

@@ -36,6 +36,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import de.touchgrass.data.dto.Visibility
 import de.touchgrass.ui.activities.formatDate
 import de.touchgrass.ui.activities.formatTime
+import de.touchgrass.ui.activities.label
 import de.touchgrass.ui.components.FormField
 import de.touchgrass.ui.components.SportPicker
 import java.time.Instant
@@ -94,16 +95,13 @@ fun RecordScreen(viewModel: RecordViewModel, onBack: () -> Unit) {
         )
 
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            FilterChip(
-                selected = state.visibility == Visibility.PRIVATE,
-                onClick = { viewModel.onVisibilityChange(Visibility.PRIVATE) },
-                label = { Text("🔒 Privat") },
-            )
-            FilterChip(
-                selected = state.visibility == Visibility.PUBLIC,
-                onClick = { viewModel.onVisibilityChange(Visibility.PUBLIC) },
-                label = { Text("🌎 Öffentlich") },
-            )
+            Visibility.entries.forEach { visibility ->
+                FilterChip(
+                    selected = state.visibility == visibility,
+                    onClick = { viewModel.onVisibilityChange(visibility) },
+                    label = { Text(visibility.label()) },
+                )
+            }
         }
 
         Button(onClick = viewModel::save, enabled = !state.saving, modifier = Modifier.fillMaxWidth()) {
