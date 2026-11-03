@@ -24,7 +24,7 @@ Alle Fehler haben dieselbe Form. `field` gibt es nur bei Eingabefehlern.
 | 401 | `UNAUTHORIZED` | Token fehlt, ist ungültig oder abgelaufen |
 | 401 | `INVALID_CREDENTIALS` | Login falsch (nur `POST /auth/login`) |
 | 403 | `FORBIDDEN` | Fremde Aktivität löschen |
-| 404 | `NOT_FOUND` | Pfad oder Objekt existiert nicht (auch: private Aktivität anderer) |
+| 404 | `NOT_FOUND` | Pfad oder Objekt existiert nicht (auch: Aktivität, die man nicht sehen darf) |
 | 404 | `USER_NOT_FOUND` | Benutzername unbekannt (nur `POST /friends/requests`) |
 | 409 | `USERNAME_TAKEN`, `EMAIL_TAKEN` | Benutzername oder E-Mail schon vergeben |
 | 409 | `ALREADY_FRIENDS`, `REQUEST_PENDING` | Schon befreundet oder eigene Anfrage noch offen |
@@ -51,6 +51,7 @@ Eine `401` bedeutet außer beim Login immer: Token fehlt oder ist ungültig. Die
   "id": 42,
   "username": "max_m",
   "mine": true,
+  "friend": false,
   "sportCode": "RUNNING",
   "startedAt": "2026-10-04T09:30:00+02:00",
   "durationMin": 48,
@@ -62,7 +63,7 @@ Eine `401` bedeutet außer beim Login immer: Token fehlt oder ist ungültig. Die
   "visibility": "PRIVATE"
 }
 ```
-`latitude`, `longitude` und `description` fehlen, wenn nicht gesetzt. `mine` ist `true`, wenn die Aktivität dem angemeldeten Benutzer gehört. `visibility`: `PRIVATE` | `PUBLIC`.
+`latitude`, `longitude` und `description` fehlen, wenn nicht gesetzt. `mine` ist `true`, wenn die Aktivität dem angemeldeten Benutzer gehört, `friend`, wenn sie von einem Freund stammt. `visibility`: `PRIVATE` | `FRIENDS` | `PUBLIC`.
 
 **Achievement**
 ```json
@@ -162,12 +163,12 @@ Löscht das Konto mit allen Aktivitäten, Achievements, Freundschaften und Anfra
   "visibility": "PRIVATE"
 }
 ```
-`latitude`, `longitude`, `description` optional. `visibility` optional, Standard `PRIVATE`.
+`latitude`, `longitude`, `description` optional. `visibility` optional, Standard `PRIVATE`. `FRIENDS` sehen nur Freunde, `PUBLIC` alle.
 
 `201`
 ```json
 {
-  "activity": { "id": 42, "username": "max_m", "mine": true, "sportCode": "RUNNING", "startedAt": "2026-10-04T09:30:00+02:00", "durationMin": 48, "caloriesKcal": 512, "points": 78, "latitude": 48.1642, "longitude": 11.6056, "description": "Schöne Runde", "visibility": "PRIVATE" },
+  "activity": { "id": 42, "username": "max_m", "mine": true, "friend": false, "sportCode": "RUNNING", "startedAt": "2026-10-04T09:30:00+02:00", "durationMin": 48, "caloriesKcal": 512, "points": 78, "latitude": 48.1642, "longitude": 11.6056, "description": "Schöne Runde", "visibility": "PRIVATE" },
   "pointsBreakdown": { "minutes": 48, "completed": 10, "newSport": 20, "weeklyGoal": 0, "total": 78 },
   "newAchievements": [
     { "code": "FIRST_ACTIVITY", "name": "Erste Schritte", "description": "Erste Aktivität eingetragen", "emoji": "🥉", "threshold": 1, "progress": 1, "unlockedAt": "2026-10-04T10:18:00+02:00" }
@@ -197,7 +198,7 @@ Eigener Verlauf, neueste zuerst. Alle Parameter optional:
 
 ### GET /activities/{id}
 
-`200`: `Activity`. Fehler: `404 NOT_FOUND`, wenn es die Aktivität nicht gibt oder sie privat und fremd ist.
+`200`: `Activity`. Zu sehen sind eigene, öffentliche und „Freunde“-Aktivitäten von Freunden. Fehler: `404 NOT_FOUND`, wenn es die Aktivität nicht gibt oder man sie nicht sehen darf.
 
 ### DELETE /activities/{id}
 
@@ -205,7 +206,7 @@ Eigener Verlauf, neueste zuerst. Alle Parameter optional:
 
 ### GET /map/activities
 
-Eigene Aktivitäten und öffentliche Aktivitäten anderer, jeweils nur mit Standort, neueste zuerst.
+Eigene Aktivitäten, öffentliche Aktivitäten anderer und „Freunde“-Aktivitäten von Freunden, jeweils nur mit Standort, neueste zuerst.
 `200`: Liste von `Activity`.
 
 ### GET /achievements

@@ -63,7 +63,7 @@ fun Application.module(database: Database, jwtService: JwtService, clock: Clock 
     val userService = UserService(userRepository, jwtService)
     val friendService = FriendService(friendshipRepository, userRepository)
     val achievementService = AchievementService(AchievementRepository(database), activityRepository, clock)
-    val activityService = ActivityService(activityRepository, sportRepository, userRepository, achievementService, clock)
+    val activityService = ActivityService(activityRepository, sportRepository, userRepository, achievementService, friendshipRepository, clock)
     val progressService = ProgressService(userRepository, activityRepository, clock)
     val leaderboardService = LeaderboardService(LeaderboardRepository(database), clock)
     val statsService = StatsService(activityRepository, clock)

@@ -1,6 +1,7 @@
 package de.touchgrass.activities
 
 import de.touchgrass.achievements.AchievementService
+import de.touchgrass.friends.FriendshipRepository
 import de.touchgrass.logic.BerlinTime
 import de.touchgrass.logic.Calories
 import de.touchgrass.logic.Points
@@ -19,6 +20,7 @@ class ActivityService(
     private val sports: SportRepository,
     private val users: UserRepository,
     private val achievements: AchievementService,
+    private val friendships: FriendshipRepository,
     private val clock: Clock = Clock.systemUTC(),
 ) {
     fun create(userId: Long, request: CreateActivityRequest): CreateActivityResponse {
@@ -71,12 +73,15 @@ class ActivityService(
         ).map { it.toDto(viewerId = userId) }
     }
 
-    fun map(userId: Long): List<ActivityDto> = activities.forMap(userId).map { it.toDto(viewerId = userId) }
+    fun map(userId: Long): List<ActivityDto> {
+        val friendIds = friendships.friendIds(userId)
+        return activities.forMap(userId, friendIds).map { it.toDto(viewerId = userId, friendIds) }
+    }
 
     fun get(userId: Long, id: Long): ActivityDto {
-        val activity = activities.findById(id)
-        if (activity == null || (activity.userId != userId && activity.visibility == Visibility.PRIVATE)) throw notFound()
-        return activity.toDto(viewerId = userId)
+        val friendIds = friendships.friendIds(userId)
+        val activity = activities.findVisible(id, userId, friendIds) ?: throw notFound()
+        return activity.toDto(viewerId = userId, friendIds)
     }
 
     fun delete(userId: Long, id: Long) {
@@ -89,10 +94,11 @@ class ActivityService(
 
     private fun notFound() = ApiException(HttpStatusCode.NotFound, "NOT_FOUND", "Aktivität nicht gefunden.")
 
-    private fun ActivityRecord.toDto(viewerId: Long) = ActivityDto(
+    private fun ActivityRecord.toDto(viewerId: Long, friendIds: Set<Long> = emptySet()) = ActivityDto(
         id = id,
         username = username,
         mine = userId == viewerId,
+        friend = userId in friendIds,
         sportCode = sportCode,
         startedAt = BerlinTime.format(startedAt),
         durationMin = durationMin,

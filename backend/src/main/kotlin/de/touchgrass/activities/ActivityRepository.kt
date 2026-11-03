@@ -10,6 +10,7 @@ import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.dao.id.LongIdTable
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.core.greaterEq
+import org.jetbrains.exposed.v1.core.inList
 import org.jetbrains.exposed.v1.core.isNotNull
 import org.jetbrains.exposed.v1.core.less
 import org.jetbrains.exposed.v1.core.or
@@ -100,12 +101,13 @@ class ActivityRepository(private val database: Database) {
                 .map { it.toRecord() }
         }
 
-    fun forMap(userId: Long): List<ActivityRecord> = transaction(database) {
+    fun findVisible(id: Long, viewerId: Long, friendIds: Set<Long>): ActivityRecord? = transaction(database) {
+        withUser.selectAll().where { (ActivitiesTable.id eq id) and visibleTo(viewerId, friendIds) }.singleOrNull()?.toRecord()
+    }
+
+    fun forMap(viewerId: Long, friendIds: Set<Long>): List<ActivityRecord> = transaction(database) {
         withUser.selectAll()
-            .where {
-                ActivitiesTable.latitude.isNotNull() and
-                    ((ActivitiesTable.userId eq userId) or (ActivitiesTable.visibility eq Visibility.PUBLIC))
-            }
+            .where { ActivitiesTable.latitude.isNotNull() and visibleTo(viewerId, friendIds) }
             .orderBy(ActivitiesTable.startedAt to SortOrder.DESC, ActivitiesTable.id to SortOrder.DESC)
             .map { it.toRecord() }
     }
@@ -121,6 +123,12 @@ class ActivityRepository(private val database: Database) {
     fun delete(id: Long) = transaction(database) {
         ActivitiesTable.deleteWhere { ActivitiesTable.id eq id }
     }
+
+    // Die einzige Stelle, die festlegt, wer welche Aktivität sieht. Karte und Details nutzen beide diese Bedingung.
+    private fun visibleTo(viewerId: Long, friendIds: Set<Long>): Op<Boolean> =
+        (ActivitiesTable.userId eq viewerId) or
+            (ActivitiesTable.visibility eq Visibility.PUBLIC) or
+            ((ActivitiesTable.visibility eq Visibility.FRIENDS) and (ActivitiesTable.userId inList friendIds))
 
     private fun ResultRow.toRecord() = ActivityRecord(
         id = this[ActivitiesTable.id].value,

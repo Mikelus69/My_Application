@@ -5,7 +5,7 @@ import de.touchgrass.logic.PointsBreakdown
 import kotlinx.serialization.Serializable
 
 @Serializable
-enum class Visibility { PRIVATE, PUBLIC }
+enum class Visibility { PRIVATE, FRIENDS, PUBLIC }
 
 @Serializable
 data class CreateActivityRequest(
@@ -23,6 +23,7 @@ data class ActivityDto(
     val id: Long,
     val username: String,
     val mine: Boolean,
+    val friend: Boolean,
     val sportCode: String,
     val startedAt: String,
     val durationMin: Int,
