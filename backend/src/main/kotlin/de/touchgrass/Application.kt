@@ -10,6 +10,8 @@ import de.touchgrass.auth.configureSecurity
 import de.touchgrass.config.AppConfig
 import de.touchgrass.db.BackendAlreadyRunning
 import de.touchgrass.db.DatabaseFactory
+import de.touchgrass.friends.FriendService
+import de.touchgrass.friends.FriendshipRepository
 import de.touchgrass.plugins.configureSerialization
 import de.touchgrass.plugins.configureStatusPages
 import de.touchgrass.progress.LeaderboardRepository
@@ -18,6 +20,7 @@ import de.touchgrass.progress.ProgressService
 import de.touchgrass.routes.achievementRoutes
 import de.touchgrass.routes.activityRoutes
 import de.touchgrass.routes.authRoutes
+import de.touchgrass.routes.friendRoutes
 import de.touchgrass.routes.healthRoutes
 import de.touchgrass.routes.meRoutes
 import de.touchgrass.routes.progressRoutes
@@ -56,7 +59,9 @@ fun Application.module(database: Database, jwtService: JwtService, clock: Clock 
     val userRepository = UserRepository(database)
     val sportRepository = SportRepository(database)
     val activityRepository = ActivityRepository(database)
+    val friendshipRepository = FriendshipRepository(database)
     val userService = UserService(userRepository, jwtService)
+    val friendService = FriendService(friendshipRepository, userRepository)
     val achievementService = AchievementService(AchievementRepository(database), activityRepository, clock)
     val activityService = ActivityService(activityRepository, sportRepository, userRepository, achievementService, clock)
     val progressService = ProgressService(userRepository, activityRepository, clock)
@@ -76,6 +81,7 @@ fun Application.module(database: Database, jwtService: JwtService, clock: Clock 
             achievementRoutes(achievementService)
             progressRoutes(progressService, leaderboardService)
             statsRoutes(statsService)
+            friendRoutes(friendService)
         }
     }
 }

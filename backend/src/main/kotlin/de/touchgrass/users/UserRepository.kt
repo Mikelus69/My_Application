@@ -44,6 +44,10 @@ class UserRepository(private val database: Database) {
             .singleOrNull()?.toRecord()
     }
 
+    fun findByUsername(username: String): UserRecord? = transaction(database) {
+        UsersTable.selectAll().where { UsersTable.username.lowerCase() eq username.trim().lowercase() }.singleOrNull()?.toRecord()
+    }
+
     fun usernameTaken(username: String): Boolean = transaction(database) {
         UsersTable.selectAll().where { UsersTable.username.lowerCase() eq username.lowercase() }.count() > 0
     }

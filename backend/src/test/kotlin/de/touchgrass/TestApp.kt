@@ -4,6 +4,7 @@ import de.touchgrass.activities.CreateActivityRequest
 import de.touchgrass.activities.CreateActivityResponse
 import de.touchgrass.activities.Visibility
 import de.touchgrass.auth.JwtService
+import de.touchgrass.friends.SendFriendRequest
 import de.touchgrass.users.AuthResponse
 import de.touchgrass.users.RegisterRequest
 import io.ktor.client.HttpClient
@@ -55,3 +56,8 @@ fun activity(
 
 suspend fun HttpClient.createActivity(token: String, request: CreateActivityRequest = activity()): CreateActivityResponse =
     post("/api/activities") { bearerAuth(token); jsonBody(request) }.body()
+
+suspend fun HttpClient.befriend(token: String, username: String, otherToken: String, otherUsername: String) {
+    post("/api/friends/requests") { bearerAuth(token); jsonBody(SendFriendRequest(otherUsername)) }
+    post("/api/friends/requests/$username/accept") { bearerAuth(otherToken) }
+}

@@ -25,7 +25,9 @@ Alle Fehler haben dieselbe Form. `field` gibt es nur bei Eingabefehlern.
 | 401 | `INVALID_CREDENTIALS` | Login falsch (nur `POST /auth/login`) |
 | 403 | `FORBIDDEN` | Fremde Aktivität löschen |
 | 404 | `NOT_FOUND` | Pfad oder Objekt existiert nicht (auch: private Aktivität anderer) |
+| 404 | `USER_NOT_FOUND` | Benutzername unbekannt (nur `POST /friends/requests`) |
 | 409 | `USERNAME_TAKEN`, `EMAIL_TAKEN` | Benutzername oder E-Mail schon vergeben |
+| 409 | `ALREADY_FRIENDS`, `REQUEST_PENDING` | Schon befreundet oder eigene Anfrage noch offen |
 | 500 | `INTERNAL_ERROR` | Unerwarteter Serverfehler |
 
 Eine `401` bedeutet außer beim Login immer: Token fehlt oder ist ungültig. Die App meldet sich dann ab. Alle anderen Fehleingaben sind `400`.
@@ -68,6 +70,12 @@ Eine `401` bedeutet außer beim Login immer: Token fehlt oder ist ungültig. Die
 ```
 Freigeschaltete haben zusätzlich `"unlockedAt": "2026-10-04T10:18:00+02:00"`. `progress` geht höchstens bis `threshold`, freigeschaltete haben immer `progress = threshold` (auch wenn Aktivitäten später gelöscht wurden).
 
+**Friends**
+```json
+{ "friends": ["lisa_k", "max"], "incoming": ["tom_b"], "outgoing": ["anna"] }
+```
+Benutzernamen der Freunde, der offenen Anfragen an mich (`incoming`) und meiner offenen Anfragen (`outgoing`), jeweils alphabetisch ohne Rücksicht auf Groß- und Kleinschreibung.
+
 ## Endpunkte
 
 | Methode | Pfad | Meilenstein |
@@ -82,6 +90,9 @@ Freigeschaltete haben zusätzlich `"unlockedAt": "2026-10-04T10:18:00+02:00"`. `
 | GET | `/map/activities` | M3 |
 | GET | `/achievements`, `/progress`, `/leaderboard` | M4 |
 | GET | `/stats` | M5 |
+| GET | `/friends` | M7 |
+| POST | `/friends/requests`, `/friends/requests/{username}/accept` | M7 |
+| DELETE | `/friends/requests/{username}`, `/friends/{username}` | M7 |
 
 ### GET /health
 
@@ -132,7 +143,7 @@ Alle Felder optional, nur mitgeschickte werden geändert.
 
 ### DELETE /me
 
-Löscht das Konto mit allen Aktivitäten und Achievements. `204` ohne Inhalt.
+Löscht das Konto mit allen Aktivitäten, Achievements, Freundschaften und Anfragen. `204` ohne Inhalt.
 
 ### GET /sports
 
@@ -246,3 +257,29 @@ Höchstens 50 Einträge, bei gleichem Wert alphabetisch. `me` fehlt, wenn man im
 }
 ```
 `minutesPerWeek` hat immer 8 Einträge (älteste zuerst, auch mit 0, der letzte ist die laufende Woche), `kcalPerMonth` immer 6 (der letzte ist der laufende Monat). `activitiesPerSport` enthält nur Sportarten mit Aktivitäten, die häufigste zuerst, bei Gleichstand nach `sportCode`.
+
+### GET /friends
+
+`200`: `Friends`.
+
+### POST /friends/requests
+
+```json
+{ "username": "lisa_k" }
+```
+Schickt eine Freundschaftsanfrage. Groß- und Kleinschreibung zählen nicht, Leerzeichen am Rand auch nicht. Hat `lisa_k` selbst schon angefragt, sind beide sofort befreundet.
+`201`: `Friends` mit dem neuen Stand. Fehler mit `field` `username`: `400 VALIDATION_ERROR` (leer oder eigener Name), `404 USER_NOT_FOUND`, `409 ALREADY_FRIENDS`, `409 REQUEST_PENDING` (eigene Anfrage noch offen).
+
+### POST /friends/requests/{username}/accept
+
+Nimmt die Anfrage von `username` an. `200`: `Friends`. Fehler: `404 NOT_FOUND`, wenn von `username` keine offene Anfrage da ist.
+
+### DELETE /friends/requests/{username}
+
+Lehnt die Anfrage von `username` ab oder zieht die eigene an `username` zurück. `200`: `Friends`. Fehler: `404 NOT_FOUND`, wenn zwischen beiden keine Anfrage offen ist.
+
+### DELETE /friends/{username}
+
+Beendet die Freundschaft für beide. `200`: `Friends`. Fehler: `404 NOT_FOUND`, wenn beide nicht befreundet sind.
+
+In allen Pfaden mit `{username}` zählt Groß- und Kleinschreibung nicht. Ein unbekannter Name ergibt dasselbe `404` wie eine fehlende Anfrage oder Freundschaft.
