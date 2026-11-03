@@ -13,7 +13,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-data class ProfileData(val user: UserDto, val thisWeek: WeekSummaryDto)
+data class ProfileData(val user: UserDto, val thisWeek: WeekSummaryDto, val openRequests: Int)
 
 class ProfileViewModel(private val api: SportApi) : ViewModel() {
     private val _state = MutableStateFlow<UiState<ProfileData>>(UiState.Loading)
@@ -22,7 +22,7 @@ class ProfileViewModel(private val api: SportApi) : ViewModel() {
     fun refresh() {
         viewModelScope.launch {
             _state.value = try {
-                UiState.Content(ProfileData(apiCall { api.me() }, apiCall { api.stats() }.thisWeek))
+                UiState.Content(ProfileData(apiCall { api.me() }, apiCall { api.stats() }.thisWeek, apiCall { api.friends() }.incoming.size))
             } catch (e: ApiException) {
                 UiState.Error(e.message)
             }

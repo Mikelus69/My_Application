@@ -52,8 +52,10 @@ fun ProfileScreen(
             }
         }
         HorizontalDivider()
+        val openRequests = (state as? UiState.Content<ProfileData>)?.data?.openRequests ?: 0
         ListItem(
             headlineContent = { Text("👥 Freunde") },
+            supportingContent = openRequestsLabel(openRequests)?.let { { Text(it) } },
             modifier = Modifier.clickable(onClick = onOpenFriends),
         )
         ListItem(

@@ -10,3 +10,9 @@ fun GoalType.label(): String = when (this) {
     GoalType.ACTIVITIES -> "Aktivitäten"
     GoalType.KCAL -> "kcal"
 }
+
+fun openRequestsLabel(count: Int): String? = when (count) {
+    0 -> null
+    1 -> "1 offene Anfrage"
+    else -> "$count offene Anfragen"
+}
