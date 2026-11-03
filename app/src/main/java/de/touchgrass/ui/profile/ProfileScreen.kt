@@ -23,6 +23,7 @@ import de.touchgrass.ui.stats.label
 @Composable
 fun ProfileScreen(
     viewModel: ProfileViewModel,
+    onOpenFriends: () -> Unit,
     onOpenStats: () -> Unit,
     onOpenHistory: () -> Unit,
     onOpenSettings: () -> Unit,
@@ -51,6 +52,10 @@ fun ProfileScreen(
             }
         }
         HorizontalDivider()
+        ListItem(
+            headlineContent = { Text("👥 Freunde") },
+            modifier = Modifier.clickable(onClick = onOpenFriends),
+        )
         ListItem(
             headlineContent = { Text("📊 Statistik") },
             modifier = Modifier.clickable(onClick = onOpenStats),

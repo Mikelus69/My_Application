@@ -25,6 +25,8 @@ import de.touchgrass.ui.activities.ActivityDetailScreen
 import de.touchgrass.ui.activities.ActivityDetailViewModel
 import de.touchgrass.ui.activities.HistoryScreen
 import de.touchgrass.ui.activities.HistoryViewModel
+import de.touchgrass.ui.friends.FriendsScreen
+import de.touchgrass.ui.friends.FriendsViewModel
 import de.touchgrass.ui.map.MapScreen
 import de.touchgrass.ui.map.MapViewModel
 import de.touchgrass.ui.profile.ProfileScreen
@@ -48,6 +50,7 @@ import kotlinx.serialization.Serializable
 @Serializable object AchievementsRoute
 @Serializable object ProfileGraph
 @Serializable object ProfileRoute
+@Serializable object FriendsRoute
 @Serializable object SettingsRoute
 @Serializable object StatsRoute
 @Serializable object HistoryRoute
@@ -121,10 +124,17 @@ fun TouchGrassNavigation(container: AppContainer) {
                 composable<ProfileRoute> {
                     ProfileScreen(
                         viewModel = viewModel { ProfileViewModel(container.api) },
+                        onOpenFriends = { navController.navigate(FriendsRoute) },
                         onOpenStats = { navController.navigate(StatsRoute) },
                         onOpenHistory = { navController.navigate(HistoryRoute) },
                         onOpenSettings = { navController.navigate(SettingsRoute) },
                         extra = { ServerStatusCard(container.api) },
+                    )
+                }
+                composable<FriendsRoute> {
+                    FriendsScreen(
+                        viewModel = viewModel { FriendsViewModel(container.api) },
+                        onBack = { navController.popBackStack() },
                     )
                 }
                 composable<StatsRoute> {
