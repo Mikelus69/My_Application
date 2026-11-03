@@ -9,6 +9,7 @@ import de.touchgrass.data.dto.AchievementDto
 import de.touchgrass.data.dto.LeaderboardDto
 import de.touchgrass.data.dto.LeaderboardMetric
 import de.touchgrass.data.dto.LeaderboardPeriod
+import de.touchgrass.data.dto.LeaderboardScope
 import de.touchgrass.data.dto.ProgressDto
 import de.touchgrass.ui.UiState
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -23,6 +24,7 @@ data class AchievementsUiState(
     val leaderboard: UiState<LeaderboardDto> = UiState.Loading,
     val period: LeaderboardPeriod = LeaderboardPeriod.WEEK,
     val metric: LeaderboardMetric = LeaderboardMetric.POINTS,
+    val scope: LeaderboardScope = LeaderboardScope.ALL,
 )
 
 class AchievementsViewModel(private val api: SportApi) : ViewModel() {
@@ -51,14 +53,20 @@ class AchievementsViewModel(private val api: SportApi) : ViewModel() {
         loadLeaderboard()
     }
 
+    fun onScopeChange(scope: LeaderboardScope) {
+        _state.update { it.copy(scope = scope) }
+        loadLeaderboard()
+    }
+
     private fun loadLeaderboard() {
         val period = _state.value.period
         val metric = _state.value.metric
+        val scope = _state.value.scope
         _state.update { it.copy(leaderboard = UiState.Loading) }
         viewModelScope.launch {
-            val leaderboard = load { api.leaderboard(period, metric) }
+            val leaderboard = load { api.leaderboard(period, metric, scope) }
             // Eine ältere Antwort darf die Auswahl nicht überschreiben, wenn inzwischen umgeschaltet wurde.
-            _state.update { if (it.period == period && it.metric == metric) it.copy(leaderboard = leaderboard) else it }
+            _state.update { if (it.period == period && it.metric == metric && it.scope == scope) it.copy(leaderboard = leaderboard) else it }
         }
     }
 

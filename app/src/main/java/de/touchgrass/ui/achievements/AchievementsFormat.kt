@@ -4,6 +4,7 @@ import de.touchgrass.data.dto.AchievementDto
 import de.touchgrass.data.dto.LeaderboardDto
 import de.touchgrass.data.dto.LeaderboardEntryDto
 import de.touchgrass.data.dto.LeaderboardMetric
+import de.touchgrass.data.dto.LeaderboardScope
 import de.touchgrass.data.dto.WeeklyGoalDto
 import de.touchgrass.ui.activities.formatDate
 import de.touchgrass.ui.profile.label
@@ -27,3 +28,8 @@ fun LeaderboardEntryDto.valueLabel(metric: LeaderboardMetric): String = when (me
 }
 
 fun LeaderboardDto.ownEntryBelowList(): LeaderboardEntryDto? = me?.takeIf { own -> entries.none { it.username == own.username } }
+
+fun emptyLeaderboardText(scope: LeaderboardScope): String = when (scope) {
+    LeaderboardScope.ALL -> "In diesem Zeitraum hat noch niemand Sport eingetragen."
+    LeaderboardScope.FRIENDS -> "Du und deine Freunde habt in diesem Zeitraum noch keinen Sport eingetragen."
+}

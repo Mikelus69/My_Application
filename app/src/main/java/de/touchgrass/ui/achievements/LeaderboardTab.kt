@@ -20,12 +20,14 @@ import de.touchgrass.data.dto.LeaderboardDto
 import de.touchgrass.data.dto.LeaderboardEntryDto
 import de.touchgrass.data.dto.LeaderboardMetric
 import de.touchgrass.data.dto.LeaderboardPeriod
+import de.touchgrass.data.dto.LeaderboardScope
 
 @Composable
 fun LeaderboardTab(
     state: AchievementsUiState,
     onPeriodChange: (LeaderboardPeriod) -> Unit,
     onMetricChange: (LeaderboardMetric) -> Unit,
+    onScopeChange: (LeaderboardScope) -> Unit,
     onRetry: () -> Unit,
 ) {
     Column(Modifier.fillMaxSize().padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -53,14 +55,26 @@ fun LeaderboardTab(
                 label = { Text("Minuten") },
             )
         }
-        Section(state.leaderboard, onRetry) { LeaderboardList(it) }
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            FilterChip(
+                selected = state.scope == LeaderboardScope.ALL,
+                onClick = { onScopeChange(LeaderboardScope.ALL) },
+                label = { Text("Alle") },
+            )
+            FilterChip(
+                selected = state.scope == LeaderboardScope.FRIENDS,
+                onClick = { onScopeChange(LeaderboardScope.FRIENDS) },
+                label = { Text("Freunde") },
+            )
+        }
+        Section(state.leaderboard, onRetry) { LeaderboardList(it, state.scope) }
     }
 }
 
 @Composable
-private fun LeaderboardList(board: LeaderboardDto) {
+private fun LeaderboardList(board: LeaderboardDto, scope: LeaderboardScope) {
     if (board.entries.isEmpty()) {
-        Text("In diesem Zeitraum hat noch niemand Sport eingetragen.")
+        Text(emptyLeaderboardText(scope))
         return
     }
     val ownName = board.me?.username

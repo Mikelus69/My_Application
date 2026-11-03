@@ -45,7 +45,7 @@ fun AchievementsScreen(viewModel: AchievementsViewModel) {
         when (tab) {
             AchievementsTab.OVERVIEW -> Section(state.progress, viewModel::refresh) { OverviewTab(it) }
             AchievementsTab.ACHIEVEMENTS -> Section(state.achievements, viewModel::refresh) { AchievementGrid(it) }
-            AchievementsTab.LEADERBOARD -> LeaderboardTab(state, viewModel::onPeriodChange, viewModel::onMetricChange, viewModel::refresh)
+            AchievementsTab.LEADERBOARD -> LeaderboardTab(state, viewModel::onPeriodChange, viewModel::onMetricChange, viewModel::onScopeChange, viewModel::refresh)
         }
     }
 }

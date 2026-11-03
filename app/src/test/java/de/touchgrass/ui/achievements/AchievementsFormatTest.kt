@@ -5,6 +5,7 @@ import de.touchgrass.data.dto.LeaderboardDto
 import de.touchgrass.data.dto.LeaderboardEntryDto
 import de.touchgrass.data.dto.LeaderboardMetric
 import de.touchgrass.data.dto.LeaderboardPeriod
+import de.touchgrass.data.dto.LeaderboardScope
 import de.touchgrass.data.dto.WeeklyGoalDto
 import de.touchgrass.testing.testAchievement
 import org.junit.Assert.assertEquals
@@ -50,5 +51,14 @@ class AchievementsFormatTest {
         assertNull(inList.ownEntryBelowList())
         assertEquals(LeaderboardEntryDto(57, "tom", 3), below.ownEntryBelowList())
         assertNull(inList.copy(me = null).ownEntryBelowList())
+    }
+
+    @Test
+    fun `leeres Leaderboard erklärt sich je nach Auswahl`() {
+        assertEquals("In diesem Zeitraum hat noch niemand Sport eingetragen.", emptyLeaderboardText(LeaderboardScope.ALL))
+        assertEquals(
+            "Du und deine Freunde habt in diesem Zeitraum noch keinen Sport eingetragen.",
+            emptyLeaderboardText(LeaderboardScope.FRIENDS),
+        )
     }
 }
