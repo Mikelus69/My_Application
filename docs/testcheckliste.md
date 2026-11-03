@@ -1,11 +1,11 @@
 # Test-Checkliste
 
-Von oben nach unten durchgehen, vor jeder Abgabe und vor der Präsentation. Die Abschnitte 1 bis 7 sind zugleich der Ablauf der Vorführung, Abschnitt 8 gehört nicht dazu.
+Von oben nach unten durchgehen, vor jeder Abgabe und vor der Präsentation. Die Abschnitte 1 bis 8 sind zugleich der Ablauf der Vorführung, Abschnitt 9 gehört nicht dazu.
 
 ## Vorbereitung
 
 - [ ] Die App ist installiert (▶ Run oder APK, siehe README). Etwa eine Minute vor der Vorführung die App einmal öffnen, damit der Server bei Render wach ist.
-- [ ] Ein zweites Konto `lisa_k` hat zwei, drei öffentliche Aktivitäten an verschiedenen Orten, damit Karte und Leaderboard nicht leer sind. Danach abmelden.
+- [ ] Ein zweites Konto `lisa_k` ist auf einem zweiten Handy angemeldet und hat zwei, drei öffentliche Aktivitäten an verschiedenen Orten, damit Karte und Leaderboard nicht leer sind.
 - [ ] Im Emulator ist ein Standort gesetzt: **⋮ (Extended Controls) → Location**.
 
 ## 1. Konto anlegen
@@ -51,16 +51,27 @@ Von oben nach unten durchgehen, vor jeder Abgabe und vor der Präsentation. Die 
 - [ ] 📜 Verlauf: beide Aktivitäten. Im Feld „Sportart“ „🚴 Radfahren“ wählen → nur noch eine, „Alle Sportarten“ → wieder beide. „7 Tage“, „30 Tage“ und „Alle“ lassen sich umschalten.
 - [ ] Eine Aktivität antippen → Details mit Dauer, kcal und Punkten. „Aktivität löschen“ → Rückfrage „Aktivität löschen?“ → „Löschen“ → sie fehlt im Verlauf, und die Statistik zählt sie nicht mehr.
 
-## 7. Passwort, Abmelden, Konto löschen
+## 7. Freunde (mit dem zweiten Handy)
+
+- [ ] 👤 Profil → „👥 Freunde“: „Noch keine Freunde. Schick jemandem eine Anfrage über seinen Benutzernamen.“
+- [ ] „Anfrage senden“ mit leerem Feld → „Bitte einen Benutzernamen eingeben.“ Mit `niemand_xy` → „Diesen Benutzernamen gibt es nicht.“ Mit dem eigenen Namen → „Du kannst dir nicht selbst eine Anfrage schicken.“
+- [ ] `LISA_K` → „Anfrage an lisa_k gesendet.“, unter „Gesendete Anfragen“ steht lisa_k. Noch einmal `lisa_k` → „Du hast schon eine Anfrage geschickt.“
+- [ ] Zweites Handy: 👤 Profil zeigt unter „👥 Freunde“ „1 offene Anfrage“. Dort „Annehmen“ → „Du und … seid jetzt Freunde.“
+- [ ] Zweites Handy: ➕ Die drei Chips heißen „🔒 Privat“, „👥 Freunde“, „🌎 Öffentlich“. Eine Aktivität mit Ort und „👥 Freunde“ speichern.
+- [ ] Erstes Handy: 🗺️ Karte zeigt diese Aktivität in der Freundesfarbe, die eigenen Marker in der Akzentfarbe, fremde grau. Antippen → „von lisa_k · 👥 Freund“.
+- [ ] 🏆 Leaderboard → „Freunde“: nur du und lisa_k. „Alle“ zeigt wieder alle.
+- [ ] 👥 Freunde: bei lisa_k „Entfernen“ → „Freundschaft mit lisa_k beenden?“ → „Beenden“ → „Noch keine Freunde. …“. Auf der Karte ist die „👥 Freunde“-Aktivität von lisa_k verschwunden.
+
+## 8. Passwort, Abmelden, Konto löschen
 
 - [ ] ⚙️ Einstellungen: „Passwort ändern“ mit falschem bisherigen Passwort → „Das bisherige Passwort ist falsch.“ am Feld. Mit dem richtigen → „Passwort geändert.“
 - [ ] „Abmelden“ → „Anmelden“. Mit dem neuen Passwort anmelden → klappt.
 - [ ] „Konto löschen“ → Rückfrage „Konto löschen?“ → „Löschen“ → zurück bei „Anmelden“. Anmelden mit den alten Daten → „Benutzername/E-Mail oder Passwort ist falsch.“
 
-## 8. Leere Zustände und Fehler (nicht vorführen)
+## 9. Leere Zustände und Fehler (nicht vorführen)
 
 - [ ] Frisch registriertes Konto: Die Statistik zeigt dreimal „Noch keine Daten. Trag eine Aktivität ein, dann erscheint hier ein Diagramm.“, der Verlauf „Noch keine Aktivitäten in diesem Zeitraum.“
 - [ ] Mit dem lokalen Backend, nach dem Zurücksetzen der Datenbank (siehe README) und mit einem neuen Konto ohne Aktivitäten: Die Karte zeigt „Noch keine Aktivitäten mit Ort. Wähl beim Speichern einen Ort, dann erscheint hier ein Marker.“, das Leaderboard „In diesem Zeitraum hat noch niemand Sport eingetragen.“
-- [ ] Flugmodus einschalten, App ganz schließen und neu öffnen: Karte, Timer, „Ohne Timer nachtragen“, alle drei Erfolge-Reiter, Profil, Statistik, Verlauf und Einstellungen zeigen „Server nicht erreichbar“ mit „Erneut versuchen“.
+- [ ] Flugmodus einschalten, App ganz schließen und neu öffnen: Karte, Timer, „Ohne Timer nachtragen“, alle drei Erfolge-Reiter, Profil, Freunde, Statistik, Verlauf und Einstellungen zeigen „Server nicht erreichbar“ mit „Erneut versuchen“.
 - [ ] Flugmodus aus und überall „Erneut versuchen“ antippen → die Inhalte erscheinen.
 - [ ] Mindestens 15 Minuten nichts tun, dann die App öffnen: Nach 5 Sekunden steht unter dem Ladekreis „Der Server wacht gerade auf, das kann bis zu einer Minute dauern.“, danach erscheint die Karte.

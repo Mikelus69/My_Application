@@ -15,9 +15,14 @@ Sport-App für ein Berufsschulprojekt (zwei Azubis, 1–3 Monate). Android-App p
 - Leaderboard (Punkte, Minuten)
 - Statistiken mit Diagrammen
 
+**Erweiterung Freunde** (eigener Entwurf: `2026-11-02-freunde-design.md`)
+
+- Freundschaftsanfragen per Benutzername
+- Sichtbarkeit „👥 Freunde“ für Aktivitäten
+- Leaderboard unter Freunden
+
 **Stretch Goals** (Architektur berücksichtigt sie, gebaut wird erst nach dem MVP, jeweils mit eigenem Entwurf)
 
-- Freunde
 - Fotos zu Aktivitäten
 - GPS-Tracking während der Aktivität
 
@@ -141,7 +146,7 @@ activities
 ├─ latitude       DOUBLE PRECISION NULL
 ├─ longitude      DOUBLE PRECISION NULL   (beide gesetzt oder beide NULL)
 ├─ description    VARCHAR(500) NULL
-├─ visibility     VARCHAR  PRIVATE | PUBLIC   (Standard: PRIVATE)
+├─ visibility     VARCHAR  PRIVATE | FRIENDS | PUBLIC   (Standard: PRIVATE)
 └─ created_at     TIMESTAMPTZ
 
 achievements                      (per Flyway befüllt)
@@ -158,6 +163,13 @@ user_achievements
 ├─ achievement_code  FK → achievements
 ├─ unlocked_at       TIMESTAMPTZ
 └─ PK (user_id, achievement_code)
+
+friendships
+├─ requester_id  FK → users ON DELETE CASCADE
+├─ addressee_id  FK → users ON DELETE CASCADE
+├─ status        VARCHAR  PENDING | ACCEPTED
+├─ created_at    TIMESTAMPTZ
+└─ PK (requester_id, addressee_id), je Paar nur eine Zeile
 ```
 
 ### Startdaten
@@ -211,7 +223,6 @@ user_achievements
 
 Jede Erweiterung ist eine neue Flyway-Migration. Bestehende Migrationen werden nie verändert.
 
-- Freunde: Tabelle `friendships` (requester_id, addressee_id, status PENDING/ACCEPTED, created_at), neuer Sichtbarkeitswert `FRIENDS`
 - Fotos: Spalte `activities.image_path`, die Dateien liegen in `backend/data/uploads/`
 - GPS-Tracking: Tabelle `gps_points` (activity_id, seq, latitude, longitude, recorded_at)
 
@@ -267,6 +278,7 @@ Der aktuelle Wert ist die Summe der Minuten, die Anzahl der Aktivitäten oder di
 
 - Zeitraum: laufende Woche oder laufender Monat
 - Wertung: Summe `points` oder Summe `duration_min`. kcal wird bewusst nicht gewertet, weil sonst das Körpergewicht entscheidet.
+- Auswahl: alle Personen oder nur die eigene Person und ihre Freunde.
 - Es erscheinen alle Personen mit mindestens einer Aktivität im Zeitraum.
 - Ausgegeben werden die Top 50 und der eigene Platz. Gleicher Wert bedeutet gleichen Rang (1, 2, 2, 4).
 
@@ -306,9 +318,9 @@ Basis-Pfad `/api`, JSON. Außer `/auth/*` brauchen alle Aufrufe `Authorization: 
 | GET | `/sports` | Sportarten (`code`, `name`, `emoji`, `met`) |
 | POST | `/activities` | Anlegen, liefert `activity`, `pointsBreakdown`, `newAchievements` |
 | GET | `/activities?sport=&from=&to=` | Eigener Verlauf, neueste zuerst |
-| GET | `/activities/{id}` | Details (eigene oder öffentliche) |
+| GET | `/activities/{id}` | Details (eigene, öffentliche oder „Freunde“ von Freunden) |
 | DELETE | `/activities/{id}` | Nur eigene |
-| GET | `/map/activities` | Eigene + öffentliche anderer, nur mit Standort, inkl. `username` |
+| GET | `/map/activities` | Eigene, öffentliche anderer und „Freunde“ von Freunden, nur mit Standort, inkl. `username` und `friend` |
 
 ### Erfolge und Auswertung
 
@@ -316,8 +328,18 @@ Basis-Pfad `/api`, JSON. Außer `/auth/*` brauchen alle Aufrufe `Authorization: 
 |---|---|---|
 | GET | `/achievements` | Alle Achievements mit `unlockedAt` bzw. `progress`/`threshold` |
 | GET | `/progress` | Wochenziel (`type`, `target`, `current`), Streak (`current`, `longest`), `weekDays` (7 × bool, Mo–So) |
-| GET | `/leaderboard?period=WEEK\|MONTH&metric=POINTS\|MINUTES` | `entries` (`rank`, `username`, `value`) + `me` |
+| GET | `/leaderboard?period=WEEK\|MONTH&metric=POINTS\|MINUTES&scope=ALL\|FRIENDS` | `entries` (`rank`, `username`, `value`) + `me` |
 | GET | `/stats` | Diagrammdaten aus Abschnitt 4 |
+
+### Freunde
+
+| Methode | Pfad | Zweck |
+|---|---|---|
+| GET | `/friends` | `friends`, `incoming`, `outgoing` als Listen von Benutzernamen |
+| POST | `/friends/requests` | `username` anfragen, bei Gegenanfrage sofort befreundet |
+| POST | `/friends/requests/{username}/accept` | Anfrage annehmen |
+| DELETE | `/friends/requests/{username}` | Anfrage ablehnen oder eigene zurückziehen |
+| DELETE | `/friends/{username}` | Freundschaft beenden |
 
 ### Fehlerformat
 
@@ -332,8 +354,8 @@ Basis-Pfad `/api`, JSON. Außer `/auth/*` brauchen alle Aufrufe `Authorization: 
 | 400 | Eingabe ungültig | `VALIDATION_ERROR` |
 | 401 | Token fehlt/abgelaufen, Login falsch | `UNAUTHORIZED`, `INVALID_CREDENTIALS` |
 | 403 | Fremde Aktivität | `FORBIDDEN` |
-| 404 | Nicht gefunden | `NOT_FOUND` |
-| 409 | Konflikt | `USERNAME_TAKEN`, `EMAIL_TAKEN` |
+| 404 | Nicht gefunden | `NOT_FOUND`, `USER_NOT_FOUND` |
+| 409 | Konflikt | `USERNAME_TAKEN`, `EMAIL_TAKEN`, `ALREADY_FRIENDS`, `REQUEST_PENDING` |
 
 Bei 401 auf einem geschützten Aufruf löscht die App den Token und springt zum Login.
 
@@ -365,8 +387,8 @@ Bottom-Bar: 🗺️ Karte · ➕ Aktivität · 🏆 Erfolge · 👤 Profil
 
 ### 🗺️ Karte
 
-- Eigene Marker in Akzentfarbe, öffentliche anderer in Grau.
-- Tippen öffnet ein Bottom Sheet mit Sportart, Dauer, kcal, Datum, Beschreibung und Benutzername.
+- Eigene Marker in Akzentfarbe, die von Freunden in einer zweiten Farbe, alle anderen in Grau.
+- Tippen öffnet ein Bottom Sheet mit Sportart, Dauer, kcal, Datum, Beschreibung und Benutzername, bei Freunden mit „👥 Freund“.
 - Die Karte startet über der letzten eigenen Aktivität, sonst über Deutschland.
 - Der Knopf „📍 Mein Standort“ fragt erst beim Antippen nach der Standortberechtigung.
 
@@ -393,7 +415,7 @@ Bottom-Bar: 🗺️ Karte · ➕ Aktivität · 🏆 Erfolge · 👤 Profil
 | Dauer | vom Timer vorausgefüllt, änderbar |
 | Ort | auf kleiner Karte tippen, „📍 Aktueller Standort“ oder „Ohne Standort“ |
 | Beschreibung | optional |
-| Sichtbarkeit | 🔒 Privat (Standard) / 🌎 Öffentlich |
+| Sichtbarkeit | 🔒 Privat (Standard) / 👥 Freunde / 🌎 Öffentlich |
 
 Nach dem Speichern erscheint eine Meldung mit kcal und Punkte-Aufschlüsselung, neue Achievements kommen als Dialog. Der Timer wird erst nach erfolgreichem Speichern zurückgesetzt, oder wenn man im Formular „Verwerfen“ wählt (mit Rückfrage).
 
@@ -403,12 +425,13 @@ Drei Tabs:
 
 - **Übersicht:** Wochenziel-Fortschrittsbalken, Streak mit Mo–So-Häkchen, aktuelle und längste Serie
 - **Achievements:** Raster, gesperrte ausgegraut mit Fortschritt
-- **Leaderboard:** Umschalter Woche/Monat und Punkte/Minuten, eigener Platz hervorgehoben
+- **Leaderboard:** Umschalter Woche/Monat, Punkte/Minuten und Alle/Freunde, eigener Platz hervorgehoben
 
 ### 👤 Profil
 
-Kopf mit Benutzername und den Zahlen dieser Woche, darunter drei Einträge:
+Kopf mit Benutzername und den Zahlen dieser Woche, darunter vier Einträge:
 
+- **Freunde:** Anfragen senden, annehmen und ablehnen, Freundschaften beenden. Bei offenen Anfragen steht ihre Zahl unter dem Eintrag.
 - **Statistik:** vier Vico-Diagramme
 - **Verlauf:** Liste mit Filtern (Sportart-Auswahl mit „Alle Sportarten“, Zeitraum). Tippen öffnet die Details, dort ist Löschen mit Rückfrage möglich.
 - **Einstellungen:** Gewicht, Wochenziel, Passwort ändern, Logout, Konto löschen (mit Rückfrage)
@@ -428,6 +451,7 @@ de.touchgrass
 ├── ui/map/
 ├── ui/record/      Timer + Formular
 ├── ui/achievements/
+├── ui/friends/
 ├── ui/profile/     Statistik, Verlauf, Einstellungen
 ├── AppContainer.kt
 ├── MainActivity.kt
@@ -444,7 +468,7 @@ de.touchgrass
 - Passwörter nur als BCrypt-Hash, nie im Log.
 - Das JWT-Secret kommt aus der Umgebungsvariable `JWT_SECRET`. Ohne Variable erzeugt das Backend beim ersten Start ein zufälliges Secret in `backend/data/`. In der Cloud erzeugt Render den Wert, und die Zugangsdaten der Datenbank stehen nur bei Render. Kein Secret liegt im Git.
 - In der Cloud ist jede Verbindung verschlüsselt: App ↔ Render über HTTPS, Render ↔ Neon über SSL.
-- Aktivitäten standardmäßig privat. Andere sehen nur öffentliche Aktivitäten auf der Karte und im Leaderboard nur Benutzername und Wert.
+- Aktivitäten standardmäßig privat. Andere sehen nur öffentliche Aktivitäten auf der Karte, Freunde zusätzlich die „Freunde“-Aktivitäten. Im Leaderboard sehen alle nur Benutzername und Wert.
 - Standort und Gewicht sind freiwillig.
 - Konto löschen entfernt alle personenbezogenen Daten (Recht auf Löschung).
 - Die Doku enthält eine Tabelle: welche Daten, wozu, wer sie sieht.
@@ -455,7 +479,8 @@ de.touchgrass
 | E-Mail | Anmeldung | nur Backend |
 | Passwort-Hash | Anmeldung | nur Backend |
 | Gewicht | kcal-Schätzung | nur die Person selbst |
-| Aktivitäten inkl. Standort | Kernfunktion | die Person selbst, bei „öffentlich“ alle |
+| Aktivitäten inkl. Standort | Kernfunktion | die Person selbst, bei „Freunde“ ihre Freunde, bei „öffentlich“ alle |
+| Freundschaften und Anfragen | Freunde-Funktion | die beiden Beteiligten |
 
 ## 8. Tests
 
@@ -468,6 +493,7 @@ de.touchgrass
   - Fremde Aktivität löschen ergibt 403
   - Ungültige Eingaben ergeben 400 mit `field`
   - Ohne Token ergibt 401
+  - Freundschaft anfragen und annehmen, „Freunde“-Aktivitäten sehen nur Freunde
 
 ### App
 
@@ -488,4 +514,5 @@ Jeder Meilenstein endet mit etwas Vorführbarem und bekommt einen eigenen Umsetz
 | M4 | Erfolge | Achievements, Wochenziel, Streak, Leaderboard |
 | M5 | Statistik und Feinschliff | Diagramme, Einstellungen, leere und Fehler-Zustände, Doku |
 | M6 | Ab in die Cloud | Backend als Docker-Dienst bei Render, Datenbank bei Neon (beide kostenlos, Frankfurt), App mit fester HTTPS-Adresse und Hinweis beim Aufwachen des Servers, Anleitung „App auf andere Handys bringen“ |
-| danach | Stretch Goals | Freunde → Fotos → GPS-Tracking, jeweils mit eigenem Entwurf |
+| M7 | Freunde | Anfragen per Benutzername, Sichtbarkeit „👥 Freunde“, Leaderboard unter Freunden, Hinweis im Profil |
+| danach | Stretch Goals | Fotos → GPS-Tracking, jeweils mit eigenem Entwurf |

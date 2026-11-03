@@ -112,12 +112,13 @@ Die Daten hängen eng zusammen: Aktivitäten gehören zu einer Person und einer 
 | E-Mail | Anmeldung | nur das Backend |
 | Passwort | Anmeldung, gespeichert nur als BCrypt-Hash | nur das Backend |
 | Gewicht | kcal-Schätzung | nur die Person selbst |
-| Aktivitäten mit Ort | Kernfunktion | die Person selbst, bei „🌎 Öffentlich“ alle |
+| Aktivitäten mit Ort | Kernfunktion | die Person selbst, bei „👥 Freunde“ ihre Freunde, bei „🌎 Öffentlich“ alle |
+| Freundschaften und Anfragen | Freunde-Funktion | die beiden Beteiligten |
 
-- Neue Aktivitäten sind privat. Auf der Karte sehen andere nur öffentliche Aktivitäten.
+- Neue Aktivitäten sind privat. Auf der Karte sehen andere nur öffentliche Aktivitäten, Freunde zusätzlich die mit „👥 Freunde“.
 - Im Leaderboard zählen alle Aktivitäten mit, auch private. Andere sehen dort nur Benutzername und Summe.
 - Ort und Gewicht sind freiwillig.
-- „Konto löschen“ entfernt das Konto mit allen Aktivitäten und Achievements (Recht auf Löschung). Die Datenbank löscht sie über `ON DELETE CASCADE` mit.
+- „Konto löschen“ entfernt das Konto mit allen Aktivitäten, Achievements und Freundschaften (Recht auf Löschung). Die Datenbank löscht sie über `ON DELETE CASCADE` mit.
 - Das Backend schreibt keine Anfragen ins Log, Passwörter tauchen dort also nicht auf. Der Schlüssel für die Login-Tokens und die Zugangsdaten der Datenbank liegen nicht im Git (siehe „Backend in der Cloud“).
 - Backend und Datenbank laufen in Frankfurt bei Render und Neon. Die Verbindungen sind verschlüsselt: App ↔ Render über HTTPS, Render ↔ Neon über SSL.
 
@@ -129,3 +130,4 @@ Die Daten hängen eng zusammen: Aktivitäten gehören zu einer Person und einer 
 - **Kaltstart:** Der kostenlose Server bei Render schläft nach 15 Minuten ohne Anfrage ein. Die erste Anfrage danach dauert etwa eine Minute.
 - **HTTP nur lokal:** In der Cloud läuft alles über HTTPS. Klartext-HTTP erlaubt nur der Debug-Build, für das lokale Backend.
 - **Ohne Server geht fast nichts:** Auf dem Handy liegen nur Login-Token und Timer. Der Timer läuft auch ohne Netz, alles andere braucht das Backend.
+- **Keine Benachrichtigung bei Anfragen:** Eine Freundschaftsanfrage sieht man erst im Profil unter „👥 Freunde“.

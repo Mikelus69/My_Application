@@ -4,7 +4,7 @@ Verbindliche Absprache zwischen App und Backend. Ändert sich etwas an der API, 
 
 ## Grundlagen
 
-- Basis-URL: `http://<host>:8080/api`. Aus dem Emulator: `http://10.0.2.2:8080/api`.
+- Basis-URL: `https://touchgrass-backend-pfz7.onrender.com/api`, lokal `http://127.0.0.1:8080/api`.
 - Format: JSON in UTF-8. Felder mit Wert `null` werden weggelassen.
 - Zeitpunkte: ISO-8601 mit Offset, z. B. `2026-10-04T09:30:00+02:00`.
 - Datumswerte: `YYYY-MM-DD`. Tage und Wochen rechnet das Backend in `Europe/Berlin`, eine Woche geht von Montag bis Sonntag.
