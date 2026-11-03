@@ -51,11 +51,11 @@ fun main() {
     Runtime.getRuntime().addShutdownHook(Thread { appDatabase.close() })
     val jwtService = JwtService(JwtSecret.load(config.jwtSecret, Path.of(config.dataDir)))
     embeddedServer(Netty, port = config.port, host = "0.0.0.0") {
-        module(appDatabase.database, jwtService)
+        module(appDatabase.database, jwtService, commit = config.commit)
     }.start(wait = true)
 }
 
-fun Application.module(database: Database, jwtService: JwtService, clock: Clock = Clock.systemUTC()) {
+fun Application.module(database: Database, jwtService: JwtService, clock: Clock = Clock.systemUTC(), commit: String? = null) {
     val userRepository = UserRepository(database)
     val sportRepository = SportRepository(database)
     val activityRepository = ActivityRepository(database)
@@ -73,7 +73,7 @@ fun Application.module(database: Database, jwtService: JwtService, clock: Clock 
     configureSecurity(jwtService)
     routing {
         route("/api") {
-            healthRoutes(database)
+            healthRoutes(database, commit)
             authRoutes(userService)
             meRoutes(userService)
             sportRoutes(sportRepository)

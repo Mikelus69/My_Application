@@ -101,8 +101,9 @@ Prüft Server und Datenbank. Keine Anmeldung nötig.
 
 `200`
 ```json
-{ "status": "ok", "database": "ok" }
+{ "status": "ok", "database": "ok", "commit": "cdea0effab13c011fb1350205d0a5c088aa43778" }
 ```
+`commit` ist der Git-Commit, den Render gerade ausführt. Lokal fehlt das Feld.
 
 ### POST /auth/register
 

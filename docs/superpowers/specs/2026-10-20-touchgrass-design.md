@@ -96,7 +96,7 @@ Hinweis: osmdroid ist seit November 2024 archiviert und wird deshalb nicht verwe
 **In der Cloud**
 
 - Das Backend läuft als Docker-Dienst bei Render, die Datenbank bei Neon. Beide stehen in Frankfurt und nutzen die kostenlose Stufe.
-- Die Einstellungen für Render stehen in `render.yaml` im Repo (Blueprint): Dienst `touchgrass-backend`, Ordner `backend`, Dockerfile, Region Frankfurt, Health-Check `/api/health`. Render baut nach jedem Push auf `master` neu, aber nur, wenn sich in `backend/` etwas geändert hat.
+- Die Einstellungen für Render stehen in `render.yaml` im Repo (Blueprint): Dienst `touchgrass-backend`, Ordner `backend`, Dockerfile, Region Frankfurt, Health-Check `/api/health`. Render baut nach jedem Push auf `master` neu, aber nur, wenn sich in `backend/` etwas geändert hat. `/api/health` nennt den Commit, der gerade läuft.
 - Für Neon trägt man bei Render einmal `DB_URL` ein: die Zeile, die Neon unter **Connect** zeigt, samt Benutzer und Passwort. `JWT_SECRET` erzeugt Render selbst. Nichts davon liegt im Git.
 - Flyway legt beim ersten Start das Schema samt Startdaten an. Lokale Konten und Aktivitäten ziehen nicht mit um.
 - Die App spricht in allen Builds `https://touchgrass-backend-pfz7.onrender.com/api/` an. HTTPS stellt Render bereit.

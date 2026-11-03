@@ -22,6 +22,15 @@ class HealthRoutesTest {
     }
 
     @Test
+    fun `health nennt den laufenden Commit, wenn Render ihn mitgibt`() = testApplication {
+        application { module(TestDatabase.database, testJwtService, commit = "cdea0effab13") }
+
+        val response = client.get("/api/health")
+
+        assertEquals("""{"status":"ok","database":"ok","commit":"cdea0effab13"}""", response.bodyAsText())
+    }
+
+    @Test
     fun `unbekannter Pfad liefert einheitliches Fehlerformat`() = testApplication {
         application { module(TestDatabase.database, testJwtService) }
 

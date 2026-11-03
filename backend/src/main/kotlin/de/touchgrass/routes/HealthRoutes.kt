@@ -8,11 +8,11 @@ import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 
 @Serializable
-data class HealthResponse(val status: String, val database: String)
+data class HealthResponse(val status: String, val database: String, val commit: String? = null)
 
-fun Route.healthRoutes(database: Database) {
+fun Route.healthRoutes(database: Database, commit: String?) {
     get("/health") {
         transaction(database) { exec("SELECT 1") }
-        call.respond(HealthResponse(status = "ok", database = "ok"))
+        call.respond(HealthResponse(status = "ok", database = "ok", commit = commit))
     }
 }

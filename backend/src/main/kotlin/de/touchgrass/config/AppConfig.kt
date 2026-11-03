@@ -10,6 +10,7 @@ data class AppConfig(
     val dbUser: String?,
     val dbPassword: String?,
     val jwtSecret: String?,
+    val commit: String? = null,
 ) {
     companion object {
         fun fromEnvironment(env: Map<String, String> = System.getenv()): AppConfig {
@@ -22,6 +23,7 @@ data class AppConfig(
                 dbUser = db.user,
                 dbPassword = db.password,
                 jwtSecret = env["JWT_SECRET"],
+                commit = env["RENDER_GIT_COMMIT"],
             )
         }
     }

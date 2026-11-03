@@ -71,4 +71,10 @@ class AppConfigTest {
     fun `ohne DB_URL startet das eingebaute PostgreSQL`() {
         assertNull(AppConfig.fromEnvironment(emptyMap()).dbUrl)
     }
+
+    @Test
+    fun `den laufenden Commit gibt Render in RENDER_GIT_COMMIT mit`() {
+        assertEquals("cdea0effab13", AppConfig.fromEnvironment(mapOf("RENDER_GIT_COMMIT" to "cdea0effab13")).commit)
+        assertNull(AppConfig.fromEnvironment(emptyMap()).commit)
+    }
 }
