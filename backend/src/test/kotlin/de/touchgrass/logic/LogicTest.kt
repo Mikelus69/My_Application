@@ -80,6 +80,24 @@ class BerlinTimeTest {
     }
 
     @Test
+    fun `Woche mit Zeitumstellung im März endet in Sommerzeit`() {
+        val week = BerlinTime.weekOf(OffsetDateTime.parse("2027-03-28T23:59:59+02:00"))
+
+        assertEquals(OffsetDateTime.parse("2027-03-22T00:00:00+01:00"), week.from)
+        assertEquals(OffsetDateTime.parse("2027-03-29T00:00:00+02:00"), week.until)
+    }
+
+    @Test
+    fun `Neujahrsnacht zählt zum neuen Jahr und zur Woche über den Jahreswechsel`() {
+        val newYearsNight = OffsetDateTime.parse("2026-12-31T23:30:00Z")
+        val week = BerlinTime.weekOf(newYearsNight)
+
+        assertEquals(LocalDate.parse("2027-01-01"), BerlinTime.date(newYearsNight))
+        assertEquals(OffsetDateTime.parse("2026-12-28T00:00:00+01:00"), week.from)
+        assertEquals(OffsetDateTime.parse("2027-01-04T00:00:00+01:00"), week.until)
+    }
+
+    @Test
     fun `Zeitpunkte werden in Berliner Zeit mit Sekunden ausgegeben`() {
         assertEquals("2026-10-05T09:30:00+02:00", BerlinTime.format(OffsetDateTime.parse("2026-10-05T07:30Z")))
         assertEquals(OffsetDateTime.parse("2026-10-05T00:00:00+02:00"), BerlinTime.startOfDay(LocalDate.parse("2026-10-05")))
