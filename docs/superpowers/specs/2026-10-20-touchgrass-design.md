@@ -441,6 +441,7 @@ Kopf mit Benutzername und den Zahlen dieser Woche, darunter vier Einträge:
 - Jeder Screen-Zustand ist `Loading`, `Content` oder `Error` (Meldung + „Erneut versuchen“).
 - Fehlertexte kommen aus dem `message` der API, Netzwerkfehler bekommen einen eigenen Text („Server nicht erreichbar“).
 - **Sportart-Auswahl:** ein Feld mit Dropdown, die Sportarten von A bis Z nach deutschem Alphabet. Jeder getippte Buchstabe filtert die Liste sofort. Treffer zählen überall im Namen, Groß- und Kleinschreibung, Umlaute und ß zählen nicht: „fuss“ findet „Fußball“. Ohne Treffer steht dort „Keine Sportart gefunden“.
+- **Farben:** ein eigenes Material-3-Farbschema („Tonal Spot“), berechnet aus dem Limettengrün `#ADF224` des Logos, hell oder dunkel nach der Einstellung des Handys. Die Farben des Hintergrundbilds übernimmt die App nicht. Die Akzentfarbe ist Grün, die zweite Farbe für Freunde Petrol.
 
 ### Paket-Struktur
 
