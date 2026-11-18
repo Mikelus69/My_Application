@@ -8,7 +8,7 @@ IT-Projekt für die Berufsschule: Android-App (Kotlin, Jetpack Compose) und Ktor
 - Neue Funktionen: Entwurf in `docs/superpowers/specs/`, Plan in `docs/superpowers/plans/`, Umsetzung mit Tests zuerst, ein Commit pro Aufgabe, Commit-Nachrichten auf Deutsch.
 - Der Hauptentwurf `docs/superpowers/specs/2026-10-20-touchgrass-design.md` beschreibt immer den aktuellen Stand, ohne Status oder Historie.
 - `docs/api.md` ist der Vertrag zwischen App und Backend und wird vor jeder Änderung an der API angepasst.
-- Jede erledigte Aufgabe bekommt im selben Commit einen Eintrag in `docs/projektdoku/projekttagebuch.md`, der Projektdokumentation für die Berufsschule. `docs/uebergabe.md` wird bei größeren Schritten aktualisiert.
+- Jede erledigte Aufgabe bekommt im selben Commit einen Eintrag in `docs/projektdoku/projekttagebuch.md`. Die Projektdokumentation für die Berufsschule entsteht in `docs/projektdoku/dokumentation.md`, die Regeln der Schule für Aufbau, Sprache, Zitate und Umfang stehen in `docs/projektdoku/vorgaben.md`. `docs/uebergabe.md` wird bei größeren Schritten aktualisiert.
 - Wenig Kommentare im Code: eine Begründung an genau einer Stelle.
 
 ## Technik

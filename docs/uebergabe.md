@@ -72,7 +72,7 @@ Die Pläne liegen unter `docs/superpowers/plans/`, die Entwürfe unter `docs/sup
 
 ## Offene Punkte
 
-- **Projektdokumentation:** begonnen als Markdown unter `docs/projektdoku/`, das Projekttagebuch ist rückwirkend angelegt. Es fehlen noch die Vorgaben aus dem Leitfaden der Berufsschule Lauingen, die Aufteilung nach Personen und der Abschnitt zum KI-Einsatz. Für die Abgabe entsteht daraus ein Word- oder PDF-Dokument.
+- **Projektdokumentation:** Markdown unter `docs/projektdoku/`. Das Projekttagebuch ist rückwirkend angelegt, die Vorgaben der Berufsschule Lauingen sind zusammengefasst, die Gliederung steht. Es fehlen der Text der Kapitel, das Thema laut Anmeldung, die Betreuungslehrkraft, der Abgabetermin, die Einzelheiten zu Michaels Planungsarbeit und die Klärung mit der Lehrkraft, wie der KI-Einsatz anzugeben ist. Für die Abgabe entsteht daraus ein Word- und PDF-Dokument.
 - **Fotos:** Entwurf fertig, der Umsetzungsplan fehlt noch.
 - **Farben:** gebaut und gepusht, auf dem Handy noch nicht angesehen.
 - **Wochenziel-Bonus:** Wird die Aktivität gelöscht, die den Bonus bekommen hat, ist der Bonus dieser Woche meist weg. Noch offen, ob das so bleiben soll.
@@ -97,6 +97,8 @@ Die Pläne liegen unter `docs/superpowers/plans/`, die Entwürfe unter `docs/sup
 | `docs/superpowers/plans/` | Umsetzungspläne M0 bis M7 |
 | `docs/api.md` | API-Vertrag zwischen App und Backend |
 | `docs/testcheckliste.md` | Test von Hand mit zwei Handys |
+| `docs/projektdoku/dokumentation.md` | Projektdokumentation für die Berufsschule, gegliedert nach dem Leitfaden |
+| `docs/projektdoku/vorgaben.md` | Vorgaben der Schule: Termine, Umfang, Aufbau, Zitate, Formatierung, Sprache, Bewertung |
 | `docs/projektdoku/projekttagebuch.md` | Projekttagebuch für die Berufsschul-Doku, ein Eintrag pro Arbeitstag |
 | `README.md` | Starten, Cloud, App auf andere Handys bringen, Datenschutz, Bewusste Grenzen |
 | `backend/src/main/kotlin/de/touchgrass/` | Backend: `Application.kt`, `routes/`, je Bereich ein Paket, Rechenregeln in `logic/` |

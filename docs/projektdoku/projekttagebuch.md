@@ -82,3 +82,4 @@ Protokoll der Arbeit am Projekt mit Datum. Die Einträge bis zum 18.11.2026 sind
   - Recherche zu Coil, Ktor, Exposed sowie Fotoauswahl und Kamera unter Android. Entwurf abgestimmt (`b4f00a6`).
 - Übergabe-Dokument `docs/uebergabe.md` und Arbeitsregeln `CLAUDE.md` für neue Chats (`31ea7bd`).
 - Projektdokumentation begonnen: Markdown unter `docs/projektdoku/`, mit diesem Projekttagebuch.
+- Leitfaden der Berufsschule ausgewertet: Die Vorgaben stehen in `vorgaben.md`, die Gliederung der Dokumentation danach in `dokumentation.md`.
