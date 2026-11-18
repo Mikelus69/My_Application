@@ -72,7 +72,7 @@ Die Pläne liegen unter `docs/superpowers/plans/`, die Entwürfe unter `docs/sup
 
 ## Offene Punkte
 
-- **Projektdokumentation:** begonnen. Form und Vorgaben der Schule werden gerade geklärt. Ab jetzt wird jede Aufgabe für die Doku festgehalten.
+- **Projektdokumentation:** begonnen als Markdown unter `docs/projektdoku/`, das Projekttagebuch ist rückwirkend angelegt. Es fehlen noch die Vorgaben aus dem Leitfaden der Berufsschule Lauingen, die Aufteilung nach Personen und der Abschnitt zum KI-Einsatz. Für die Abgabe entsteht daraus ein Word- oder PDF-Dokument.
 - **Fotos:** Entwurf fertig, der Umsetzungsplan fehlt noch.
 - **Farben:** gebaut und gepusht, auf dem Handy noch nicht angesehen.
 - **Wochenziel-Bonus:** Wird die Aktivität gelöscht, die den Bonus bekommen hat, ist der Bonus dieser Woche meist weg. Noch offen, ob das so bleiben soll.
@@ -97,6 +97,7 @@ Die Pläne liegen unter `docs/superpowers/plans/`, die Entwürfe unter `docs/sup
 | `docs/superpowers/plans/` | Umsetzungspläne M0 bis M7 |
 | `docs/api.md` | API-Vertrag zwischen App und Backend |
 | `docs/testcheckliste.md` | Test von Hand mit zwei Handys |
+| `docs/projektdoku/projekttagebuch.md` | Projekttagebuch für die Berufsschul-Doku, ein Eintrag pro Arbeitstag |
 | `README.md` | Starten, Cloud, App auf andere Handys bringen, Datenschutz, Bewusste Grenzen |
 | `backend/src/main/kotlin/de/touchgrass/` | Backend: `Application.kt`, `routes/`, je Bereich ein Paket, Rechenregeln in `logic/` |
 | `backend/src/main/resources/db/migration/` | Flyway-Migrationen V1 bis V7 |
