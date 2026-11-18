@@ -72,7 +72,7 @@ Die Pläne liegen unter `docs/superpowers/plans/`, die Entwürfe unter `docs/sup
 
 ## Offene Punkte
 
-- **Projektdokumentation:** Markdown unter `docs/projektdoku/`. Das Projekttagebuch ist rückwirkend angelegt, die Vorgaben der Berufsschule Lauingen sind zusammengefasst, die Gliederung steht. Es fehlen der Text der Kapitel, das Thema laut Anmeldung, die Betreuungslehrkraft, der Abgabetermin, die Einzelheiten zu Michaels Planungsarbeit und die Klärung mit der Lehrkraft, wie der KI-Einsatz anzugeben ist. Für die Abgabe entsteht daraus ein Word- und PDF-Dokument.
+- **Projektdokumentation:** Markdown unter `docs/projektdoku/`. Kapitel 1 bis 7 sind geschrieben, gegen die Quellen geprüft und auf rund 5.000 Wörter gekürzt; Projekttagebuch und Vorgaben der Berufsschule Lauingen liegen daneben. Offen sind die Platzhalter in eckigen Klammern (Lehrkraft, Termine, Screenshots, Kosten, Arbeitsstunden, Gründe für einige Technikentscheidungen, Testprotokoll), die Klärung mit der Lehrkraft, wie der KI-Einsatz anzugeben ist, und die Übertragung nach Word und PDF mit den Diagrammen als Bilder.
 - **Fotos:** Entwurf fertig, der Umsetzungsplan fehlt noch.
 - **Farben:** gebaut und gepusht, auf dem Handy noch nicht angesehen.
 - **Wochenziel-Bonus:** Wird die Aktivität gelöscht, die den Bonus bekommen hat, ist der Bonus dieser Woche meist weg. Noch offen, ob das so bleiben soll.

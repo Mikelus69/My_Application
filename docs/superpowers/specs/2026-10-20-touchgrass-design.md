@@ -432,7 +432,7 @@ Drei Tabs:
 Kopf mit Benutzername und den Zahlen dieser Woche, darunter vier Einträge:
 
 - **Freunde:** Anfragen senden, annehmen und ablehnen, Freundschaften beenden. Bei offenen Anfragen steht ihre Zahl unter dem Eintrag.
-- **Statistik:** vier Vico-Diagramme
+- **Statistik:** die Zahlen der laufenden Woche als Text, dazu drei Säulendiagramme mit Vico (Minuten pro Woche, Aktivitäten je Sportart, kcal pro Monat)
 - **Verlauf:** Liste mit Filtern (Sportart-Auswahl mit „Alle Sportarten“, Zeitraum). Tippen öffnet die Details, dort ist Löschen mit Rückfrage möglich.
 - **Einstellungen:** Gewicht, Wochenziel, Passwort ändern, Logout, Konto löschen (mit Rückfrage)
 

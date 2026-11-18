@@ -83,3 +83,7 @@ Protokoll der Arbeit am Projekt mit Datum. Die Einträge bis zum 18.11.2026 sind
 - Übergabe-Dokument `docs/uebergabe.md` und Arbeitsregeln `CLAUDE.md` für neue Chats (`31ea7bd`).
 - Projektdokumentation begonnen: Markdown unter `docs/projektdoku/`, mit diesem Projekttagebuch.
 - Leitfaden der Berufsschule ausgewertet: Die Vorgaben stehen in `vorgaben.md`, die Gliederung der Dokumentation danach in `dokumentation.md`.
+- Projektdokumentation rückwirkend geschrieben:
+  - Fakten zu allen Meilensteinen aus Git-Historie, Plänen und Entwürfen gesammelt und gegen die Quellen geprüft.
+  - Kapitel 1 bis 7 mit Abkürzungs- und Literaturverzeichnis sowie Anhang verfasst. Einleitung, Ausgangslage und Schluss nach den Angaben des Teams zu Thema, Idee und Arbeitsteilung.
+  - Text aus vier Blickwinkeln geprüft (Fakten, Sprache, Struktur und Umfang, Bewertung durch die Lehrkraft) und auf rund 5.000 Wörter gekürzt, damit er mit Tabellen und Abbildungen in 20 Seiten passt.
