@@ -19,7 +19,7 @@ Abzugeben sind die laufende App, eine Projektdokumentation und eine Präsentatio
 
 - **Fertig und auf zwei Handys getestet:** das MVP aus Konten, Aktivitäten, Timer und Karte, Erfolgen, Statistik und Betrieb in der Cloud, dazu die Erweiterung Freunde.
 - **Danach dazugekommen:** Sportart-Auswahl mit Live-Suche, 25 Sportarten, Health-Check mit laufendem Commit, Tests der Wochengrenzen, App-Farben aus dem Logo.
-- **Entworfen, noch nicht gebaut:** Fotos zu Aktivitäten.
+- **Entworfen und geplant, noch nicht gebaut:** Fotos zu Aktivitäten (M8).
 - **Begonnen:** die Projektdokumentation für die Berufsschule.
 - **Tests:** 120 im Backend und 111 in der App, alle grün.
 
@@ -40,6 +40,7 @@ Abzugeben sind die laufende App, eine Projektdokumentation und eine Präsentatio
 | Zeitgrenzen | 04.11. | Tests für Zeitumstellung im März und Neujahr | – |
 | Farben | 18.11. | eigenes Farbschema aus dem Logo statt Vorlagen-Lila | – |
 | Entwurf Fotos | 18.11. | Entwurf fertig und abgestimmt | `specs/2026-11-18-fotos-design.md` |
+| Plan Fotos | 18.11. | Umsetzungsplan M8 geschrieben und in einer Kopie des Repositorys durchgespielt | `plans/2026-11-18-m8-fotos.md` |
 
 Die Pläne liegen unter `docs/superpowers/plans/`, die Entwürfe unter `docs/superpowers/specs/`.
 
@@ -73,16 +74,16 @@ Die Pläne liegen unter `docs/superpowers/plans/`, die Entwürfe unter `docs/sup
 ## Offene Punkte
 
 - **Projektdokumentation:** Markdown unter `docs/projektdoku/`. Kapitel 1 bis 7 sind geschrieben, gegen die Quellen geprüft und auf rund 5.000 Wörter gekürzt; Projekttagebuch und Vorgaben der Berufsschule Lauingen liegen daneben. Offen sind die Platzhalter in eckigen Klammern (Lehrkraft, Termine, Screenshots, Kosten, Arbeitsstunden, Gründe für einige Technikentscheidungen, Testprotokoll), die Klärung mit der Lehrkraft, wie der KI-Einsatz anzugeben ist, und die Übertragung nach Word und PDF mit den Diagrammen als Bilder.
-- **Fotos:** Entwurf fertig, der Umsetzungsplan fehlt noch.
+- **Fotos:** Entwurf und Umsetzungsplan fertig, umgesetzt ist noch nichts.
 - **Farben:** gebaut und gepusht, auf dem Handy noch nicht angesehen.
 - **Wochenziel-Bonus:** Wird die Aktivität gelöscht, die den Bonus bekommen hat, ist der Bonus dieser Woche meist weg. Noch offen, ob das so bleiben soll.
-- **GPS-Tracking:** zweites Stretch Goal, braucht einen eigenen Entwurf.
+- **GPS-Tracking:** drittes Stretch Goal nach Freunden und Fotos, braucht einen eigenen Entwurf.
 - **Präsentation:** noch nicht begonnen.
 
 ## Nächste Schritte
 
-1. Form der Projektdokumentation festlegen und alles bisher Erledigte rückwirkend dokumentieren.
-2. Umsetzungsplan für Fotos schreiben, dann Aufgabe für Aufgabe umsetzen.
+1. Plan M8 Fotos Aufgabe für Aufgabe umsetzen (`docs/superpowers/plans/2026-11-18-m8-fotos.md`).
+2. Platzhalter der Projektdokumentation füllen, mit der Lehrkraft den KI-Einsatz klären und die Doku nach Word und PDF übertragen.
 3. Präsentation vorbereiten.
 4. Danach GPS-Tracking entwerfen.
 
@@ -94,7 +95,7 @@ Die Pläne liegen unter `docs/superpowers/plans/`, die Entwürfe unter `docs/sup
 | `docs/superpowers/specs/2026-10-20-touchgrass-design.md` | Hauptentwurf, beschreibt immer den aktuellen Stand |
 | `docs/superpowers/specs/2026-11-02-freunde-design.md` | Entwurf Freunde |
 | `docs/superpowers/specs/2026-11-18-fotos-design.md` | Entwurf Fotos |
-| `docs/superpowers/plans/` | Umsetzungspläne M0 bis M7 |
+| `docs/superpowers/plans/` | Umsetzungspläne M0 bis M8 |
 | `docs/api.md` | API-Vertrag zwischen App und Backend |
 | `docs/testcheckliste.md` | Test von Hand mit zwei Handys |
 | `docs/projektdoku/dokumentation.md` | Projektdokumentation für die Berufsschule, gegliedert nach dem Leitfaden |

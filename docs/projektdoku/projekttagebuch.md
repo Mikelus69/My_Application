@@ -87,3 +87,8 @@ Protokoll der Arbeit am Projekt mit Datum. Die Einträge bis zum 18.11.2026 sind
   - Fakten zu allen Meilensteinen aus Git-Historie, Plänen und Entwürfen gesammelt und gegen die Quellen geprüft.
   - Kapitel 1 bis 7 mit Abkürzungs- und Literaturverzeichnis sowie Anhang verfasst. Einleitung, Ausgangslage und Schluss nach den Angaben des Teams zu Thema, Idee und Arbeitsteilung.
   - Text aus vier Blickwinkeln geprüft (Fakten, Sprache, Struktur und Umfang, Bewertung durch die Lehrkraft) und auf rund 5.000 Wörter gekürzt, damit er mit Tabellen und Abbildungen in 20 Seiten passt.
+- **Plan M8 Fotos:**
+  - Umsetzungsplan mit acht Aufgaben geschrieben: Backend zum Hochladen, Abrufen und Entfernen, in der App Bildladen, Verkleinern, Formular, Details, Verlauf und Karte, zum Schluss die Doku.
+  - Jede Aufgabe vorab in einer Kopie des Repositorys Schritt für Schritt durchgespielt.
+  - Plan aus sechs Blickwinkeln geprüft (Abgleich mit der Probe, Entwurf und Vorgaben, Android zur Laufzeit, Sicherheit im Backend, Ausführbarkeit, Doku), jeder Befund von zwei weiteren Prüfungen gegengeprüft. Die bestätigten Befunde sind eingearbeitet, etwa: Das Backend erkennt abgeschnittene Fotos, und ein im Hintergrund gespeichertes Formular kommt nach dem Beenden der App nicht wieder. Danach waren in der Kopie 137 Tests im Backend und 132 in der App grün, Lint meldete keine Fehler.
+  - Übergabe auf den Stand mit Plan gebracht.
