@@ -23,7 +23,7 @@ Sport-App für ein Berufsschulprojekt (zwei Azubis, 1–3 Monate). Android-App p
 
 **Stretch Goals** (Architektur berücksichtigt sie, gebaut wird erst nach dem MVP, jeweils mit eigenem Entwurf)
 
-- Fotos zu Aktivitäten
+- Fotos zu Aktivitäten (eigener Entwurf: `2026-11-18-fotos-design.md`)
 - GPS-Tracking während der Aktivität
 
 **Nicht geplant:** Höhenmeter, Navigation/Routenplanung, Offline-Betrieb.
@@ -51,7 +51,7 @@ Ein Repo mit zwei unabhängigen Gradle-Projekten:
 My_Application/
 ├── app/                 Android-App
 ├── backend/             Ktor-Backend, eigener Gradle-Build
-│   └── data/            lokale Daten (PostgreSQL, Secret, später Fotos), nicht im Git
+│   └── data/            lokale Daten (PostgreSQL, Secret), nicht im Git
 ├── docs/api.md          API-Vertrag zwischen App und Backend
 └── README.md            Starten von Backend und App
 ```
@@ -223,7 +223,7 @@ friendships
 
 Jede Erweiterung ist eine neue Flyway-Migration. Bestehende Migrationen werden nie verändert.
 
-- Fotos: Spalte `activities.image_path`, die Dateien liegen in `backend/data/uploads/`
+- Fotos: Tabelle `activity_photos` mit dem JPEG als `bytea` und Spalte `activities.photo_version`. Ein Ordner auf dem Server scheidet aus, weil Render ihn bei jedem Neustart leert.
 - GPS-Tracking: Tabelle `gps_points` (activity_id, seq, latitude, longitude, recorded_at)
 
 ## 4. Geschäftslogik (Backend)
