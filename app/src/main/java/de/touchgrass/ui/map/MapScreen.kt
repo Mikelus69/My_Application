@@ -5,6 +5,8 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
@@ -27,6 +29,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import de.touchgrass.data.dto.ActivityDto
 import de.touchgrass.data.dto.SportDto
 import de.touchgrass.ui.UiState
+import de.touchgrass.ui.activities.ActivityPhoto
 import de.touchgrass.ui.activities.labelFor
 import de.touchgrass.ui.activities.startedAtLabel
 import de.touchgrass.ui.components.LoadingIndicator
@@ -103,9 +106,10 @@ private fun ActivityMap(content: MapContent) {
 private fun ActivitySheet(activity: ActivityDto, sports: List<SportDto>, onDismiss: () -> Unit) {
     ModalBottomSheet(onDismissRequest = onDismiss) {
         Column(
-            modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 32.dp),
+            modifier = Modifier.verticalScroll(rememberScrollState()).padding(start = 16.dp, end = 16.dp, bottom = 32.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
+            ActivityPhoto(activity)
             Text(sports.labelFor(activity.sportCode), style = MaterialTheme.typography.headlineSmall)
             Text(activity.ownerLabel())
             Text(activity.startedAtLabel())

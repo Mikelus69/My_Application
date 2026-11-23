@@ -6,8 +6,10 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.ListItem
@@ -18,8 +20,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.painter.ColorPainter
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import coil3.compose.AsyncImage
+import de.touchgrass.data.photoUrl
 import de.touchgrass.ui.UiState
 import de.touchgrass.ui.components.LoadingIndicator
 import de.touchgrass.ui.components.SportPicker
@@ -59,6 +66,7 @@ fun HistoryScreen(viewModel: HistoryViewModel, onOpen: (Long) -> Unit, onBack: (
                             overlineContent = { Text(activity.startedAtLabel()) },
                             headlineContent = { Text(state.sports.labelFor(activity.sportCode)) },
                             supportingContent = { Text(activity.summary()) },
+                            leadingContent = activity.photoUrl()?.let { url -> { PhotoThumbnail(url) } },
                             modifier = Modifier.clickable { onOpen(activity.id) },
                         )
                     }
@@ -66,4 +74,16 @@ fun HistoryScreen(viewModel: HistoryViewModel, onOpen: (Long) -> Unit, onBack: (
             }
         }
     }
+}
+
+@Composable
+private fun PhotoThumbnail(url: String) {
+    AsyncImage(
+        model = url,
+        contentDescription = null,
+        modifier = Modifier.size(56.dp).clip(RoundedCornerShape(8.dp)),
+        placeholder = ColorPainter(MaterialTheme.colorScheme.surfaceVariant),
+        error = ColorPainter(MaterialTheme.colorScheme.surfaceVariant),
+        contentScale = ContentScale.Crop,
+    )
 }
