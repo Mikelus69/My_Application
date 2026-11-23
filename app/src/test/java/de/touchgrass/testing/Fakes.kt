@@ -30,6 +30,7 @@ import de.touchgrass.data.dto.UserDto
 import de.touchgrass.data.dto.Visibility
 import de.touchgrass.data.dto.WeekMinutesDto
 import de.touchgrass.data.dto.WeekSummaryDto
+import de.touchgrass.ui.photo.PhotoPreparer
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -45,6 +46,7 @@ import org.junit.rules.TestWatcher
 import org.junit.runner.Description
 import retrofit2.HttpException
 import retrofit2.Response
+import java.io.File
 import java.time.LocalDate
 import java.time.YearMonth
 
@@ -90,6 +92,10 @@ class FakeTimerStore(initial: TimerState? = null) : TimerStore {
     override val state: Flow<TimerState?> = current
     override suspend fun save(state: TimerState) { current.value = state }
     override suspend fun clear() { current.value = null }
+}
+
+class FakePhotoPreparer(private val prepare: (String) -> File) : PhotoPreparer {
+    override suspend fun prepare(source: String): File = prepare.invoke(source)
 }
 
 @OptIn(ExperimentalCoroutinesApi::class)

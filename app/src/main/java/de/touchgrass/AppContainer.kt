@@ -14,6 +14,8 @@ import de.touchgrass.data.authDataStore
 import de.touchgrass.data.createSportApi
 import de.touchgrass.data.httpClient
 import de.touchgrass.data.timerDataStore
+import de.touchgrass.ui.photo.AndroidPhotoPreparer
+import de.touchgrass.ui.photo.PhotoPreparer
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -27,6 +29,8 @@ class AppContainer(context: Context, baseUrl: String) {
     val session = AuthSession(DataStoreTokenStore(context.authDataStore), scope)
 
     val timerStore: TimerStore = DataStoreTimerStore(context.timerDataStore)
+
+    val photoPreparer: PhotoPreparer = AndroidPhotoPreparer(context)
 
     private val okHttpClient = httpClient(AuthInterceptor(session))
 

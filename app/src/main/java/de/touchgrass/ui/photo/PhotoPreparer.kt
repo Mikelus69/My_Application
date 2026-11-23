@@ -1,0 +1,11 @@
+package de.touchgrass.ui.photo
+
+import java.io.File
+
+const val UNSUPPORTED_PHOTO = "Dieses Bildformat wird nicht unterstützt."
+
+class PhotoException(message: String) : Exception(message)
+
+fun interface PhotoPreparer {
+    suspend fun prepare(source: String): File
+}
