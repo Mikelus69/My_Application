@@ -6,13 +6,17 @@ import de.touchgrass.activities.PhotoRules
 import de.touchgrass.auth.AUTH_JWT
 import de.touchgrass.auth.userId
 import de.touchgrass.plugins.ApiException
+import io.ktor.http.ContentType
+import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.ApplicationCall
 import io.ktor.server.auth.authenticate
 import io.ktor.server.request.contentLength
 import io.ktor.server.request.receive
 import io.ktor.server.request.receiveChannel
+import io.ktor.server.response.header
 import io.ktor.server.response.respond
+import io.ktor.server.response.respondBytes
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.delete
 import io.ktor.server.routing.get
@@ -40,6 +44,11 @@ fun Route.activityRoutes(service: ActivityService) {
                 call.respond(HttpStatusCode.NoContent)
             }
             route("/{id}/photo") {
+                get {
+                    val photo = service.photo(call.userId(), call.activityId("Foto nicht gefunden."))
+                    call.response.header(HttpHeaders.CacheControl, "private, max-age=31536000, immutable")
+                    call.respondBytes(photo, ContentType.Image.JPEG)
+                }
                 put {
                     call.respond(service.uploadPhoto(call.userId(), call.activityId(), call.receivePhoto()))
                 }
@@ -55,8 +64,8 @@ fun Route.activityRoutes(service: ActivityService) {
     }
 }
 
-private fun ApplicationCall.activityId(): Long =
-    parameters["id"]?.toLongOrNull() ?: throw ApiException(HttpStatusCode.NotFound, "NOT_FOUND", "Aktivität nicht gefunden.")
+private fun ApplicationCall.activityId(notFound: String = "Aktivität nicht gefunden."): Long =
+    parameters["id"]?.toLongOrNull() ?: throw ApiException(HttpStatusCode.NotFound, "NOT_FOUND", notFound)
 
 private suspend fun ApplicationCall.receivePhoto(): ByteArray {
     if ((request.contentLength() ?: 0L) > PhotoRules.MAX_BYTES) PhotoRules.tooLarge()

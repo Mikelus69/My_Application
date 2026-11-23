@@ -21,6 +21,7 @@ import org.jetbrains.exposed.v1.javatime.timestampWithTimeZone
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.deleteWhere
 import org.jetbrains.exposed.v1.jdbc.insertAndGetId
+import org.jetbrains.exposed.v1.jdbc.select
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.jetbrains.exposed.v1.jdbc.update
@@ -156,7 +157,15 @@ class ActivityRepository(private val database: Database) {
         }
     }
 
-    // Die einzige Stelle, die festlegt, wer welche Aktivität sieht. Karte und Details nutzen beide diese Bedingung.
+    fun findVisiblePhoto(id: Long, viewerId: Long, friendIds: Set<Long>): ByteArray? = transaction(database) {
+        ActivitiesTable.join(ActivityPhotosTable, JoinType.INNER, ActivitiesTable.id, ActivityPhotosTable.activityId)
+            .select(ActivityPhotosTable.image)
+            .where { (ActivitiesTable.id eq id) and visibleTo(viewerId, friendIds) }
+            .singleOrNull()
+            ?.let { it[ActivityPhotosTable.image] }
+    }
+
+    // Die einzige Stelle, die festlegt, wer welche Aktivität sieht. Karte, Details und Fotos nutzen diese Bedingung.
     private fun visibleTo(viewerId: Long, friendIds: Set<Long>): Op<Boolean> =
         (ActivitiesTable.userId eq viewerId) or
             (ActivitiesTable.visibility eq Visibility.PUBLIC) or

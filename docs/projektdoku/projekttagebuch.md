@@ -96,3 +96,4 @@ Protokoll der Arbeit am Projekt mit Datum. Die Einträge bis zum 18.11.2026 sind
 ## 23.11.2026 – M8 Fotos
 
 - **M8 Fotos, Backend:** Fotos hochladen und entfernen (`PUT` und `DELETE /api/activities/{id}/photo`), die API-Doku vorher angepasst. Migration V8 mit der Tabelle `activity_photos`, der Sequenz `photo_versions` und der Spalte `activities.photo_version`. Der Server lehnt Fotos über 200 KB mit 413 ab und prüft JPEG-Kennung und Seitenlänge (höchstens 512 Pixel), ohne das Bild zu entpacken.
+- **M8 Fotos, Backend:** Foto abrufen (`GET /api/activities/{id}/photo`) mit derselben Sichtbarkeitsregel wie die Details, als `image/jpeg` mit `Cache-Control: private, max-age=31536000, immutable`. Ohne Foto oder ohne Sicht antwortet der Server mit 404, nie mit 401.

@@ -13,7 +13,9 @@ import io.ktor.client.request.get
 import io.ktor.client.request.put
 import io.ktor.client.request.setBody
 import io.ktor.client.statement.HttpResponse
+import io.ktor.client.statement.bodyAsBytes
 import io.ktor.http.ContentType
+import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import io.ktor.server.testing.testApplication
@@ -22,6 +24,7 @@ import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import kotlin.test.BeforeTest
 import kotlin.test.Test
+import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
@@ -37,6 +40,8 @@ class PhotoRoutesTest {
         delete("/api/activities/$id/photo") { bearerAuth(token) }
 
     private fun storedPhotos(): Long = transaction(TestDatabase.database) { ActivityPhotosTable.selectAll().count() }
+
+    private suspend fun HttpClient.photo(token: String, id: Long): HttpResponse = get("/api/activities/$id/photo") { bearerAuth(token) }
 
     @Test
     fun `Hochladen liefert die Aktivität mit photoVersion`() = testApplication {
@@ -198,5 +203,67 @@ class PhotoRoutesTest {
 
         assertEquals(1L, afterActivity)
         assertEquals(0L, storedPhotos())
+    }
+
+    @Test
+    fun `eigenes Foto kommt als JPEG mit Cache-Control und genau den hochgeladenen Bytes`() = testApplication {
+        val client = startApp()
+        val token = client.register("max_m").token
+        val id = client.createActivity(token).activity.id
+        client.putPhoto(token, id)
+        val replacement = jpeg(3, 4)
+        val version = client.putPhoto(token, id, replacement).body<ActivityDto>().photoVersion
+
+        val response = client.get("/api/activities/$id/photo?v=$version") { bearerAuth(token) }
+
+        assertEquals(HttpStatusCode.OK, response.status)
+        assertEquals("image/jpeg", response.headers[HttpHeaders.ContentType])
+        assertEquals("private, max-age=31536000, immutable", response.headers[HttpHeaders.CacheControl])
+        assertContentEquals(replacement, response.bodyAsBytes())
+    }
+
+    @Test
+    fun `fremdes Foto nur bei öffentlicher Aktivität oder als Freund`() = testApplication {
+        val client = startApp()
+        val max = client.register("max_m").token
+        val lisa = client.register("lisa_k").token
+        val tom = client.register("tom_b").token
+        client.befriend(max, "max_m", lisa, "lisa_k")
+        val ids = listOf(Visibility.PRIVATE, Visibility.FRIENDS, Visibility.PUBLIC)
+            .map { client.createActivity(max, activity(visibility = it)).activity.id }
+        ids.forEach { client.putPhoto(max, it) }
+
+        val forLisa = ids.map { client.photo(lisa, it).status }
+        val forTom = ids.map { client.photo(tom, it).status }
+
+        assertEquals(listOf(HttpStatusCode.NotFound, HttpStatusCode.OK, HttpStatusCode.OK), forLisa)
+        assertEquals(listOf(HttpStatusCode.NotFound, HttpStatusCode.NotFound, HttpStatusCode.OK), forTom)
+    }
+
+    @Test
+    fun `ohne Foto, nach dem Entfernen und ohne Aktivität liefert 404`() = testApplication {
+        val client = startApp()
+        val token = client.register("max_m").token
+        val id = client.createActivity(token).activity.id
+
+        val withoutPhoto = client.photo(token, id)
+        client.putPhoto(token, id)
+        client.deletePhoto(token, id)
+        val afterRemoval = client.photo(token, id)
+        val missing = client.photo(token, 999999)
+        val notANumber = client.get("/api/activities/abc/photo") { bearerAuth(token) }
+
+        for (response in listOf(withoutPhoto, afterRemoval, missing, notANumber)) {
+            assertEquals(HttpStatusCode.NotFound, response.status)
+            assertEquals(ErrorResponse("NOT_FOUND", "Foto nicht gefunden."), response.body<ErrorResponse>())
+            assertNull(response.headers[HttpHeaders.CacheControl])
+        }
+    }
+
+    @Test
+    fun `Foto abrufen braucht eine Anmeldung`() = testApplication {
+        val client = startApp()
+
+        assertEquals(HttpStatusCode.Unauthorized, client.get("/api/activities/1/photo").status)
     }
 }

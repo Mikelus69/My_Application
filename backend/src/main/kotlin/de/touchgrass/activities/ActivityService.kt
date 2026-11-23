@@ -84,6 +84,10 @@ class ActivityService(
         return activity.toDto(viewerId = userId, friendIds)
     }
 
+    fun photo(userId: Long, id: Long): ByteArray =
+        activities.findVisiblePhoto(id, userId, friendships.friendIds(userId))
+            ?: throw ApiException(HttpStatusCode.NotFound, "NOT_FOUND", "Foto nicht gefunden.")
+
     fun delete(userId: Long, id: Long) {
         ownActivity(userId, id)
         activities.delete(id)
