@@ -16,8 +16,10 @@ import okhttp3.Interceptor
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import org.junit.After
+import org.junit.Assert.assertArrayEquals
 import org.junit.Assert.assertEquals
 import org.junit.Test
+import java.io.File
 
 class SportApiTest {
     private val server = MockWebServer()
@@ -232,5 +234,33 @@ class SportApiTest {
 
         assertEquals(true, activity.friend)
         assertEquals(Visibility.FRIENDS, activity.visibility)
+    }
+
+    @Test
+    fun `uploadPhotoFile schickt das JPEG per PUT und liest photoVersion`() = runBlocking {
+        enqueueJson(
+            200,
+            """{"id":7,"username":"max_m","mine":true,"sportCode":"RUNNING","startedAt":"2026-11-18T09:00:00+01:00","durationMin":30,"caloriesKcal":300,"points":60,"visibility":"PRIVATE","photoVersion":3}""",
+        )
+        val bytes = ByteArray(256) { it.toByte() }
+        val file = File.createTempFile("foto", ".jpg").apply { deleteOnExit(); writeBytes(bytes) }
+
+        val activity = api.uploadPhotoFile(7, file)
+
+        val request = server.takeRequest()
+        assertEquals("PUT /api/activities/7/photo", "${request.method} ${request.path}")
+        assertEquals("image/jpeg", request.getHeader("Content-Type"))
+        assertArrayEquals(bytes, request.body.readByteArray())
+        assertEquals(3L, activity.photoVersion)
+    }
+
+    @Test
+    fun `deletePhoto entfernt das Foto per DELETE`() = runBlocking {
+        server.enqueue(MockResponse().setResponseCode(204))
+
+        api.deletePhoto(7)
+
+        val request = server.takeRequest()
+        assertEquals("DELETE /api/activities/7/photo", "${request.method} ${request.path}")
     }
 }

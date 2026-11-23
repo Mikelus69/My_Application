@@ -39,6 +39,7 @@ import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.setMain
 import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.RequestBody
 import okhttp3.ResponseBody.Companion.toResponseBody
 import org.junit.rules.TestWatcher
 import org.junit.runner.Description
@@ -60,6 +61,8 @@ open class FakeSportApi : SportApi {
     override suspend fun activities(sport: String?, from: String?, to: String?): List<ActivityDto> = notExpected("activities")
     override suspend fun activity(id: Long): ActivityDto = notExpected("activity")
     override suspend fun deleteActivity(id: Long): Unit = notExpected("deleteActivity")
+    override suspend fun uploadPhoto(id: Long, photo: RequestBody): ActivityDto = notExpected("uploadPhoto")
+    override suspend fun deletePhoto(id: Long): Unit = notExpected("deletePhoto")
     override suspend fun mapActivities(): List<ActivityDto> = notExpected("mapActivities")
     override suspend fun achievements(): List<AchievementDto> = notExpected("achievements")
     override suspend fun progress(): ProgressDto = notExpected("progress")

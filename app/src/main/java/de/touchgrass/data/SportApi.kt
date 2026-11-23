@@ -24,6 +24,7 @@ import kotlinx.serialization.json.Json
 import okhttp3.Interceptor
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
+import okhttp3.RequestBody
 import retrofit2.Retrofit
 import retrofit2.converter.kotlinx.serialization.asConverterFactory
 import retrofit2.http.Body
@@ -76,6 +77,12 @@ interface SportApi {
 
     @DELETE("activities/{id}")
     suspend fun deleteActivity(@Path("id") id: Long)
+
+    @PUT("activities/{id}/photo")
+    suspend fun uploadPhoto(@Path("id") id: Long, @Body photo: RequestBody): ActivityDto
+
+    @DELETE("activities/{id}/photo")
+    suspend fun deletePhoto(@Path("id") id: Long)
 
     @GET("map/activities")
     suspend fun mapActivities(): List<ActivityDto>

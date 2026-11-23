@@ -34,6 +34,7 @@ data class ActivityDto(
     val longitude: Double? = null,
     val description: String? = null,
     val visibility: Visibility,
+    val photoVersion: Long? = null,
 )
 
 @Serializable
