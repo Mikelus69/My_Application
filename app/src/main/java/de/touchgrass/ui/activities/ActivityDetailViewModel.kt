@@ -7,7 +7,10 @@ import de.touchgrass.data.SportApi
 import de.touchgrass.data.apiCall
 import de.touchgrass.data.dto.ActivityDto
 import de.touchgrass.data.dto.SportDto
+import de.touchgrass.data.uploadPhotoFile
 import de.touchgrass.ui.UiState
+import de.touchgrass.ui.photo.PhotoException
+import de.touchgrass.ui.photo.PhotoPreparer
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -17,11 +20,16 @@ import kotlinx.coroutines.launch
 data class ActivityDetailUiState(
     val sports: List<SportDto> = emptyList(),
     val activity: UiState<ActivityDto> = UiState.Loading,
+    val photoBusy: Boolean = false,
     val deleted: Boolean = false,
     val error: String? = null,
 )
 
-class ActivityDetailViewModel(private val api: SportApi, private val id: Long) : ViewModel() {
+class ActivityDetailViewModel(
+    private val api: SportApi,
+    private val id: Long,
+    private val photos: PhotoPreparer,
+) : ViewModel() {
     private val _state = MutableStateFlow(ActivityDetailUiState())
     val state: StateFlow<ActivityDetailUiState> = _state.asStateFlow()
 
@@ -49,6 +57,40 @@ class ActivityDetailViewModel(private val api: SportApi, private val id: Long) :
                 _state.update { it.copy(deleted = true) }
             } catch (e: ApiException) {
                 _state.update { it.copy(error = e.message) }
+            }
+        }
+    }
+
+    fun onPhotoPicked(source: String) = changePhoto {
+        val file = photos.prepare(source)
+        try {
+            apiCall { api.uploadPhotoFile(id, file) }
+        } finally {
+            file.delete()
+        }
+    }
+
+    fun onPhotoError(message: String) = _state.update { it.copy(error = message) }
+
+    fun removePhoto() {
+        val current = _state.value.activity
+        if (current !is UiState.Content) return
+        changePhoto {
+            apiCall { api.deletePhoto(id) }
+            current.data.copy(photoVersion = null)
+        }
+    }
+
+    private fun changePhoto(change: suspend () -> ActivityDto) {
+        _state.update { it.copy(photoBusy = true, error = null) }
+        viewModelScope.launch {
+            try {
+                val activity = change()
+                _state.update { it.copy(activity = UiState.Content(activity), photoBusy = false) }
+            } catch (e: PhotoException) {
+                _state.update { it.copy(photoBusy = false, error = e.message) }
+            } catch (e: ApiException) {
+                _state.update { it.copy(photoBusy = false, error = e.message) }
             }
         }
     }

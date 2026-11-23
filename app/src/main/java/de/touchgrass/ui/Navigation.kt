@@ -162,7 +162,7 @@ fun TouchGrassNavigation(container: AppContainer) {
                 composable<ActivityDetailRoute> { entry ->
                     val id = entry.toRoute<ActivityDetailRoute>().id
                     ActivityDetailScreen(
-                        viewModel = viewModel { ActivityDetailViewModel(container.api, id) },
+                        viewModel = viewModel { ActivityDetailViewModel(container.api, id, container.photoPreparer) },
                         onBack = { navController.popBackStack() },
                     )
                 }
