@@ -5,7 +5,9 @@ import de.touchgrass.users.UsersTable
 import org.jetbrains.exposed.v1.core.JoinType
 import org.jetbrains.exposed.v1.core.Op
 import org.jetbrains.exposed.v1.core.ResultRow
+import org.jetbrains.exposed.v1.core.Sequence
 import org.jetbrains.exposed.v1.core.SortOrder
+import org.jetbrains.exposed.v1.core.Table
 import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.dao.id.LongIdTable
 import org.jetbrains.exposed.v1.core.eq
@@ -13,6 +15,7 @@ import org.jetbrains.exposed.v1.core.greaterEq
 import org.jetbrains.exposed.v1.core.inList
 import org.jetbrains.exposed.v1.core.isNotNull
 import org.jetbrains.exposed.v1.core.less
+import org.jetbrains.exposed.v1.core.nextLongVal
 import org.jetbrains.exposed.v1.core.or
 import org.jetbrains.exposed.v1.javatime.timestampWithTimeZone
 import org.jetbrains.exposed.v1.jdbc.Database
@@ -20,6 +23,9 @@ import org.jetbrains.exposed.v1.jdbc.deleteWhere
 import org.jetbrains.exposed.v1.jdbc.insertAndGetId
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
+import org.jetbrains.exposed.v1.jdbc.update
+import org.jetbrains.exposed.v1.jdbc.updateReturning
+import org.jetbrains.exposed.v1.jdbc.upsert
 import java.time.OffsetDateTime
 
 object ActivitiesTable : LongIdTable("activities") {
@@ -34,6 +40,13 @@ object ActivitiesTable : LongIdTable("activities") {
     val longitude = double("longitude").nullable()
     val description = varchar("description", 500).nullable()
     val visibility = enumerationByName<Visibility>("visibility", 10).default(Visibility.PRIVATE)
+    val photoVersion = long("photo_version").nullable()
+}
+
+object ActivityPhotosTable : Table("activity_photos") {
+    val activityId = long("activity_id")
+    val image = binary("image")
+    override val primaryKey = PrimaryKey(activityId)
 }
 
 data class NewActivity(
@@ -64,10 +77,12 @@ data class ActivityRecord(
     val longitude: Double?,
     val description: String?,
     val visibility: Visibility,
+    val photoVersion: Long?,
 )
 
 class ActivityRepository(private val database: Database) {
     private val withUser = ActivitiesTable.join(UsersTable, JoinType.INNER, ActivitiesTable.userId, UsersTable.id)
+    private val photoVersions = Sequence("photo_versions")
 
     fun insert(activity: NewActivity): Long = transaction(database) {
         ActivitiesTable.insertAndGetId {
@@ -124,6 +139,23 @@ class ActivityRepository(private val database: Database) {
         ActivitiesTable.deleteWhere { ActivitiesTable.id eq id }
     }
 
+    fun savePhoto(activityId: Long, jpeg: ByteArray): Long = transaction(database) {
+        ActivityPhotosTable.upsert {
+            it[ActivityPhotosTable.activityId] = activityId
+            it[ActivityPhotosTable.image] = jpeg
+        }
+        ActivitiesTable.updateReturning(listOf(ActivitiesTable.photoVersion), where = { ActivitiesTable.id eq activityId }) {
+            it[photoVersion] = photoVersions.nextLongVal()
+        }.single()[ActivitiesTable.photoVersion]!!
+    }
+
+    fun deletePhoto(activityId: Long) {
+        transaction(database) {
+            ActivityPhotosTable.deleteWhere { ActivityPhotosTable.activityId eq activityId }
+            ActivitiesTable.update({ ActivitiesTable.id eq activityId }) { it[photoVersion] = null }
+        }
+    }
+
     // Die einzige Stelle, die festlegt, wer welche Aktivität sieht. Karte und Details nutzen beide diese Bedingung.
     private fun visibleTo(viewerId: Long, friendIds: Set<Long>): Op<Boolean> =
         (ActivitiesTable.userId eq viewerId) or
@@ -144,5 +176,6 @@ class ActivityRepository(private val database: Database) {
         longitude = this[ActivitiesTable.longitude],
         description = this[ActivitiesTable.description],
         visibility = this[ActivitiesTable.visibility],
+        photoVersion = this[ActivitiesTable.photoVersion],
     )
 }

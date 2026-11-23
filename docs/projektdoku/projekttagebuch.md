@@ -92,3 +92,7 @@ Protokoll der Arbeit am Projekt mit Datum. Die Einträge bis zum 18.11.2026 sind
   - Jede Aufgabe vorab in einer Kopie des Repositorys Schritt für Schritt durchgespielt.
   - Plan aus sechs Blickwinkeln geprüft (Abgleich mit der Probe, Entwurf und Vorgaben, Android zur Laufzeit, Sicherheit im Backend, Ausführbarkeit, Doku), jeder Befund von zwei weiteren Prüfungen gegengeprüft. Die bestätigten Befunde sind eingearbeitet, etwa: Das Backend erkennt abgeschnittene Fotos, und ein im Hintergrund gespeichertes Formular kommt nach dem Beenden der App nicht wieder. Danach waren in der Kopie 137 Tests im Backend und 132 in der App grün, Lint meldete keine Fehler.
   - Übergabe auf den Stand mit Plan gebracht.
+
+## 23.11.2026 – M8 Fotos
+
+- **M8 Fotos, Backend:** Fotos hochladen und entfernen (`PUT` und `DELETE /api/activities/{id}/photo`), die API-Doku vorher angepasst. Migration V8 mit der Tabelle `activity_photos`, der Sequenz `photo_versions` und der Spalte `activities.photo_version`. Der Server lehnt Fotos über 200 KB mit 413 ab und prüft JPEG-Kennung und Seitenlänge (höchstens 512 Pixel), ohne das Bild zu entpacken.

@@ -5,7 +5,7 @@ Verbindliche Absprache zwischen App und Backend. Ändert sich etwas an der API, 
 ## Grundlagen
 
 - Basis-URL: `https://touchgrass-backend-pfz7.onrender.com/api`, lokal `http://127.0.0.1:8080/api`.
-- Format: JSON in UTF-8. Felder mit Wert `null` werden weggelassen.
+- Format: JSON in UTF-8, Fotos als JPEG (`/activities/{id}/photo`). Felder mit Wert `null` werden weggelassen.
 - Zeitpunkte: ISO-8601 mit Offset, z. B. `2026-10-04T09:30:00+02:00`.
 - Datumswerte: `YYYY-MM-DD`. Tage und Wochen rechnet das Backend in `Europe/Berlin`, eine Woche geht von Montag bis Sonntag.
 - Anmeldung: Außer `/health`, `/auth/register` und `/auth/login` braucht jeder Aufruf den Header `Authorization: Bearer <token>`. Ein Token ist 30 Tage gültig.
@@ -23,14 +23,15 @@ Alle Fehler haben dieselbe Form. `field` gibt es nur bei Eingabefehlern.
 | 400 | `VALIDATION_ERROR` | Eingabe ungültig |
 | 401 | `UNAUTHORIZED` | Token fehlt, ist ungültig oder abgelaufen |
 | 401 | `INVALID_CREDENTIALS` | Login falsch (nur `POST /auth/login`) |
-| 403 | `FORBIDDEN` | Fremde Aktivität löschen |
+| 403 | `FORBIDDEN` | Fremde Aktivität löschen oder ihr Foto ändern |
 | 404 | `NOT_FOUND` | Pfad oder Objekt existiert nicht (auch: Aktivität, die man nicht sehen darf) |
 | 404 | `USER_NOT_FOUND` | Benutzername unbekannt (nur `POST /friends/requests`) |
 | 409 | `USERNAME_TAKEN`, `EMAIL_TAKEN` | Benutzername oder E-Mail schon vergeben |
 | 409 | `ALREADY_FRIENDS`, `REQUEST_PENDING` | Schon befreundet oder eigene Anfrage noch offen |
+| 413 | `PAYLOAD_TOO_LARGE` | Foto größer als 200 KB (nur `PUT /activities/{id}/photo`) |
 | 500 | `INTERNAL_ERROR` | Unerwarteter Serverfehler |
 
-Eine `401` bedeutet außer beim Login immer: Token fehlt oder ist ungültig. Die App meldet sich dann ab. Alle anderen Fehleingaben sind `400`.
+Eine `401` bedeutet außer beim Login immer: Token fehlt oder ist ungültig. Die App meldet sich dann ab. Deshalb liefert auch ein Foto, das man nicht sehen darf, `404` und nie `401`. Alle anderen Fehleingaben sind `400`, nur ein zu großes Foto ist `413`.
 
 ## Objekte
 
@@ -60,10 +61,11 @@ Eine `401` bedeutet außer beim Login immer: Token fehlt oder ist ungültig. Die
   "latitude": 48.1642,
   "longitude": 11.6056,
   "description": "Schöne Runde",
-  "visibility": "PRIVATE"
+  "visibility": "PRIVATE",
+  "photoVersion": 7
 }
 ```
-`latitude`, `longitude` und `description` fehlen, wenn nicht gesetzt. `mine` ist `true`, wenn die Aktivität dem angemeldeten Benutzer gehört, `friend`, wenn sie von einem Freund stammt. `visibility`: `PRIVATE` | `FRIENDS` | `PUBLIC`.
+`latitude`, `longitude`, `description` und `photoVersion` fehlen, wenn nicht gesetzt. `mine` ist `true`, wenn die Aktivität dem angemeldeten Benutzer gehört, `friend`, wenn sie von einem Freund stammt. `visibility`: `PRIVATE` | `FRIENDS` | `PUBLIC`. `photoVersion` gibt es nur bei Aktivitäten mit Foto. Jedes Hochladen vergibt eine neue Nummer, die sich nie wiederholt, auch nicht nach dem Entfernen und erneuten Hochladen.
 
 **Achievement**
 ```json
@@ -94,6 +96,7 @@ Benutzernamen der Freunde, der offenen Anfragen an mich (`incoming`) und meiner 
 | GET | `/friends` | M7 |
 | POST | `/friends/requests`, `/friends/requests/{username}/accept` | M7 |
 | DELETE | `/friends/requests/{username}`, `/friends/{username}` | M7 |
+| PUT, GET, DELETE | `/activities/{id}/photo` | M8 |
 
 ### GET /health
 
@@ -145,7 +148,7 @@ Alle Felder optional, nur mitgeschickte werden geändert.
 
 ### DELETE /me
 
-Löscht das Konto mit allen Aktivitäten, Achievements, Freundschaften und Anfragen. `204` ohne Inhalt.
+Löscht das Konto mit allen Aktivitäten und ihren Fotos, Achievements, Freundschaften und Anfragen. `204` ohne Inhalt.
 
 ### GET /sports
 
@@ -203,7 +206,33 @@ Eigener Verlauf, neueste zuerst. Alle Parameter optional:
 
 ### DELETE /activities/{id}
 
-`204` ohne Inhalt. Fehler: `403 FORBIDDEN` (fremde Aktivität), `404 NOT_FOUND`.
+Löscht die Aktivität mit ihrem Foto. `204` ohne Inhalt. Fehler: `403 FORBIDDEN` (fremde Aktivität), `404 NOT_FOUND`.
+
+### PUT /activities/{id}/photo
+
+Body: das Foto als JPEG mit `Content-Type: image/jpeg`, höchstens 200 KB (204.800 Byte) und höchstens 512 Pixel an der längsten Seite. Ersetzt ein vorhandenes Foto. Geht nur bei eigenen Aktivitäten.
+`200`: `Activity` mit der neuen `photoVersion`.
+
+Fehler:
+
+| Status | `error` | `field` | `message` |
+|---|---|---|---|
+| 400 | `VALIDATION_ERROR` | `photo` | Bitte ein Foto im JPEG-Format schicken. |
+| 400 | `VALIDATION_ERROR` | `photo` | Das Foto darf höchstens 512 Pixel lang sein. |
+| 403 | `FORBIDDEN` | – | Das ist nicht deine Aktivität. |
+| 404 | `NOT_FOUND` | – | Aktivität nicht gefunden. |
+| 413 | `PAYLOAD_TOO_LARGE` | `photo` | Das Foto ist zu groß. |
+
+Die Größe prüft der Server vor dem Lesen an `Content-Length` und beim Lesen, danach die JPEG-Kennung am Anfang (`FF D8 FF`) und am Ende (`FF D9`) und die Pixelangaben im Kopf des JPEGs, ohne das Bild zu entpacken. Ein abgeschnittenes Foto gilt als kein JPEG.
+
+### GET /activities/{id}/photo?v={photoVersion}
+
+`200`: das Foto als `image/jpeg` mit `Cache-Control: private, max-age=31536000, immutable`. Das Foto sieht, wer die Aktivität sehen darf (wie bei `GET /activities/{id}`). `v` dient nur dem Zwischenspeicher der App, der Server liefert immer das aktuelle Foto.
+Fehler: `404 NOT_FOUND` „Foto nicht gefunden.“, wenn es die Aktivität nicht gibt, man sie nicht sehen darf oder sie kein Foto hat.
+
+### DELETE /activities/{id}/photo
+
+Entfernt das Foto. `204` ohne Inhalt, auch wenn keins da war. Fehler: `403 FORBIDDEN` (fremde Aktivität), `404 NOT_FOUND` (Aktivität fehlt).
 
 ### GET /map/activities
 

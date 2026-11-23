@@ -85,11 +85,27 @@ class ActivityService(
     }
 
     fun delete(userId: Long, id: Long) {
+        ownActivity(userId, id)
+        activities.delete(id)
+    }
+
+    fun uploadPhoto(userId: Long, id: Long, jpeg: ByteArray): ActivityDto {
+        val activity = ownActivity(userId, id)
+        PhotoRules.validate(jpeg)
+        return activity.copy(photoVersion = activities.savePhoto(id, jpeg)).toDto(viewerId = userId)
+    }
+
+    fun deletePhoto(userId: Long, id: Long) {
+        ownActivity(userId, id)
+        activities.deletePhoto(id)
+    }
+
+    private fun ownActivity(userId: Long, id: Long): ActivityRecord {
         val activity = activities.findById(id) ?: throw notFound()
         if (activity.userId != userId) {
             throw ApiException(HttpStatusCode.Forbidden, "FORBIDDEN", "Das ist nicht deine Aktivität.")
         }
-        activities.delete(id)
+        return activity
     }
 
     private fun notFound() = ApiException(HttpStatusCode.NotFound, "NOT_FOUND", "Aktivität nicht gefunden.")
@@ -108,5 +124,6 @@ class ActivityService(
         longitude = longitude,
         description = description,
         visibility = visibility,
+        photoVersion = photoVersion,
     )
 }

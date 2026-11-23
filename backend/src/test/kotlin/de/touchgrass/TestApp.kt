@@ -13,12 +13,17 @@ import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.request.HttpRequestBuilder
 import io.ktor.client.request.bearerAuth
 import io.ktor.client.request.post
+import io.ktor.client.request.put
 import io.ktor.client.request.setBody
+import io.ktor.client.statement.HttpResponse
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.testing.ApplicationTestBuilder
+import java.awt.image.BufferedImage
+import java.io.ByteArrayOutputStream
 import java.time.Clock
+import javax.imageio.ImageIO
 
 val testJwtService = JwtService("test-secret")
 
@@ -61,3 +66,12 @@ suspend fun HttpClient.befriend(token: String, username: String, otherToken: Str
     post("/api/friends/requests") { bearerAuth(token); jsonBody(SendFriendRequest(otherUsername)) }
     post("/api/friends/requests/$username/accept") { bearerAuth(otherToken) }
 }
+
+fun jpeg(width: Int = 4, height: Int = 3): ByteArray {
+    val out = ByteArrayOutputStream()
+    check(ImageIO.write(BufferedImage(width, height, BufferedImage.TYPE_INT_RGB), "jpg", out))
+    return out.toByteArray()
+}
+
+suspend fun HttpClient.putPhoto(token: String, id: Long, bytes: ByteArray = jpeg()): HttpResponse =
+    put("/api/activities/$id/photo") { bearerAuth(token); contentType(ContentType.Image.JPEG); setBody(bytes) }
