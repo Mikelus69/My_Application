@@ -8,6 +8,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.createSavedStateHandle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavDestination.Companion.hierarchy
@@ -112,7 +113,9 @@ fun TouchGrassNavigation(container: AppContainer) {
                 composable<RecordFormRoute> { entry ->
                     val fromTimer = entry.toRoute<RecordFormRoute>().fromTimer
                     RecordScreen(
-                        viewModel = viewModel { RecordViewModel(container.api, container.timerStore, fromTimer) },
+                        viewModel = viewModel {
+                            RecordViewModel(container.api, container.timerStore, fromTimer, container.photoPreparer, createSavedStateHandle())
+                        },
                         onBack = { navController.popBackStack() },
                     )
                 }
