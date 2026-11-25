@@ -12,6 +12,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.MaterialTheme
@@ -69,7 +70,7 @@ fun ActivityDetailScreen(viewModel: ActivityDetailViewModel, onBack: () -> Unit)
                 state.error?.let { Text(it, color = MaterialTheme.colorScheme.error) }
                 if (activity.mine) {
                     if (state.photoBusy) {
-                        LoadingIndicator()
+                        CircularProgressIndicator()
                     } else {
                         PhotoActions(
                             hasPhoto = activity.photoVersion != null,

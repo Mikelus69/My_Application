@@ -18,6 +18,8 @@ import okhttp3.mockwebserver.MockWebServer
 import org.junit.After
 import org.junit.Assert.assertArrayEquals
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotSame
+import org.junit.Assert.assertSame
 import org.junit.Test
 import java.io.File
 
@@ -187,6 +189,19 @@ class SportApiTest {
 
         assertEquals(listOf(interceptor), client.interceptors)
         assertEquals(120_000, client.readTimeoutMillis)
+    }
+
+    @Test
+    fun `Bilder haben eine eigene Warteschlange, aber dasselbe Login und dieselben Verbindungen`() {
+        val interceptor = Interceptor { chain -> chain.proceed(chain.request()) }
+        val apiClient = httpClient(interceptor)
+
+        val images = imageClient(apiClient)
+
+        assertNotSame(apiClient.dispatcher, images.dispatcher)
+        assertSame(apiClient.connectionPool, images.connectionPool)
+        assertEquals(listOf(interceptor), images.interceptors)
+        assertEquals(120_000, images.readTimeoutMillis)
     }
 
     @Test

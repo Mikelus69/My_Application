@@ -1,6 +1,7 @@
 package de.touchgrass
 
 import android.content.Context
+import android.util.Log
 import coil3.ImageLoader
 import coil3.network.okhttp.OkHttpNetworkFetcherFactory
 import de.touchgrass.data.AuthInterceptor
@@ -13,6 +14,7 @@ import de.touchgrass.data.TimerStore
 import de.touchgrass.data.authDataStore
 import de.touchgrass.data.createSportApi
 import de.touchgrass.data.httpClient
+import de.touchgrass.data.imageClient
 import de.touchgrass.data.timerDataStore
 import de.touchgrass.ui.photo.AndroidPhotoPreparer
 import de.touchgrass.ui.photo.PhotoPreparer
@@ -36,16 +38,25 @@ class AppContainer(context: Context, baseUrl: String) {
 
     val api: SportApi = createSportApi(baseUrl, okHttpClient)
 
+    private val imageHttpClient = imageClient(okHttpClient)
+
     val imageLoader: ImageLoader = ImageLoader.Builder(context)
-        .components { add(OkHttpNetworkFetcherFactory(callFactory = { okHttpClient })) }
+        .components { add(OkHttpNetworkFetcherFactory(callFactory = { imageHttpClient })) }
         .build()
 
     init {
         // Coil zeigt Bilder aus dem Zwischenspeicher ohne Anfrage an den Server, also ohne Login. Deshalb leert jedes Abmelden ihn.
+        // Das läuft auch bei jedem Start ohne Anmeldung, ein Fehler dabei darf die App also nicht beenden.
         scope.launch {
             session.state.filter { it == AuthState.LoggedOut }.collect {
                 imageLoader.memoryCache?.clear()
-                withContext(Dispatchers.IO) { imageLoader.diskCache?.clear() }
+                withContext(Dispatchers.IO) {
+                    try {
+                        imageLoader.diskCache?.clear()
+                    } catch (e: Exception) {
+                        Log.w("TouchGrass", "Bildzwischenspeicher nicht geleert", e)
+                    }
+                }
             }
         }
     }

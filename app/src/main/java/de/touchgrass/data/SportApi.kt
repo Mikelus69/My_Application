@@ -21,6 +21,7 @@ import de.touchgrass.data.dto.StatsDto
 import de.touchgrass.data.dto.UpdateMeRequest
 import de.touchgrass.data.dto.UserDto
 import kotlinx.serialization.json.Json
+import okhttp3.Dispatcher
 import okhttp3.Interceptor
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
@@ -133,3 +134,6 @@ fun httpClient(vararg interceptors: Interceptor): OkHttpClient = OkHttpClient.Bu
     .readTimeout(2, TimeUnit.MINUTES)
     .apply { interceptors.forEach { addInterceptor(it) } }
     .build()
+
+// Bilder bekommen eine eigene Warteschlange, damit viele Vorschaubilder die Aufrufe der API nicht aufhalten. Login und Verbindungen bleiben gemeinsam.
+fun imageClient(apiClient: OkHttpClient): OkHttpClient = apiClient.newBuilder().dispatcher(Dispatcher()).build()

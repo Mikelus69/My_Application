@@ -21,3 +21,11 @@ fun sampleSizeFor(width: Int, height: Int, target: Int = 512): Int {
     while (longest / (sampleSize * 2) >= target) sampleSize *= 2
     return sampleSize
 }
+
+fun jpegWithinLimit(compress: (quality: Int) -> ByteArray?): ByteArray? {
+    for (quality in JPEG_QUALITIES) {
+        val jpeg = compress(quality) ?: return null
+        if (jpeg.size <= MAX_PHOTO_BYTES) return jpeg
+    }
+    return null
+}
