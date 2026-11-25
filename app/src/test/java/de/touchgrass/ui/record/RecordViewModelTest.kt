@@ -404,4 +404,56 @@ class RecordViewModelTest {
         assertEquals("2026-10-05", handle.get<String>("date"))
         assertNull(handle.get<String>("sportCode"))
     }
+
+    @Test
+    fun `scheitert schon das Anlegen, bleibt das Foto im Formular`() {
+        val api = object : Api() {
+            override suspend fun createActivity(body: CreateActivityRequest): CreateActivityResponse =
+                throw httpError(500, """{"error":"INTERNAL_ERROR","message":"Unerwarteter Fehler."}""")
+        }
+        val photo = photoFile()
+        val viewModel = RecordViewModel(api, FakeTimerStore(), fromTimer = false, FakePhotoPreparer { photo }, SavedStateHandle(), clock)
+
+        viewModel.onPhotoPicked("content://media/picker/0/42")
+        viewModel.onSportChange("RUNNING")
+        viewModel.onDurationChange("45")
+        viewModel.save()
+
+        val state = viewModel.state.value
+        assertEquals("Unerwarteter Fehler.", state.error)
+        assertEquals(photo.path, state.photoPath)
+        assertTrue(photo.exists())
+        assertEquals(emptyList<Pair<Long, String>>(), api.uploads)
+    }
+
+    @Test
+    fun `während das Foto vorbereitet wird, schickt Speichern nichts`() {
+        val api = Api()
+        val photo = photoFile()
+        val prepared = CompletableDeferred<File>()
+        val viewModel = RecordViewModel(api, FakeTimerStore(), fromTimer = false, FakePhotoPreparer { prepared.await() }, SavedStateHandle(), clock)
+        viewModel.onSportChange("RUNNING")
+        viewModel.onDurationChange("45")
+
+        viewModel.onPhotoPicked("content://media/picker/0/42")
+        val busy = viewModel.state.value.photoBusy
+        viewModel.save()
+        val sentWhileBusy = api.sent
+        prepared.complete(photo)
+
+        val state = viewModel.state.value
+        assertTrue(busy)
+        assertNull(sentWhileBusy)
+        assertEquals(photo.path, state.photoPath)
+        assertFalse(state.photoBusy)
+    }
+
+    @Test
+    fun `fehlende Kamera-App erscheint am Foto`() {
+        val viewModel = RecordViewModel(Api(), FakeTimerStore(), fromTimer = false, noPhoto, SavedStateHandle(), clock)
+
+        viewModel.onPhotoError("Keine Kamera-App gefunden.")
+
+        assertEquals("Keine Kamera-App gefunden.", viewModel.state.value.fieldErrors["photo"])
+    }
 }

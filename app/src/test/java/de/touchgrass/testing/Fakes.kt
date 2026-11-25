@@ -94,8 +94,8 @@ class FakeTimerStore(initial: TimerState? = null) : TimerStore {
     override suspend fun clear() { current.value = null }
 }
 
-class FakePhotoPreparer(private val prepare: (String) -> File) : PhotoPreparer {
-    override suspend fun prepare(source: String): File = prepare.invoke(source)
+class FakePhotoPreparer(private val block: suspend (String) -> File) : PhotoPreparer {
+    override suspend fun prepare(source: String): File = block(source)
 }
 
 @OptIn(ExperimentalCoroutinesApi::class)

@@ -125,8 +125,8 @@ class ActivityDetailViewModelTest {
     }
 
     @Test
-    fun `Fehler beim Hochladen landen in error`() {
-        val api = object : Api() {
+    fun `Fehler beim Hochladen landen in error, das bisherige Foto bleibt`() {
+        val api = object : Api(photoVersion = 5) {
             override suspend fun uploadPhoto(id: Long, photo: RequestBody): ActivityDto =
                 throw httpError(413, """{"error":"PAYLOAD_TOO_LARGE","message":"Das Foto ist zu groß.","field":"photo"}""")
         }
@@ -137,7 +137,7 @@ class ActivityDetailViewModelTest {
 
         val state = viewModel.state.value
         assertEquals("Das Foto ist zu groß.", state.error)
-        assertEquals(UiState.Content(testActivity(id = 7)), state.activity)
+        assertEquals(UiState.Content(testActivity(id = 7).copy(photoVersion = 5)), state.activity)
         assertFalse(state.photoBusy)
         assertFalse(photo.exists())
     }
@@ -150,6 +150,32 @@ class ActivityDetailViewModelTest {
         viewModel.onPhotoPicked("content://media/picker/0/42")
 
         assertEquals("Dieses Bildformat wird nicht unterstützt.", viewModel.state.value.error)
+        assertFalse(viewModel.state.value.photoBusy)
         assertEquals(emptyList<Pair<Long, String>>(), api.uploads)
+    }
+
+    @Test
+    fun `scheitert das Entfernen, bleibt das Foto`() {
+        val api = object : Api(photoVersion = 5) {
+            override suspend fun deletePhoto(id: Long): Unit =
+                throw httpError(500, """{"error":"INTERNAL_ERROR","message":"Unerwarteter Fehler."}""")
+        }
+        val viewModel = ActivityDetailViewModel(api, id = 7, noPhoto)
+
+        viewModel.removePhoto()
+
+        val state = viewModel.state.value
+        assertEquals("Unerwarteter Fehler.", state.error)
+        assertEquals(UiState.Content(testActivity(id = 7).copy(photoVersion = 5)), state.activity)
+        assertFalse(state.photoBusy)
+    }
+
+    @Test
+    fun `fehlende Kamera-App erscheint als Fehler`() {
+        val viewModel = ActivityDetailViewModel(Api(), id = 7, noPhoto)
+
+        viewModel.onPhotoError("Keine Kamera-App gefunden.")
+
+        assertEquals("Keine Kamera-App gefunden.", viewModel.state.value.error)
     }
 }
