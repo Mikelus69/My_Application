@@ -16,6 +16,6 @@ IT-Projekt für die Berufsschule: Android-App (Kotlin, Jetpack Compose) und Ktor
 - Die App bleibt bei Kotlin 2.2.10, das Android Gradle Plugin 9.2.1 gibt es vor. Bibliotheken nur in Versionen, die damit laufen (Vico 2.3.6, MapLibre Compose 0.12.1, Coil 3.3.0).
 - Bestehende Flyway-Migrationen nie ändern, sonst startet das Backend nicht mehr. Neue Sportarten und Achievements kommen per neuer Migration.
 - Keine Geheimnisse ins Git: `DB_URL` und `JWT_SECRET` liegen nur bei Render.
-- 401 nur bei fehlendem oder ungültigem Token, alle anderen Fehler 400 mit Feldname: Die App meldet bei 401 ab.
+- 401 nur bei fehlendem oder ungültigem Token, alle anderen Fehler 400 mit Feldname, nur ein zu großes Foto 413 mit Feld `photo`: Die App meldet bei 401 ab.
 - Alle Tages-, Wochen- und Monatsgrenzen in Europe/Berlin über `BerlinTime`.
 - Nach jedem Push mit Änderungen unter `backend/`: `https://touchgrass-backend-pfz7.onrender.com/api/health` aufrufen. Steht unter `commit` nicht der gepushte Commit, bei Render „Manual Deploy → Deploy latest commit“.
