@@ -37,7 +37,7 @@ fun rememberPhotoPickers(onPicked: (String) -> Unit, onError: (String) -> Unit):
     return PhotoPickers(
         openGallery = { gallery.launch(PickVisualMediaRequest(PickVisualMedia.ImageOnly)) },
         openCamera = {
-            val dir = File(context.cacheDir, "camera").apply { mkdirs() }
+            val dir = cameraDir(context).apply { mkdirs() }
             val uri = FileProvider.getUriForFile(context, PHOTO_AUTHORITY, File(dir, "${UUID.randomUUID()}.jpg"))
             pendingCapture = uri.toString()
             try {

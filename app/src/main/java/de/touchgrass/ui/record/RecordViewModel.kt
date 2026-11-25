@@ -178,9 +178,10 @@ class RecordViewModel(
     fun onAchievementsSeen() = _state.update { it.copy(newAchievements = emptyList()) }
 
     fun discard() {
+        _state.value.photoPath?.let { File(it).delete() }
         viewModelScope.launch {
             timerStore.clear()
-            _state.update { it.copy(discarded = true) }
+            _state.update { it.copy(photoPath = null, discarded = true) }
         }
     }
 

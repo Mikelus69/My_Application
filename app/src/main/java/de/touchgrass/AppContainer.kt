@@ -18,21 +18,26 @@ import de.touchgrass.data.imageClient
 import de.touchgrass.data.timerDataStore
 import de.touchgrass.ui.photo.AndroidPhotoPreparer
 import de.touchgrass.ui.photo.PhotoPreparer
+import de.touchgrass.ui.photo.cameraDir
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.io.File
 
 class AppContainer(context: Context, baseUrl: String) {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+
+    // Nicht in filesDir: Fotos auf dem Handy sollen nicht in die Datensicherung von Android.
+    private val photoDir = File(context.noBackupFilesDir, "photos")
 
     val session = AuthSession(DataStoreTokenStore(context.authDataStore), scope)
 
     val timerStore: TimerStore = DataStoreTimerStore(context.timerDataStore)
 
-    val photoPreparer: PhotoPreparer = AndroidPhotoPreparer(context)
+    val photoPreparer: PhotoPreparer = AndroidPhotoPreparer(context, photoDir)
 
     private val okHttpClient = httpClient(AuthInterceptor(session))
 
@@ -45,7 +50,8 @@ class AppContainer(context: Context, baseUrl: String) {
         .build()
 
     init {
-        // Coil zeigt Bilder aus dem Zwischenspeicher ohne Anfrage an den Server, also ohne Login. Deshalb leert jedes Abmelden ihn.
+        // Coil zeigt Bilder aus dem Zwischenspeicher ohne Anfrage an den Server, also ohne Login. Deshalb leert jedes Abmelden ihn
+        // und löscht die Fotos auf dem Handy; abgemeldet gibt es kein Formular und keine Details, die sie noch brauchen.
         // Das läuft auch bei jedem Start ohne Anmeldung, ein Fehler dabei darf die App also nicht beenden.
         scope.launch {
             session.state.filter { it == AuthState.LoggedOut }.collect {
@@ -56,6 +62,8 @@ class AppContainer(context: Context, baseUrl: String) {
                     } catch (e: Exception) {
                         Log.w("TouchGrass", "Bildzwischenspeicher nicht geleert", e)
                     }
+                    photoDir.deleteRecursively()
+                    cameraDir(context).deleteRecursively()
                 }
             }
         }

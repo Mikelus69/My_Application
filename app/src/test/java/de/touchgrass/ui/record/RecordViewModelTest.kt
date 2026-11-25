@@ -225,6 +225,20 @@ class RecordViewModelTest {
     }
 
     @Test
+    fun `Verwerfen löscht das gewählte Foto`() {
+        val photo = photoFile()
+        val viewModel = RecordViewModel(Api(), FakeTimerStore(pausedTimer), fromTimer = true, FakePhotoPreparer { photo }, SavedStateHandle(), clock)
+        viewModel.onPhotoPicked("content://media/picker/0/42")
+
+        viewModel.discard()
+
+        val state = viewModel.state.value
+        assertTrue(state.discarded)
+        assertNull(state.photoPath)
+        assertFalse(photo.exists())
+    }
+
+    @Test
     fun `neue Achievements erscheinen nach dem Speichern, bis sie gesehen wurden`() {
         val api = object : Api() {
             override suspend fun createActivity(body: CreateActivityRequest): CreateActivityResponse =

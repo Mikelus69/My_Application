@@ -25,12 +25,12 @@ import java.util.UUID
 
 private val SRGB: ColorSpace = ColorSpace.get(ColorSpace.Named.SRGB)
 
-class AndroidPhotoPreparer(private val context: Context) : PhotoPreparer {
+class AndroidPhotoPreparer(private val context: Context, private val dir: File) : PhotoPreparer {
     override suspend fun prepare(source: String): File = withContext(Dispatchers.IO) {
         val uri = source.toUri()
         try {
             val jpeg = decode(uri).withoutGainmap().toSrgbOnWhite().toJpeg()
-            val dir = File(context.filesDir, "photos").apply { mkdirs() }
+            dir.mkdirs()
             File(dir, "${UUID.randomUUID()}.jpg").apply { writeBytes(jpeg) }
         } catch (e: Exception) {
             Log.w("TouchGrass", "Foto nicht lesbar", e)
