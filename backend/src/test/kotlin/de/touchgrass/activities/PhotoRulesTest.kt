@@ -34,6 +34,17 @@ class PhotoRulesTest {
         return segments.fold(image.copyOfRange(0, 2)) { start, segment -> start + segment } + image.copyOfRange(2, image.size)
     }
 
+    // Hinter dem Marker FF C0 (SOF0) stehen Länge (2 Byte), Genauigkeit (1), Höhe (2) und Breite (2). 0xFFDC sind 65.500 Pixel.
+    private fun jpegClaimingHugeSize(): ByteArray {
+        val bytes = jpeg()
+        val sof = (0 until bytes.size - 1).first { bytes[it] == 0xFF.toByte() && bytes[it + 1] == 0xC0.toByte() }
+        for (index in sof + 5..sof + 8 step 2) {
+            bytes[index] = 0xFF.toByte()
+            bytes[index + 1] = 0xDC.toByte()
+        }
+        return bytes
+    }
+
     @Test
     fun `JPEG bis 512 Pixel an der längsten Seite ist gültig`() {
         PhotoRules.validate(jpeg())
@@ -58,5 +69,10 @@ class PhotoRulesTest {
         assertEquals(notJpeg, failure(jpeg().let { it.copyOf(it.size - 2) }))
         val unusualProfile = runCatching { PhotoRules.validate(jpegWithPyccProfile()) }.exceptionOrNull()
         assertTrue(unusualProfile == null || unusualProfile is ApiException, "unerwartete Exception: $unusualProfile")
+    }
+
+    @Test
+    fun `kleines JPEG mit riesigen Pixelangaben wird abgelehnt`() {
+        assertEquals(listOf("photo", "Das Foto darf höchstens 512 Pixel lang sein."), failure(jpegClaimingHugeSize()))
     }
 }

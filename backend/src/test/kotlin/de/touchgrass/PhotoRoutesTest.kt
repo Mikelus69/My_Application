@@ -17,9 +17,12 @@ import io.ktor.client.statement.bodyAsBytes
 import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
+import io.ktor.http.content.OutgoingContent
 import io.ktor.http.contentType
 import io.ktor.server.testing.testApplication
 import io.ktor.utils.io.ByteReadChannel
+import io.ktor.utils.io.ByteWriteChannel
+import io.ktor.utils.io.writeFully
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import kotlin.test.BeforeTest
@@ -89,6 +92,26 @@ class PhotoRoutesTest {
     }
 
     @Test
+    fun `Entfernen löscht nur das Foto dieser Aktivität`() = testApplication {
+        val client = startApp()
+        val token = client.register("max_m").token
+        val first = client.createActivity(token).activity.id
+        val second = client.createActivity(token).activity.id
+        val firstUpload = client.putPhoto(token, first).status
+        val secondVersion = client.putPhoto(token, second).body<ActivityDto>().photoVersion
+
+        val removed = client.deletePhoto(token, first)
+
+        assertEquals(HttpStatusCode.OK, firstUpload)
+        assertEquals(HttpStatusCode.NoContent, removed.status)
+        assertEquals(1L, storedPhotos())
+        assertNull(client.details(token, first).photoVersion)
+        assertNotNull(secondVersion)
+        assertEquals(secondVersion, client.details(token, second).photoVersion)
+        assertEquals(HttpStatusCode.OK, client.photo(token, second).status)
+    }
+
+    @Test
     fun `photoVersion steht in Verlauf, Karte und Details`() = testApplication {
         val client = startApp()
         val token = client.register("max_m").token
@@ -105,20 +128,25 @@ class PhotoRoutesTest {
     }
 
     @Test
-    fun `Foto einer fremden Aktivität ändern liefert 403`() = testApplication {
+    fun `Foto einer fremden Aktivität ändern liefert 403 und lässt ihr Foto stehen`() = testApplication {
         val client = startApp()
         val max = client.register("max_m").token
         val lisa = client.register("lisa").token
         val id = client.createActivity(lisa, activity(visibility = Visibility.PUBLIC)).activity.id
+        val lisasPhoto = jpeg()
+        val version = client.putPhoto(lisa, id, lisasPhoto).body<ActivityDto>().photoVersion
 
-        val upload = client.putPhoto(max, id)
+        val upload = client.putPhoto(max, id, jpeg(3, 4))
         val remove = client.deletePhoto(max, id)
 
         for (response in listOf(upload, remove)) {
             assertEquals(HttpStatusCode.Forbidden, response.status)
             assertEquals(ErrorResponse("FORBIDDEN", "Das ist nicht deine Aktivität."), response.body<ErrorResponse>())
         }
-        assertNull(client.details(lisa, id).photoVersion)
+        assertNotNull(version)
+        assertEquals(version, client.details(lisa, id).photoVersion)
+        assertEquals(1L, storedPhotos())
+        assertContentEquals(lisasPhoto, client.photo(lisa, id).bodyAsBytes())
     }
 
     @Test
@@ -173,6 +201,24 @@ class PhotoRoutesTest {
     }
 
     @Test
+    fun `angekündigte Länge über 200 KB liefert 413, ohne den Body zu lesen`() = testApplication {
+        val client = startApp()
+        val token = client.register("max_m").token
+        val id = client.createActivity(token).activity.id
+        val smallBodyWithLargeLength: OutgoingContent = object : OutgoingContent.WriteChannelContent() {
+            override val contentType = ContentType.Image.JPEG
+            override val contentLength = PhotoRules.MAX_BYTES + 1L
+            override suspend fun writeTo(channel: ByteWriteChannel) = channel.writeFully(jpeg())
+        }
+
+        val response = client.put("/api/activities/$id/photo") { bearerAuth(token); setBody(smallBodyWithLargeLength) }
+
+        assertEquals(HttpStatusCode.PayloadTooLarge, response.status)
+        assertEquals(ErrorResponse("PAYLOAD_TOO_LARGE", "Das Foto ist zu groß.", "photo"), response.body<ErrorResponse>())
+        assertNull(client.details(token, id).photoVersion)
+    }
+
+    @Test
     fun `kein JPEG oder länger als 512 Pixel liefert 400 am Feld photo`() = testApplication {
         val client = startApp()
         val token = client.register("max_m").token
@@ -194,13 +240,13 @@ class PhotoRoutesTest {
         val token = client.register("max_m").token
         val first = client.createActivity(token).activity.id
         val second = client.createActivity(token).activity.id
-        client.putPhoto(token, first)
-        client.putPhoto(token, second)
+        val uploads = listOf(first, second).map { client.putPhoto(token, it).status }
 
         client.delete("/api/activities/$first") { bearerAuth(token) }
         val afterActivity = storedPhotos()
         client.delete("/api/me") { bearerAuth(token) }
 
+        assertEquals(listOf(HttpStatusCode.OK, HttpStatusCode.OK), uploads)
         assertEquals(1L, afterActivity)
         assertEquals(0L, storedPhotos())
     }
@@ -210,12 +256,13 @@ class PhotoRoutesTest {
         val client = startApp()
         val token = client.register("max_m").token
         val id = client.createActivity(token).activity.id
-        client.putPhoto(token, id)
+        val firstUpload = client.putPhoto(token, id).status
         val replacement = jpeg(3, 4)
         val version = client.putPhoto(token, id, replacement).body<ActivityDto>().photoVersion
 
         val response = client.get("/api/activities/$id/photo?v=$version") { bearerAuth(token) }
 
+        assertEquals(HttpStatusCode.OK, firstUpload)
         assertEquals(HttpStatusCode.OK, response.status)
         assertEquals("image/jpeg", response.headers[HttpHeaders.ContentType])
         assertEquals("private, max-age=31536000, immutable", response.headers[HttpHeaders.CacheControl])
@@ -231,11 +278,12 @@ class PhotoRoutesTest {
         client.befriend(max, "max_m", lisa, "lisa_k")
         val ids = listOf(Visibility.PRIVATE, Visibility.FRIENDS, Visibility.PUBLIC)
             .map { client.createActivity(max, activity(visibility = it)).activity.id }
-        ids.forEach { client.putPhoto(max, it) }
+        val uploads = ids.map { client.putPhoto(max, it).status }
 
         val forLisa = ids.map { client.photo(lisa, it).status }
         val forTom = ids.map { client.photo(tom, it).status }
 
+        assertEquals(List(3) { HttpStatusCode.OK }, uploads)
         assertEquals(listOf(HttpStatusCode.NotFound, HttpStatusCode.OK, HttpStatusCode.OK), forLisa)
         assertEquals(listOf(HttpStatusCode.NotFound, HttpStatusCode.NotFound, HttpStatusCode.OK), forTom)
     }
@@ -247,12 +295,14 @@ class PhotoRoutesTest {
         val id = client.createActivity(token).activity.id
 
         val withoutPhoto = client.photo(token, id)
-        client.putPhoto(token, id)
-        client.deletePhoto(token, id)
+        val uploaded = client.putPhoto(token, id).status
+        val beforeRemoval = client.photo(token, id).status
+        val removed = client.deletePhoto(token, id).status
         val afterRemoval = client.photo(token, id)
         val missing = client.photo(token, 999999)
         val notANumber = client.get("/api/activities/abc/photo") { bearerAuth(token) }
 
+        assertEquals(listOf(HttpStatusCode.OK, HttpStatusCode.OK, HttpStatusCode.NoContent), listOf(uploaded, beforeRemoval, removed))
         for (response in listOf(withoutPhoto, afterRemoval, missing, notANumber)) {
             assertEquals(HttpStatusCode.NotFound, response.status)
             assertEquals(ErrorResponse("NOT_FOUND", "Foto nicht gefunden."), response.body<ErrorResponse>())
