@@ -4,6 +4,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import de.touchgrass.data.ApiException
+import de.touchgrass.data.PendingPhotos
 import de.touchgrass.data.SportApi
 import de.touchgrass.data.TimerState
 import de.touchgrass.data.TimerStore
@@ -12,7 +13,6 @@ import de.touchgrass.data.dto.AchievementDto
 import de.touchgrass.data.dto.CreateActivityRequest
 import de.touchgrass.data.dto.SportDto
 import de.touchgrass.data.dto.Visibility
-import de.touchgrass.data.uploadPhotoFile
 import de.touchgrass.ui.activities.describe
 import de.touchgrass.ui.map.GeoPoint
 import de.touchgrass.ui.photo.PhotoException
@@ -73,6 +73,7 @@ class RecordViewModel(
     private val timerStore: TimerStore,
     fromTimer: Boolean,
     private val photos: PhotoPreparer,
+    private val pending: PendingPhotos,
     private val savedState: SavedStateHandle,
     private val clock: Clock = Clock.systemDefaultZone(),
 ) : ViewModel() {
@@ -187,12 +188,10 @@ class RecordViewModel(
 
     private suspend fun tryUploadPhoto(activityId: Long, file: File): Boolean =
         try {
-            apiCall { api.uploadPhotoFile(activityId, file) }
+            pending.upload(api, activityId, file)
             true
         } catch (e: ApiException) {
             false
-        } finally {
-            file.delete()
         }
 
     private fun fillFromTimer(timer: TimerState) {
@@ -213,7 +212,7 @@ class RecordViewModel(
         return RecordUiState(date = now.toLocalDate(), time = now.toLocalTime())
     }
 
-    // Während des Speicherns steht kein Formular im Handle. Endet das Speichern im Hintergrund und beendet Android danach die App, käme sonst das schon gespeicherte Formular samt gelöschtem Foto zurück.
+    // Während des Speicherns steht kein Formular im Handle. Endet das Speichern im Hintergrund und beendet Android danach die App, käme sonst das schon gespeicherte Formular zurück, obwohl sein Foto nicht mehr am alten Ort liegt.
     private fun keepForm(form: RecordUiState) {
         if (form.saving) {
             savedState.remove<String>(KEY_DATE)

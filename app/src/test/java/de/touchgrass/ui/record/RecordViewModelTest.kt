@@ -1,6 +1,7 @@
 package de.touchgrass.ui.record
 
 import androidx.lifecycle.SavedStateHandle
+import de.touchgrass.data.PendingPhotos
 import de.touchgrass.data.TimerState
 import de.touchgrass.data.dto.ActivityDto
 import de.touchgrass.data.dto.CreateActivityRequest
@@ -56,6 +57,8 @@ class RecordViewModelTest {
 
     private val noPhoto = FakePhotoPreparer { error("prepare() wird in diesem Test nicht erwartet") }
 
+    private val pending by lazy { PendingPhotos(File(folder.root, "pending")) }
+
     private open inner class Api : FakeSportApi() {
         var sent: CreateActivityRequest? = null
         val uploads = mutableListOf<Pair<Long, String>>()
@@ -74,7 +77,7 @@ class RecordViewModelTest {
 
     @Test
     fun `Formular startet mit Sportarten und der aktuellen Zeit auf die Minute`() {
-        val viewModel = RecordViewModel(Api(), FakeTimerStore(), fromTimer = false, noPhoto, SavedStateHandle(), clock)
+        val viewModel = RecordViewModel(Api(), FakeTimerStore(), fromTimer = false, noPhoto, pending, SavedStateHandle(), clock)
 
         val state = viewModel.state.value
         assertEquals(testSports, state.sports)
@@ -86,7 +89,7 @@ class RecordViewModelTest {
     @Test
     fun `ohne Sportart oder mit ungültiger Dauer wird nichts gesendet`() {
         val api = Api()
-        val viewModel = RecordViewModel(api, FakeTimerStore(), fromTimer = false, noPhoto, SavedStateHandle(), clock)
+        val viewModel = RecordViewModel(api, FakeTimerStore(), fromTimer = false, noPhoto, pending, SavedStateHandle(), clock)
 
         viewModel.onDurationChange("45")
         viewModel.save()
@@ -102,7 +105,7 @@ class RecordViewModelTest {
     @Test
     fun `Speichern schickt die Aktivität mit Berliner Zeit und leert das Formular`() {
         val api = Api()
-        val viewModel = RecordViewModel(api, FakeTimerStore(), fromTimer = false, noPhoto, SavedStateHandle(), clock)
+        val viewModel = RecordViewModel(api, FakeTimerStore(), fromTimer = false, noPhoto, pending, SavedStateHandle(), clock)
 
         viewModel.onSportChange("RUNNING")
         viewModel.onDateChange(LocalDate.parse("2026-10-04"))
@@ -126,7 +129,7 @@ class RecordViewModelTest {
     @Test
     fun `gewählter Ort wird mitgeschickt und lässt sich wieder entfernen`() {
         val api = Api()
-        val viewModel = RecordViewModel(api, FakeTimerStore(), fromTimer = false, noPhoto, SavedStateHandle(), clock)
+        val viewModel = RecordViewModel(api, FakeTimerStore(), fromTimer = false, noPhoto, pending, SavedStateHandle(), clock)
 
         viewModel.onSportChange("RUNNING")
         viewModel.onDurationChange("45")
@@ -153,7 +156,7 @@ class RecordViewModelTest {
                 """{"error":"VALIDATION_ERROR","message":"Die Aktivität darf nicht in der Zukunft liegen.","field":"startedAt"}""",
             )
         }
-        val viewModel = RecordViewModel(api, FakeTimerStore(), fromTimer = false, noPhoto, SavedStateHandle(), clock)
+        val viewModel = RecordViewModel(api, FakeTimerStore(), fromTimer = false, noPhoto, pending, SavedStateHandle(), clock)
 
         viewModel.onSportChange("RUNNING")
         viewModel.onDurationChange("45")
@@ -165,7 +168,7 @@ class RecordViewModelTest {
 
     @Test
     fun `vom Timer kommen Sportart, Startzeit und Dauer ohne Pausen`() {
-        val viewModel = RecordViewModel(Api(), FakeTimerStore(pausedTimer), fromTimer = true, noPhoto, SavedStateHandle(), clock)
+        val viewModel = RecordViewModel(Api(), FakeTimerStore(pausedTimer), fromTimer = true, noPhoto, pending, SavedStateHandle(), clock)
 
         val state = viewModel.state.value
         assertEquals("CYCLING", state.sportCode)
@@ -178,7 +181,7 @@ class RecordViewModelTest {
     @Test
     fun `nach dem Speichern aus dem Timer ist der Timer zurückgesetzt`() {
         val store = FakeTimerStore(pausedTimer)
-        val viewModel = RecordViewModel(Api(), store, fromTimer = true, noPhoto, SavedStateHandle(), clock)
+        val viewModel = RecordViewModel(Api(), store, fromTimer = true, noPhoto, pending, SavedStateHandle(), clock)
 
         viewModel.save()
 
@@ -189,7 +192,7 @@ class RecordViewModelTest {
     @Test
     fun `Nachtragen ohne Timer lässt einen laufenden Timer in Ruhe`() {
         val store = FakeTimerStore(pausedTimer)
-        val viewModel = RecordViewModel(Api(), store, fromTimer = false, noPhoto, SavedStateHandle(), clock)
+        val viewModel = RecordViewModel(Api(), store, fromTimer = false, noPhoto, pending, SavedStateHandle(), clock)
 
         viewModel.onSportChange("RUNNING")
         viewModel.onDurationChange("45")
@@ -205,7 +208,7 @@ class RecordViewModelTest {
             override suspend fun createActivity(body: CreateActivityRequest): CreateActivityResponse =
                 throw httpError(500, """{"error":"INTERNAL_ERROR","message":"Unerwarteter Fehler."}""")
         }
-        val viewModel = RecordViewModel(api, store, fromTimer = true, noPhoto, SavedStateHandle(), clock)
+        val viewModel = RecordViewModel(api, store, fromTimer = true, noPhoto, pending, SavedStateHandle(), clock)
 
         viewModel.save()
 
@@ -216,7 +219,7 @@ class RecordViewModelTest {
     @Test
     fun `Verwerfen setzt den Timer zurück`() {
         val store = FakeTimerStore(pausedTimer)
-        val viewModel = RecordViewModel(Api(), store, fromTimer = true, noPhoto, SavedStateHandle(), clock)
+        val viewModel = RecordViewModel(Api(), store, fromTimer = true, noPhoto, pending, SavedStateHandle(), clock)
 
         viewModel.discard()
 
@@ -227,7 +230,7 @@ class RecordViewModelTest {
     @Test
     fun `Verwerfen löscht das gewählte Foto`() {
         val photo = photoFile()
-        val viewModel = RecordViewModel(Api(), FakeTimerStore(pausedTimer), fromTimer = true, FakePhotoPreparer { photo }, SavedStateHandle(), clock)
+        val viewModel = RecordViewModel(Api(), FakeTimerStore(pausedTimer), fromTimer = true, FakePhotoPreparer { photo }, pending, SavedStateHandle(), clock)
         viewModel.onPhotoPicked("content://media/picker/0/42")
 
         viewModel.discard()
@@ -244,7 +247,7 @@ class RecordViewModelTest {
             override suspend fun createActivity(body: CreateActivityRequest): CreateActivityResponse =
                 CreateActivityResponse(testActivity(), PointsBreakdownDto(45, 10, 20, 0, 75), listOf(testAchievement()))
         }
-        val viewModel = RecordViewModel(api, FakeTimerStore(), fromTimer = false, noPhoto, SavedStateHandle(), clock)
+        val viewModel = RecordViewModel(api, FakeTimerStore(), fromTimer = false, noPhoto, pending, SavedStateHandle(), clock)
 
         viewModel.onSportChange("RUNNING")
         viewModel.onDurationChange("45")
@@ -261,7 +264,7 @@ class RecordViewModelTest {
         val failingOnce = object : FakeSportApi() {
             override suspend fun sports(): List<SportDto> = if (calls++ == 0) throw IOException("offline") else testSports
         }
-        val viewModel = RecordViewModel(failingOnce, FakeTimerStore(), fromTimer = false, noPhoto, SavedStateHandle(), clock)
+        val viewModel = RecordViewModel(failingOnce, FakeTimerStore(), fromTimer = false, noPhoto, pending, SavedStateHandle(), clock)
         assertEquals("Server nicht erreichbar", viewModel.state.value.sportsError)
 
         viewModel.loadSports()
@@ -273,7 +276,7 @@ class RecordViewModelTest {
     @Test
     fun `Sichtbarkeit Freunde wird mitgeschickt`() {
         val api = Api()
-        val viewModel = RecordViewModel(api, FakeTimerStore(), fromTimer = false, noPhoto, SavedStateHandle(), clock)
+        val viewModel = RecordViewModel(api, FakeTimerStore(), fromTimer = false, noPhoto, pending, SavedStateHandle(), clock)
 
         viewModel.onSportChange("RUNNING")
         viewModel.onDurationChange("45")
@@ -287,7 +290,7 @@ class RecordViewModelTest {
     fun `Foto wird nach dem Anlegen hochgeladen und danach gelöscht`() {
         val api = Api()
         val photo = photoFile()
-        val viewModel = RecordViewModel(api, FakeTimerStore(), fromTimer = false, FakePhotoPreparer { photo }, SavedStateHandle(), clock)
+        val viewModel = RecordViewModel(api, FakeTimerStore(), fromTimer = false, FakePhotoPreparer { photo }, pending, SavedStateHandle(), clock)
 
         viewModel.onPhotoPicked("content://media/picker/0/42")
         val picked = viewModel.state.value.photoPath
@@ -299,6 +302,7 @@ class RecordViewModelTest {
         assertEquals(photo.path, picked)
         assertEquals(listOf(42L to "jpeg"), api.uploads)
         assertFalse(photo.exists())
+        assertFalse(pending.has(42))
         assertEquals("Gespeichert! ~480 kcal · +75 Punkte (45 min · +10 · +20 neue Sportart)", state.savedMessage)
         assertNull(state.photoPath)
     }
@@ -306,7 +310,7 @@ class RecordViewModelTest {
     @Test
     fun `ohne Foto wird nichts hochgeladen`() {
         val api = Api()
-        val viewModel = RecordViewModel(api, FakeTimerStore(), fromTimer = false, noPhoto, SavedStateHandle(), clock)
+        val viewModel = RecordViewModel(api, FakeTimerStore(), fromTimer = false, noPhoto, pending, SavedStateHandle(), clock)
 
         viewModel.onSportChange("RUNNING")
         viewModel.onDurationChange("45")
@@ -317,14 +321,14 @@ class RecordViewModelTest {
     }
 
     @Test
-    fun `scheitert das Hochladen, bleibt die Aktivität gespeichert und das Formular wird geleert`() {
+    fun `lehnt der Server das Foto ab, bleibt die Aktivität gespeichert und das Foto wird gelöscht`() {
         val store = FakeTimerStore(pausedTimer)
         val api = object : Api() {
             override suspend fun uploadPhoto(id: Long, photo: RequestBody): ActivityDto =
                 throw httpError(413, """{"error":"PAYLOAD_TOO_LARGE","message":"Das Foto ist zu groß.","field":"photo"}""")
         }
         val photo = photoFile()
-        val viewModel = RecordViewModel(api, store, fromTimer = true, FakePhotoPreparer { photo }, SavedStateHandle(), clock)
+        val viewModel = RecordViewModel(api, store, fromTimer = true, FakePhotoPreparer { photo }, pending, SavedStateHandle(), clock)
 
         viewModel.onPhotoPicked("content://media/picker/0/42")
         viewModel.save()
@@ -340,6 +344,30 @@ class RecordViewModelTest {
         assertTrue(state.fieldErrors.isEmpty())
         assertNull(store.current.value)
         assertFalse(photo.exists())
+        assertFalse(pending.has(42))
+    }
+
+    @Test
+    fun `scheitert das Hochladen am Netz, wartet das Foto auf einen neuen Versuch in den Details`() {
+        val store = FakeTimerStore(pausedTimer)
+        val api = object : Api() {
+            override suspend fun uploadPhoto(id: Long, photo: RequestBody): ActivityDto = throw IOException("Verbindung abgebrochen")
+        }
+        val photo = photoFile()
+        val viewModel = RecordViewModel(api, store, fromTimer = true, FakePhotoPreparer { photo }, pending, SavedStateHandle(), clock)
+
+        viewModel.onPhotoPicked("content://media/picker/0/42")
+        viewModel.save()
+
+        val state = viewModel.state.value
+        assertEquals(
+            "Gespeichert, aber das Foto konnte nicht hochgeladen werden. Du kannst es in den Details erneut hinzufügen.",
+            state.savedMessage,
+        )
+        assertNull(state.photoPath)
+        assertNull(store.current.value)
+        assertFalse(photo.exists())
+        assertEquals("jpeg", pending.file(42).readText())
     }
 
     @Test
@@ -349,6 +377,7 @@ class RecordViewModelTest {
             FakeTimerStore(),
             fromTimer = false,
             FakePhotoPreparer { throw PhotoException(UNSUPPORTED_PHOTO) },
+            pending,
             SavedStateHandle(),
             clock,
         )
@@ -364,7 +393,7 @@ class RecordViewModelTest {
     @Test
     fun `Entfernen leert das Foto und löscht die Datei`() {
         val photo = photoFile()
-        val viewModel = RecordViewModel(Api(), FakeTimerStore(), fromTimer = false, FakePhotoPreparer { photo }, SavedStateHandle(), clock)
+        val viewModel = RecordViewModel(Api(), FakeTimerStore(), fromTimer = false, FakePhotoPreparer { photo }, pending, SavedStateHandle(), clock)
         viewModel.onPhotoPicked("content://media/picker/0/42")
 
         viewModel.removePhoto()
@@ -382,6 +411,7 @@ class RecordViewModelTest {
             FakeTimerStore(pausedTimer),
             fromTimer = true,
             FakePhotoPreparer { photo },
+            pending,
             handleWithRouteArgs,
             clock,
         )
@@ -391,7 +421,7 @@ class RecordViewModelTest {
         before.onVisibilityChange(Visibility.FRIENDS)
         before.onPhotoPicked("content://media/picker/0/42")
 
-        val after = RecordViewModel(Api(), FakeTimerStore(pausedTimer), fromTimer = true, noPhoto, handleWithRouteArgs, clock)
+        val after = RecordViewModel(Api(), FakeTimerStore(pausedTimer), fromTimer = true, noPhoto, pending, handleWithRouteArgs, clock)
 
         assertEquals("CYCLING", before.state.value.sportCode)
         assertEquals(before.state.value, after.state.value)
@@ -406,7 +436,7 @@ class RecordViewModelTest {
         val api = object : Api() {
             override suspend fun createActivity(body: CreateActivityRequest): CreateActivityResponse = created.await()
         }
-        val viewModel = RecordViewModel(api, FakeTimerStore(), fromTimer = false, noPhoto, handle, clock)
+        val viewModel = RecordViewModel(api, FakeTimerStore(), fromTimer = false, noPhoto, pending, handle, clock)
         viewModel.onSportChange("RUNNING")
         viewModel.onDurationChange("45")
 
@@ -426,7 +456,7 @@ class RecordViewModelTest {
                 throw httpError(500, """{"error":"INTERNAL_ERROR","message":"Unerwarteter Fehler."}""")
         }
         val photo = photoFile()
-        val viewModel = RecordViewModel(api, FakeTimerStore(), fromTimer = false, FakePhotoPreparer { photo }, SavedStateHandle(), clock)
+        val viewModel = RecordViewModel(api, FakeTimerStore(), fromTimer = false, FakePhotoPreparer { photo }, pending, SavedStateHandle(), clock)
 
         viewModel.onPhotoPicked("content://media/picker/0/42")
         viewModel.onSportChange("RUNNING")
@@ -445,7 +475,7 @@ class RecordViewModelTest {
         val api = Api()
         val photo = photoFile()
         val prepared = CompletableDeferred<File>()
-        val viewModel = RecordViewModel(api, FakeTimerStore(), fromTimer = false, FakePhotoPreparer { prepared.await() }, SavedStateHandle(), clock)
+        val viewModel = RecordViewModel(api, FakeTimerStore(), fromTimer = false, FakePhotoPreparer { prepared.await() }, pending, SavedStateHandle(), clock)
         viewModel.onSportChange("RUNNING")
         viewModel.onDurationChange("45")
 
@@ -464,7 +494,7 @@ class RecordViewModelTest {
 
     @Test
     fun `fehlende Kamera-App erscheint am Foto`() {
-        val viewModel = RecordViewModel(Api(), FakeTimerStore(), fromTimer = false, noPhoto, SavedStateHandle(), clock)
+        val viewModel = RecordViewModel(Api(), FakeTimerStore(), fromTimer = false, noPhoto, pending, SavedStateHandle(), clock)
 
         viewModel.onPhotoError("Keine Kamera-App gefunden.")
 

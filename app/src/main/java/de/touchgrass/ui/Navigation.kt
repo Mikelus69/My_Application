@@ -114,7 +114,14 @@ fun TouchGrassNavigation(container: AppContainer) {
                     val fromTimer = entry.toRoute<RecordFormRoute>().fromTimer
                     RecordScreen(
                         viewModel = viewModel {
-                            RecordViewModel(container.api, container.timerStore, fromTimer, container.photoPreparer, createSavedStateHandle())
+                            RecordViewModel(
+                                container.api,
+                                container.timerStore,
+                                fromTimer,
+                                container.photoPreparer,
+                                container.pendingPhotos,
+                                createSavedStateHandle(),
+                            )
                         },
                         onBack = { navController.popBackStack() },
                     )
@@ -162,7 +169,7 @@ fun TouchGrassNavigation(container: AppContainer) {
                 composable<ActivityDetailRoute> { entry ->
                     val id = entry.toRoute<ActivityDetailRoute>().id
                     ActivityDetailScreen(
-                        viewModel = viewModel { ActivityDetailViewModel(container.api, id, container.photoPreparer) },
+                        viewModel = viewModel { ActivityDetailViewModel(container.api, id, container.photoPreparer, container.pendingPhotos) },
                         onBack = { navController.popBackStack() },
                     )
                 }

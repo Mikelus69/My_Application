@@ -9,6 +9,7 @@ import de.touchgrass.data.AuthSession
 import de.touchgrass.data.AuthState
 import de.touchgrass.data.DataStoreTimerStore
 import de.touchgrass.data.DataStoreTokenStore
+import de.touchgrass.data.PendingPhotos
 import de.touchgrass.data.SportApi
 import de.touchgrass.data.TimerStore
 import de.touchgrass.data.authDataStore
@@ -38,6 +39,8 @@ class AppContainer(context: Context, baseUrl: String) {
     val timerStore: TimerStore = DataStoreTimerStore(context.timerDataStore)
 
     val photoPreparer: PhotoPreparer = AndroidPhotoPreparer(context, photoDir)
+
+    val pendingPhotos = PendingPhotos(File(photoDir, "pending"))
 
     private val okHttpClient = httpClient(AuthInterceptor(session))
 

@@ -3,11 +3,11 @@ package de.touchgrass.ui.activities
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import de.touchgrass.data.ApiException
+import de.touchgrass.data.PendingPhotos
 import de.touchgrass.data.SportApi
 import de.touchgrass.data.apiCall
 import de.touchgrass.data.dto.ActivityDto
 import de.touchgrass.data.dto.SportDto
-import de.touchgrass.data.uploadPhotoFile
 import de.touchgrass.ui.UiState
 import de.touchgrass.ui.photo.PhotoException
 import de.touchgrass.ui.photo.PhotoPreparer
@@ -21,6 +21,7 @@ data class ActivityDetailUiState(
     val sports: List<SportDto> = emptyList(),
     val activity: UiState<ActivityDto> = UiState.Loading,
     val photoBusy: Boolean = false,
+    val photoPending: Boolean = false,
     val deleted: Boolean = false,
     val error: String? = null,
 )
@@ -29,6 +30,7 @@ class ActivityDetailViewModel(
     private val api: SportApi,
     private val id: Long,
     private val photos: PhotoPreparer,
+    private val pending: PendingPhotos,
 ) : ViewModel() {
     private val _state = MutableStateFlow(ActivityDetailUiState())
     val state: StateFlow<ActivityDetailUiState> = _state.asStateFlow()
@@ -43,7 +45,7 @@ class ActivityDetailViewModel(
             try {
                 val sports = apiCall { api.sports() }
                 val activity = apiCall { api.activity(id) }
-                _state.update { it.copy(sports = sports, activity = UiState.Content(activity)) }
+                _state.update { it.copy(sports = sports, activity = UiState.Content(activity), photoPending = pending.has(id)) }
             } catch (e: ApiException) {
                 _state.update { it.copy(activity = UiState.Error(e.message)) }
             }
@@ -54,6 +56,7 @@ class ActivityDetailViewModel(
         viewModelScope.launch {
             try {
                 apiCall { api.deleteActivity(id) }
+                pending.remove(id)
                 _state.update { it.copy(deleted = true) }
             } catch (e: ApiException) {
                 _state.update { it.copy(error = e.message) }
@@ -61,14 +64,9 @@ class ActivityDetailViewModel(
         }
     }
 
-    fun onPhotoPicked(source: String) = changePhoto {
-        val file = photos.prepare(source)
-        try {
-            apiCall { api.uploadPhotoFile(id, file) }
-        } finally {
-            file.delete()
-        }
-    }
+    fun onPhotoPicked(source: String) = changePhoto { pending.upload(api, id, photos.prepare(source)) }
+
+    fun retryPhotoUpload() = changePhoto { pending.upload(api, id, pending.file(id)) }
 
     fun onPhotoError(message: String) = _state.update { it.copy(error = message) }
 
@@ -86,11 +84,11 @@ class ActivityDetailViewModel(
         viewModelScope.launch {
             try {
                 val activity = change()
-                _state.update { it.copy(activity = UiState.Content(activity), photoBusy = false) }
+                _state.update { it.copy(activity = UiState.Content(activity), photoBusy = false, photoPending = pending.has(id)) }
             } catch (e: PhotoException) {
                 _state.update { it.copy(photoBusy = false, error = e.message) }
             } catch (e: ApiException) {
-                _state.update { it.copy(photoBusy = false, error = e.message) }
+                _state.update { it.copy(photoBusy = false, photoPending = pending.has(id), error = e.message) }
             }
         }
     }

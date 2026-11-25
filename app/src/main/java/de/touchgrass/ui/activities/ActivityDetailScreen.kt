@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
@@ -74,7 +75,9 @@ fun ActivityDetailScreen(viewModel: ActivityDetailViewModel, onBack: () -> Unit)
                     } else {
                         PhotoActions(
                             hasPhoto = activity.photoVersion != null,
+                            pending = state.photoPending,
                             pickers = pickers,
+                            onRetry = viewModel::retryPhotoUpload,
                             onRemove = { confirmRemovePhoto = true },
                         )
                     }
@@ -121,18 +124,23 @@ fun ActivityPhoto(activity: ActivityDto, modifier: Modifier = Modifier) {
 }
 
 @Composable
-private fun PhotoActions(hasPhoto: Boolean, pickers: PhotoPickers, onRemove: () -> Unit) {
+private fun PhotoActions(hasPhoto: Boolean, pending: Boolean, pickers: PhotoPickers, onRetry: () -> Unit, onRemove: () -> Unit) {
     var menuOpen by remember { mutableStateOf(false) }
-    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        Box {
-            OutlinedButton(onClick = { menuOpen = true }) { Text(if (hasPhoto) "Foto ändern" else "Foto hinzufügen") }
-            DropdownMenu(expanded = menuOpen, onDismissRequest = { menuOpen = false }) {
-                DropdownMenuItem(text = { Text("🖼️ Galerie") }, onClick = { menuOpen = false; pickers.openGallery() })
-                DropdownMenuItem(text = { Text("📷 Kamera") }, onClick = { menuOpen = false; pickers.openCamera() })
-            }
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        if (pending) {
+            Button(onClick = onRetry) { Text("Foto erneut hochladen") }
         }
-        if (hasPhoto) {
-            TextButton(onClick = onRemove) { Text("Foto entfernen") }
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            Box {
+                OutlinedButton(onClick = { menuOpen = true }) { Text(if (hasPhoto) "Foto ändern" else "Foto hinzufügen") }
+                DropdownMenu(expanded = menuOpen, onDismissRequest = { menuOpen = false }) {
+                    DropdownMenuItem(text = { Text("🖼️ Galerie") }, onClick = { menuOpen = false; pickers.openGallery() })
+                    DropdownMenuItem(text = { Text("📷 Kamera") }, onClick = { menuOpen = false; pickers.openCamera() })
+                }
+            }
+            if (hasPhoto) {
+                TextButton(onClick = onRemove) { Text("Foto entfernen") }
+            }
         }
     }
 }
